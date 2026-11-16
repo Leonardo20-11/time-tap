@@ -305,11 +305,11 @@ function createButton() {
 
     if (type === "green") {
         btn.classList.add("green");
-        // Tre possibilità: +0.25s (250ms), +0.3s (300ms), +0.35s (350ms)
-        const greenOptions = new Array(0.25, 0.3, 0.35);
+        // Tre possibilità formattate a 3 cifre decimali: +0.250, +0.300, +0.350
+        const greenOptions = new Array(0.250, 0.300, 0.350);
         const value = greenOptions[Math.floor(Math.random() * greenOptions.length)];
         btn.dataset.value = value;
-        valueText = "+" + value;
+        valueText = "+" + value.toFixed(3);
     } else if (type === "red") {
         btn.classList.add("red");
         const redOptions = new Array(0.4, 0.5, 0.6, 0.7);
@@ -419,7 +419,7 @@ function activateButton(btn) {
         const wasCritical = time <= 0.6;
         const value = Number(btn.dataset.value);
 
-        time = Number((time + (doubleBonus ? value * 2 : value)).toFixed(2));
+        time = Number((time + (doubleBonus ? value * 2 : value)).toFixed(3));
         comboCount++;
         score += 100 + comboCount * 20;
 
@@ -435,7 +435,7 @@ function activateButton(btn) {
     } else if (action === "red") {
         playAudio(redSound, "red");
         const value = Number(btn.dataset.value);
-        time = Number((time - value).toFixed(2));
+        time = Number((time - value).toFixed(3));
         comboCount = 0;
 
         if (time <= 0) {

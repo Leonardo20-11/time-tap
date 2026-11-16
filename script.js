@@ -64,7 +64,6 @@ function initAudio() {
     if (audioCtx.state === "suspended") {
         audioCtx.resume();
     }
-    // Riproduce un micro-impulso silenzioso per sbloccare l'hardware audio su iPhone/Android
     const buffer = audioCtx.createBuffer(1, 1, 22050);
     const source = audioCtx.createBufferSource();
     source.buffer = buffer;
@@ -72,7 +71,6 @@ function initAudio() {
     source.start(0);
 }
 
-// Sblocca l'audio al primo tocco ovunque sullo schermo
 document.addEventListener("touchstart", initAudio, { once: true });
 document.addEventListener("pointerdown", initAudio, { once: true });
 
@@ -83,7 +81,6 @@ function playSynthEffect(type) {
     const now = audioCtx.currentTime;
 
     if (type === "green") {
-        // Suono "POP / DING" nitido allo scoppio del pallino verde
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = "triangle";
@@ -96,7 +93,6 @@ function playSynthEffect(type) {
         osc.start(now);
         osc.stop(now + 0.13);
     } else if (type === "red") {
-        // Suono basso allo scoppio del pallino rosso
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = "sawtooth";
@@ -309,8 +305,8 @@ function createButton() {
 
     if (type === "green") {
         btn.classList.add("green");
-        // Tre possibilità: +0.3s (300ms), +0.4s (400ms), +0.45s (450ms)
-        const greenOptions = new Array(0.3, 0.4, 0.45);
+        // Tre possibilità: +0.25s (250ms), +0.3s (300ms), +0.35s (350ms)
+        const greenOptions = new Array(0.25, 0.3, 0.35);
         const value = greenOptions[Math.floor(Math.random() * greenOptions.length)];
         btn.dataset.value = value;
         valueText = "+" + value;

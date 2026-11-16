@@ -305,8 +305,10 @@ function createButton() {
 
     if (type === "green") {
         btn.classList.add("green");
-        // Tre possibilità formattate a 3 cifre decimali: +0.250, +0.300, +0.350
-        const greenOptions = new Array(0.250, 0.300, 0.350);
+        // Su PC: 350, 400, 450 | Su telefono: 250, 300, 350
+        const greenOptions = isDesktop
+            ? new Array(0.350, 0.400, 0.450)
+            : new Array(0.250, 0.300, 0.350);
         const value = greenOptions[Math.floor(Math.random() * greenOptions.length)];
         btn.dataset.value = value;
         valueText = "+" + value.toFixed(3);

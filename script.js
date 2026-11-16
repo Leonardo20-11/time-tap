@@ -105,7 +105,7 @@ function playSynthEffect(type) {
         osc.start(now);
         osc.stop(now + 0.24);
     } else if (type === "gold") {
-        const goldNotes = new Array(523.25, 659.25, 783.99, 1046.50);
+        const goldNotes = [523.25, 659.25, 783.99, 1046.50];
         goldNotes.forEach((freq, idx) => {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
@@ -119,7 +119,7 @@ function playSynthEffect(type) {
             osc.stop(now + idx * 0.055 + 0.18);
         });
     } else if (type === "epic") {
-        const epicNotes = new Array(440, 554.37, 659.25, 880);
+        const epicNotes = [440, 554.37, 659.25, 880];
         epicNotes.forEach((freq) => {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
@@ -154,6 +154,28 @@ function playSynthEffect(type) {
         gain.connect(audioCtx.destination);
         osc.start(now);
         osc.stop(now + 0.25);
+    } else if (type === "gameover") {
+        const sadNotes = [
+            { freq: 311.13, start: 0.0, dur: 0.26, slide: false },
+            { freq: 293.66, start: 0.28, dur: 0.26, slide: false },
+            { freq: 277.18, start: 0.56, dur: 0.26, slide: false },
+            { freq: 261.63, start: 0.84, dur: 0.75, slide: true }
+        ];
+        sadNotes.forEach((n) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(n.freq, now + n.start);
+            if (n.slide) {
+                osc.frequency.linearRampToValueAtTime(220, now + n.start + n.dur);
+            }
+            gain.gain.setValueAtTime(0.32, now + n.start);
+            gain.gain.exponentialRampToValueAtTime(0.008, now + n.start + n.dur);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + n.start);
+            osc.stop(now + n.start + n.dur);
+        });
     }
 }
 
@@ -307,14 +329,14 @@ function createButton() {
         btn.classList.add("green");
         // Su PC: 400, 500, 550 | Su telefono: 300, 350, 400
         const greenOptions = isDesktop
-            ? new Array(0.400, 0.500, 0.550)
-            : new Array(0.300, 0.350, 0.400);
+            ? [0.400, 0.500, 0.550]
+            : [0.300, 0.350, 0.400];
         const value = greenOptions[Math.floor(Math.random() * greenOptions.length)];
         btn.dataset.value = value;
         valueText = "+" + value.toFixed(3);
     } else if (type === "red") {
         btn.classList.add("red");
-        const redOptions = new Array(0.4, 0.5, 0.6, 0.7);
+        const redOptions = [0.4, 0.5, 0.6, 0.7];
         const value = redOptions[Math.floor(Math.random() * redOptions.length)];
         btn.dataset.value = value;
         valueText = "-" + value.toFixed(1);
@@ -384,7 +406,7 @@ function createButton() {
 
 function spawnStars(x, y, isGold) {
     const count = isGold ? 18 : 9;
-    const icons = isGold ? new Array("⭐", "✨", "🌟", "💫") : new Array("✨", "⭐");
+    const icons = isGold ? ["⭐", "✨", "🌟", "💫"] : ["✨", "⭐"];
 
     for (let i = 0; i < count; i++) {
         const star = document.createElement("span");
@@ -533,6 +555,8 @@ function gameOver() {
     clearInterval(spawnInterval);
     if (bgMusic) bgMusic.pause();
 
+    playSynthEffect("gameover");
+
     while (activeButtons.length > 0) {
         const firstBtn = activeButtons.shift();
         if (firstBtn && firstBtn.parentNode) {
@@ -548,7 +572,7 @@ function gameOver() {
         localStorage.setItem("record", record);
         newRecordMessage.style.display = "block";
         isAnimatingRecord = true;
-        speakEnglish("New record!", 1.15, 1.25);
+        speakEnglish("Game over! New record!", 1.0, 1.0);
 
         finalRecord.textContent = "RECORD: 0";
         animateScoreCounter(finalRecord, "RECORD: ", record, () => {
@@ -556,6 +580,7 @@ function gameOver() {
         });
     } else {
         newRecordMessage.style.display = "none";
+        speakEnglish("Game over!", 0.9, 0.75);
         finalRecord.textContent = "RECORD: " + record.toLocaleString("it-IT");
     }
 }

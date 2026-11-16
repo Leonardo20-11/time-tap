@@ -2,13 +2,20 @@ const playBtn = document.getElementById("playBtn");
 const menu = document.getElementById("menu");
 const game = document.getElementById("game");
 
-const timerCircle = document.getElementById("timerCircle");
-const countdown = document.getElementById("countdown");
+const timerCircle =
+document.getElementById("timerCircle");
 
-const scoreText = document.getElementById("score");
-const comboText = document.getElementById("combo");
+const countdown =
+document.getElementById("countdown");
 
-const specialMessage = document.getElementById("specialMessage");
+const scoreText =
+document.getElementById("score");
+
+const comboText =
+document.getElementById("combo");
+
+const specialMessage =
+document.getElementById("specialMessage");
 
 const gameOverScreen =
 document.getElementById("gameOverScreen");
@@ -40,21 +47,6 @@ document.getElementById("goldSound");
 const epicSound =
 document.getElementById("epicSound");
 
-const threeSound =
-document.getElementById("threeSound");
-
-const twoSound =
-document.getElementById("twoSound");
-
-const oneSound =
-document.getElementById("oneSound");
-
-const goSound =
-document.getElementById("goSound");
-
-const bgMusic =
-document.getElementById("bgMusic");
-
 let time = 2.5;
 let score = 0;
 let comboCount = 0;
@@ -65,9 +57,11 @@ let doubleBonus = false;
 let record =
 localStorage.getItem("record") || 0;
 
-document.getElementById("record").textContent =
+document.getElementById("record")
+.textContent =
 "🏆 RECORD: " +
-Number(record).toLocaleString("it-IT");
+Number(record)
+.toLocaleString("it-IT");
 
 const activeButtons = [];
 
@@ -85,15 +79,16 @@ ArrowLeft:"←",
 ArrowRight:"→"
 };
 
-let buttonDuration = 1200;
+let buttonDuration = 1300;
 
 if(window.innerWidth > 900){
 
-    buttonDuration = 1550;
+    buttonDuration = 1700;
 
 }
 
-playBtn.onclick = startCountdown;
+playBtn.onclick =
+startCountdown;
 
 playAgainBtn.onclick =
 () => location.reload();
@@ -117,62 +112,34 @@ function startCountdown(){
 
     menu.style.display = "none";
 
-    countdown.style.display = "block";
+    countdown.style.display =
+    "block";
 
-    if(bgMusic){
+    countdown.textContent = "3";
 
-        bgMusic.volume = 0.45;
-
-        bgMusic.play().catch(()=>{});
-
-    }
-
-    const numbers =
-    ["3","2","1","GO!"];
-
-    let index = 0;
-
-    countdown.textContent =
-    numbers[index];
-
-    playAudio(threeSound);
-
-    const interval =
-    setInterval(()=>{
-
-        index++;
-
-        if(index >= numbers.length){
-
-            clearInterval(interval);
-
-            countdown.style.display =
-            "none";
-
-            game.style.display =
-            "block";
-
-            startGame();
-
-            return;
-        }
-
-        countdown.textContent =
-        numbers[index];
-
-        if(numbers[index] === "2"){
-            playAudio(twoSound);
-        }
-
-        if(numbers[index] === "1"){
-            playAudio(oneSound);
-        }
-
-        if(numbers[index] === "GO!"){
-            playAudio(goSound);
-        }
-
+    setTimeout(()=>{
+        countdown.textContent="2";
     },1000);
+
+    setTimeout(()=>{
+        countdown.textContent="1";
+    },2000);
+
+    setTimeout(()=>{
+        countdown.textContent="GO!";
+    },3000);
+
+    setTimeout(()=>{
+
+        countdown.style.display =
+        "none";
+
+        game.style.display =
+        "block";
+
+        startGame();
+
+    },4000);
 
 }
 
@@ -192,7 +159,7 @@ function startGame(){
         if(time <= 1){
 
             timerCircle.style.border =
-            "6px solid #ff4444";
+            "5px solid red";
 
         }
 
@@ -214,10 +181,9 @@ function startGame(){
 
         }
 
-    },320);
+    },300);
 
-}
-function createButton(){
+}function createButton(){
 
     const freeArrows =
     arrows.filter(a =>
@@ -225,7 +191,41 @@ function createButton(){
     b => b.dataset.key === a
     ));
 
-    if(freeArrows.length === 0) return;
+    if(freeArrows.length === 0)
+    return;
+
+    const greens =
+    activeButtons.filter(
+    b => b.dataset.action === "green"
+    ).length;
+
+    const reds =
+    activeButtons.filter(
+    b => b.dataset.action === "red"
+    ).length;
+
+    let type = "green";
+
+    if(greens >= 3){
+
+        type = "red";
+
+    }
+
+    if(reds >= 2){
+
+        type = "green";
+
+    }
+
+    if(
+    Math.random() < 0.02 &&
+    greens > 0
+    ){
+
+        type = "gold";
+
+    }
 
     const btn =
     document.createElement("button");
@@ -237,38 +237,23 @@ function createButton(){
     const key =
     freeArrows[
     Math.floor(
-    Math.random() *
+    Math.random()
+    *
     freeArrows.length
     )
     ];
 
-    let type = "green";
     let valueText = "";
-
-    if(Math.random() < 0.25){
-
-        type = "red";
-
-    }
-
-    if(Math.random() < 0.03){
-
-        type = "gold";
-
-    }
 
     if(type === "green"){
 
         btn.classList.add("green");
 
-        const values =
-        [0.2,0.3,0.4,0.5];
-
         const value =
-        values[
+        [0.2,0.3,0.4,0.5]
+        [
         Math.floor(
-        Math.random() *
-        values.length
+        Math.random()*4
         )
         ];
 
@@ -278,18 +263,15 @@ function createButton(){
         valueText =
         "+" + value;
 
-    }else if(type === "red"){
+    }else if(type==="red"){
 
         btn.classList.add("red");
 
-        const values =
-        [0.4,0.5,0.6,0.7];
-
         const value =
-        values[
+        [0.4,0.5,0.6,0.7]
+        [
         Math.floor(
-        Math.random() *
-        values.length
+        Math.random()*4
         )
         ];
 
@@ -311,49 +293,84 @@ function createButton(){
     btn.dataset.action = type;
 
     btn.innerHTML =
-    `<div class="arrow">${symbols[key]}</div>
-     <div class="value">${valueText}</div>`;
+
+    `<div class="arrow">
+    ${symbols[key]}
+    </div>
+
+    <div class="value">
+    ${valueText}
+    </div>`;
 
     let x;
     let y;
-    let valid = false;
 
-    while(!valid){
+    let valid = false;
+    let attempts = 0;
+
+    while(
+        !valid &&
+        attempts < 50
+    ){
+
+        attempts++;
 
         x =
-        Math.random() *
-        (window.innerWidth - 150);
+        Math.random()
+        *
+        (window.innerWidth-120);
 
         y =
-        Math.random() *
-        (window.innerHeight - 150);
+        Math.random()
+        *
+        (window.innerHeight-120);
 
         valid = true;
 
         if(
-            x > window.innerWidth/2 - 240 &&
-            x < window.innerWidth/2 + 120 &&
-            y > window.innerHeight/2 - 240 &&
-            y < window.innerHeight/2 + 120
+        x >
+        window.innerWidth/2-320 &&
+        x <
+        window.innerWidth/2+180 &&
+        y >
+        window.innerHeight/2-320 &&
+        y <
+        window.innerHeight/2+180
         ){
             valid = false;
         }
 
-        activeButtons.forEach(existing=>{
+        activeButtons.forEach(
+        existing=>{
 
             const ex =
-            parseInt(existing.style.left);
+            parseInt(
+            existing.style.left
+            );
 
             const ey =
-            parseInt(existing.style.top);
+            parseInt(
+            existing.style.top
+            );
 
             const distance =
             Math.sqrt(
-            Math.pow(x-ex,2) +
-            Math.pow(y-ey,2)
+
+            Math.pow(
+            x-ex,
+            2
+            )
+
+            +
+
+            Math.pow(
+            y-ey,
+            2
+            )
+
             );
 
-            if(distance < 160){
+            if(distance < 210){
 
                 valid = false;
 
@@ -363,11 +380,18 @@ function createButton(){
 
     }
 
-    btn.style.left = x + "px";
-    btn.style.top = y + "px";
+    if(!valid){
+        return;
+    }
+
+    btn.style.left =
+    x + "px";
+
+    btn.style.top =
+    y + "px";
 
     btn.onclick =
-    ()=>activateButton(btn);
+    () => activateButton(btn);
 
     document.body.appendChild(btn);
 
@@ -383,16 +407,10 @@ function createButton(){
 
 function activateButton(btn){
 
-    if(navigator.vibrate){
-
-        navigator.vibrate(20);
-
-    }
-
     const action =
     btn.dataset.action;
 
-    if(action === "green"){
+    if(action==="green"){
 
         playAudio(greenSound);
 
@@ -401,31 +419,18 @@ function activateButton(btn){
 
         time +=
         doubleBonus
-        ? value * 2
+        ? value*2
         : value;
 
         comboCount++;
 
-        let gained =
+        score +=
         100 +
-        comboCount * 20;
+        comboCount*20;
 
-        if(time <= 0.6){
-
-            playAudio(epicSound);
-
-            showMessage(
-            "EPIC SAVE!"
-            );
-
-            gained *= 2;
-
-        }
-
-        score += gained;
     }
 
-    if(action === "red"){
+    if(action==="red"){
 
         playAudio(redSound);
 
@@ -437,7 +442,7 @@ function activateButton(btn){
         comboCount = 0;
     }
 
-    if(action === "gold"){
+    if(action==="gold"){
 
         playAudio(goldSound);
 
@@ -452,6 +457,7 @@ function activateButton(btn){
             doubleBonus = false;
 
         },5000);
+
     }
 
     scoreText.textContent =
@@ -463,37 +469,7 @@ function activateButton(btn){
     "COMBO " +
     comboCount;
 
-    checkCombo();
-
     removeButton(btn);
-}
-
-function checkCombo(){
-
-    if(comboCount >= 100){
-        showMessage("TIME MASTER!");
-    }
-    else if(comboCount >= 75){
-        showMessage("UNSTOPPABLE!");
-    }
-    else if(comboCount >= 50){
-        showMessage("IMMORTAL!");
-    }
-    else if(comboCount >= 40){
-        showMessage("GODLIKE!");
-    }
-    else if(comboCount >= 30){
-        showMessage("LEGENDARY!");
-    }
-    else if(comboCount >= 20){
-        showMessage("INCREDIBLE!");
-    }
-    else if(comboCount >= 10){
-        showMessage("AMAZING!");
-    }
-    else if(comboCount >= 5){
-        showMessage("FANTASTIC!");
-    }
 }
 
 function showMessage(text){
@@ -510,11 +486,13 @@ function showMessage(text){
         "none";
 
     },1200);
+
 }
 
 function removeButton(btn){
 
-    if(!btn.parentNode) return;
+    if(!btn.parentNode)
+    return;
 
     const index =
     activeButtons.indexOf(btn);
@@ -525,9 +503,11 @@ function removeButton(btn){
         index,
         1
         );
+
     }
 
     btn.remove();
+
 }
 
 function gameOver(){
@@ -543,12 +523,9 @@ function gameOver(){
         record
         );
 
-        if(newRecordMessage){
+        newRecordMessage.style.display =
+        "block";
 
-            newRecordMessage.style.display =
-            "block";
-
-        }
     }
 
     finalScore.textContent =
@@ -563,6 +540,7 @@ function gameOver(){
 
     gameOverScreen.style.display =
     "flex";
+
 }
 
 document.addEventListener(
@@ -578,7 +556,9 @@ document.addEventListener(
 
     if(target){
 
-        activateButton(target);
+        activateButton(
+        target
+        );
 
     }
 

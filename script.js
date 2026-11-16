@@ -48,7 +48,6 @@ const symbols = {
 };
 
 const isDesktop = window.innerWidth > 900;
-// Su telefono ridotto di 200ms (da 1550ms a 1350ms) per renderlo più sfidante
 let buttonDuration = isDesktop ? 1850 : 1350;
 let spawnDelay = isDesktop ? 240 : 260;
 
@@ -56,16 +55,26 @@ let spawnDelay = isDesktop ? 240 : 260;
 let audioCtx = null;
 
 function initAudio() {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+
     if (!audioCtx) {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (AudioContext) {
-            audioCtx = new AudioContext();
-        }
+        audioCtx = new AudioCtx();
     }
-    if (audioCtx && audioCtx.state === "suspended") {
+    if (audioCtx.state === "suspended") {
         audioCtx.resume();
     }
+    // Riproduce un micro-impulso silenzioso per sbloccare l'hardware audio su iPhone/Android
+    const buffer = audioCtx.createBuffer(1, 1, 22050);
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(audioCtx.destination);
+    source.start(0);
 }
+
+// Sblocca l'audio al primo tocco ovunque sullo schermo
+document.addEventListener("touchstart", initAudio, { once: true });
+document.addEventListener("pointerdown", initAudio, { once: true });
 
 function playSynthEffect(type) {
     initAudio();
@@ -74,37 +83,39 @@ function playSynthEffect(type) {
     const now = audioCtx.currentTime;
 
     if (type === "green") {
+        // Suono "POP / DING" nitido allo scoppio del pallino verde
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(520, now);
-        osc.frequency.exponentialRampToValueAtTime(980, now + 0.12);
-        gain.gain.setValueAtTime(0.35, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(580, now);
+        osc.frequency.exponentialRampToValueAtTime(1150, now + 0.11);
+        gain.gain.setValueAtTime(0.55, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.13);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start(now);
-        osc.stop(now + 0.14);
+        osc.stop(now + 0.13);
     } else if (type === "red") {
+        // Suono basso allo scoppio del pallino rosso
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = "sawtooth";
-        osc.frequency.setValueAtTime(190, now);
-        osc.frequency.linearRampToValueAtTime(95, now + 0.22);
-        gain.gain.setValueAtTime(0.35, now);
+        osc.frequency.setValueAtTime(210, now);
+        osc.frequency.linearRampToValueAtTime(85, now + 0.22);
+        gain.gain.setValueAtTime(0.5, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.24);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start(now);
         osc.stop(now + 0.24);
     } else if (type === "gold") {
-        const notes =[523.25, 659.25, 783.99, 1046.50];
-        notes.forEach((freq, idx) => {
+        const goldNotes = new Array(523.25, 659.25, 783.99, 1046.50);
+        goldNotes.forEach((freq, idx) => {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = "triangle";
             osc.frequency.setValueAtTime(freq, now + idx * 0.055);
-            gain.gain.setValueAtTime(0.3, now + idx * 0.055);
+            gain.gain.setValueAtTime(0.45, now + idx * 0.055);
             gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.055 + 0.18);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
@@ -112,13 +123,13 @@ function playSynthEffect(type) {
             osc.stop(now + idx * 0.055 + 0.18);
         });
     } else if (type === "epic") {
-        const notes =[440, 554.37, 659.25, 880];
-        notes.forEach((freq) => {
+        const epicNotes = new Array(440, 554.37, 659.25, 880);
+        epicNotes.forEach((freq) => {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = "triangle";
             osc.frequency.setValueAtTime(freq, now);
-            gain.gain.setValueAtTime(0.22, now);
+            gain.gain.setValueAtTime(0.35, now);
             gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
@@ -130,7 +141,7 @@ function playSynthEffect(type) {
         const gain = audioCtx.createGain();
         osc.type = "sine";
         osc.frequency.setValueAtTime(440, now);
-        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.setValueAtTime(0.35, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
@@ -141,7 +152,7 @@ function playSynthEffect(type) {
         const gain = audioCtx.createGain();
         osc.type = "sine";
         osc.frequency.setValueAtTime(880, now);
-        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.setValueAtTime(0.45, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
@@ -195,7 +206,7 @@ if ("speechSynthesis" in window) {
 }
 
 function startCountdown() {
-    initAudio(); // Sblocca subito l'audio sul telefono al primo tap
+    initAudio();
     menu.style.display = "none";
     countdown.style.display = "block";
     countdown.textContent = "3";
@@ -225,7 +236,7 @@ function startCountdown() {
         game.style.display = "block";
         if (bgMusic) {
             bgMusic.currentTime = 0;
-            bgMusic.volume = 0.45;
+            bgMusic.volume = 0.4;
             bgMusic.play().catch(() => {});
         }
         startGame();
@@ -238,9 +249,7 @@ function startGame() {
     timerInterval = setInterval(() => {
         if (!running) return;
 
-        time -= 0.1;
-        if (time < 0) time = 0;
-
+        time = Math.max(0, Number((time - 0.1).toFixed(2)));
         timerCircle.textContent = time.toFixed(1);
 
         if (time <= 1.0) {
@@ -300,12 +309,15 @@ function createButton() {
 
     if (type === "green") {
         btn.classList.add("green");
-        const value = [0.5, 0.6, 0.7, 0.8][Math.floor(Math.random() * 4)];
+        // Tre possibilità: +0.3s (300ms), +0.4s (400ms), +0.45s (450ms)
+        const greenOptions = new Array(0.3, 0.4, 0.45);
+        const value = greenOptions[Math.floor(Math.random() * greenOptions.length)];
         btn.dataset.value = value;
-        valueText = "+" + value.toFixed(1);
+        valueText = "+" + value;
     } else if (type === "red") {
         btn.classList.add("red");
-        const value = [0.4, 0.5, 0.6, 0.7][Math.floor(Math.random() * 4)];
+        const redOptions = new Array(0.4, 0.5, 0.6, 0.7);
+        const value = redOptions[Math.floor(Math.random() * redOptions.length)];
         btn.dataset.value = value;
         valueText = "-" + value.toFixed(1);
     } else {
@@ -374,7 +386,7 @@ function createButton() {
 
 function spawnStars(x, y, isGold) {
     const count = isGold ? 18 : 9;
-    const icons = isGold ? ["⭐", "✨", "🌟", "💫"] : ["✨", "⭐"];
+    const icons = isGold ? new Array("⭐", "✨", "🌟", "💫") : new Array("✨", "⭐");
 
     for (let i = 0; i < count; i++) {
         const star = document.createElement("span");
@@ -411,7 +423,7 @@ function activateButton(btn) {
         const wasCritical = time <= 0.6;
         const value = Number(btn.dataset.value);
 
-        time += doubleBonus ? value * 2 : value;
+        time = Number((time + (doubleBonus ? value * 2 : value)).toFixed(2));
         comboCount++;
         score += 100 + comboCount * 20;
 
@@ -427,7 +439,7 @@ function activateButton(btn) {
     } else if (action === "red") {
         playAudio(redSound, "red");
         const value = Number(btn.dataset.value);
-        time -= value;
+        time = Number((time - value).toFixed(2));
         comboCount = 0;
 
         if (time <= 0) {
@@ -524,7 +536,10 @@ function gameOver() {
     if (bgMusic) bgMusic.pause();
 
     while (activeButtons.length > 0) {
-        removeButton(activeButtons[0]);
+        const firstBtn = activeButtons.shift();
+        if (firstBtn && firstBtn.parentNode) {
+            firstBtn.remove();
+        }
     }
 
     gameOverScreen.style.display = "flex";

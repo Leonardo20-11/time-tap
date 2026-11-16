@@ -1,565 +1,457 @@
 const playBtn = document.getElementById("playBtn");
 const menu = document.getElementById("menu");
 const game = document.getElementById("game");
+const timerCircle = document.getElementById("timerCircle");
+const countdown = document.getElementById("countdown");
+const scoreText = document.getElementById("score");
+const comboText = document.getElementById("combo");
+const specialMessage = document.getElementById("specialMessage");
+const gameOverScreen = document.getElementById("gameOverScreen");
+const finalScore = document.getElementById("finalScore");
+const finalRecord = document.getElementById("finalRecord");
+const playAgainBtn = document.getElementById("playAgainBtn");
+const homeBtn = document.getElementById("homeBtn");
+const newRecordMessage = document.getElementById("newRecordMessage");
 
-const timerCircle =
-document.getElementById("timerCircle");
-
-const countdown =
-document.getElementById("countdown");
-
-const scoreText =
-document.getElementById("score");
-
-const comboText =
-document.getElementById("combo");
-
-const specialMessage =
-document.getElementById("specialMessage");
-
-const gameOverScreen =
-document.getElementById("gameOverScreen");
-
-const finalScore =
-document.getElementById("finalScore");
-
-const finalRecord =
-document.getElementById("finalRecord");
-
-const playAgainBtn =
-document.getElementById("playAgainBtn");
-
-const homeBtn =
-document.getElementById("homeBtn");
-
-const newRecordMessage =
-document.getElementById("newRecordMessage");
-
-const greenSound =
-document.getElementById("greenSound");
-
-const redSound =
-document.getElementById("redSound");
-
-const goldSound =
-document.getElementById("goldSound");
-
-const epicSound =
-document.getElementById("epicSound");
+const greenSound = document.getElementById("greenSound");
+const redSound = document.getElementById("redSound");
+const goldSound = document.getElementById("goldSound");
+const epicSound = document.getElementById("epicSound");
+const threeSound = document.getElementById("threeSound");
+const twoSound = document.getElementById("twoSound");
+const oneSound = document.getElementById("oneSound");
+const goSound = document.getElementById("goSound");
+const bgMusic = document.getElementById("bgMusic");
 
 let time = 2.5;
 let score = 0;
 let comboCount = 0;
-
 let running = false;
 let doubleBonus = false;
+let isAnimatingRecord = false;
 
-let record =
-localStorage.getItem("record") || 0;
+let timerInterval = null;
+let spawnInterval = null;
+let messageTimeout = null;
 
-document.getElementById("record")
-.textContent =
-"🏆 RECORD: " +
-Number(record)
-.toLocaleString("it-IT");
+let record = Number(localStorage.getItem("record")) || 0;
+document.getElementById("record").textContent =
+    "🏆 RECORD: " + record.toLocaleString("it-IT");
 
 const activeButtons = [];
-
-const arrows = [
-"ArrowUp",
-"ArrowDown",
-"ArrowLeft",
-"ArrowRight"
-];
-
+const arrows = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
 const symbols = {
-ArrowUp:"↑",
-ArrowDown:"↓",
-ArrowLeft:"←",
-ArrowRight:"→"
+    ArrowUp: "↑",
+    ArrowDown: "↓",
+    ArrowLeft: "←",
+    ArrowRight: "→"
 };
 
-let buttonDuration = 1300;
+const isDesktop = window.innerWidth > 900;
+// Durata aumentata per rendere i pulsanti verdi più comodi da prendere
+let buttonDuration = isDesktop ? 1850 : 1550;
+let spawnDelay = isDesktop ? 240 : 280;
 
-if(window.innerWidth > 900){
+playBtn.onclick = startCountdown;
 
-    buttonDuration = 1700;
+playAgainBtn.onclick = () => {
+    if (!isAnimatingRecord) location.reload();
+};
 
-}
+homeBtn.onclick = () => {
+    if (!isAnimatingRecord) location.reload();
+};
 
-playBtn.onclick =
-startCountdown;
-
-playAgainBtn.onclick =
-() => location.reload();
-
-homeBtn.onclick =
-() => location.reload();
-
-function playAudio(sound){
-
-    if(!sound) return;
-
+function playAudio(sound) {
+    if (!sound) return;
     sound.currentTime = 0;
-
     sound.volume = 1;
-
-    sound.play().catch(()=>{});
-
+    sound.play().catch(() => {});
 }
 
-function startCountdown(){
+// Voce sintetizzata in inglese
+function speakEnglish(phrase, rate = 1.15, pitch = 1.15) {
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(phrase);
+    utterance.lang = "en-US";
+    utterance.rate = rate;
+    utterance.pitch = pitch;
+    utterance.volume = 1;
 
+    const voices = window.speechSynthesis.getVoices();
+    const englishVoice = voices.find(v => v.lang.startsWith("en-US")) ||
+                         voices.find(v => v.lang.startsWith("en"));
+    if (englishVoice) {
+        utterance.voice = englishVoice;
+    }
+
+    window.speechSynthesis.speak(utterance);
+}
+
+if ("speechSynthesis" in window) {
+    window.speechSynthesis.getVoices();
+}
+
+function startCountdown() {
     menu.style.display = "none";
-
-    countdown.style.display =
-    "block";
-
+    countdown.style.display = "block";
     countdown.textContent = "3";
+    playAudio(threeSound);
+    speakEnglish("Three!", 1.1, 1.1);
 
-    setTimeout(()=>{
-        countdown.textContent="2";
-    },1000);
+    setTimeout(() => {
+        countdown.textContent = "2";
+        playAudio(twoSound);
+        speakEnglish("Two!", 1.1, 1.15);
+    }, 1000);
 
-    setTimeout(()=>{
-        countdown.textContent="1";
-    },2000);
+    setTimeout(() => {
+        countdown.textContent = "1";
+        playAudio(oneSound);
+        speakEnglish("One!", 1.1, 1.2);
+    }, 2000);
 
-    setTimeout(()=>{
-        countdown.textContent="GO!";
-    },3000);
+    setTimeout(() => {
+        countdown.textContent = "GO!";
+        playAudio(goSound);
+        speakEnglish("Go!", 1.25, 1.3);
+    }, 3000);
 
-    setTimeout(()=>{
-
-        countdown.style.display =
-        "none";
-
-        game.style.display =
-        "block";
-
+    setTimeout(() => {
+        countdown.style.display = "none";
+        game.style.display = "block";
+        if (bgMusic) {
+            bgMusic.currentTime = 0;
+            bgMusic.volume = 0.45;
+            bgMusic.play().catch(() => {});
+        }
         startGame();
-
-    },4000);
-
+    }, 4000);
 }
 
-function startGame(){
-
+function startGame() {
     running = true;
 
-    setInterval(()=>{
-
-        if(!running) return;
+    timerInterval = setInterval(() => {
+        if (!running) return;
 
         time -= 0.1;
+        if (time < 0) time = 0;
 
-        timerCircle.textContent =
-        time.toFixed(1);
+        timerCircle.textContent = time.toFixed(1);
 
-        if(time <= 1){
-
-            timerCircle.style.border =
-            "5px solid red";
-
+        if (time <= 1.0) {
+            timerCircle.style.border = "6px solid #ef4444";
+            timerCircle.style.boxShadow = "0 10px 0 #8e1b1b, 0 0 25px rgba(239, 68, 68, 0.8)";
+        } else {
+            timerCircle.style.border = "6px solid #ffffff";
+            timerCircle.style.boxShadow = "0 10px 0 #1e3a8a, 0 18px 28px rgba(0, 0, 0, 0.45)";
         }
 
-        if(time <= 0){
-
+        if (time <= 0) {
             gameOver();
-
         }
+    }, 100);
 
-    },100);
-
-    setInterval(()=>{
-
-        if(!running) return;
-
-        if(activeButtons.length < 5){
-
+    createButton();
+    spawnInterval = setInterval(() => {
+        if (!running) return;
+        if (activeButtons.length < 4) {
             createButton();
-
         }
+    }, spawnDelay);
+}
 
-    },300);
+function createButton() {
+    const freeArrows = arrows.filter(
+        a => !activeButtons.some(b => b.dataset.key === a)
+    );
 
-}function createButton(){
+    if (freeArrows.length === 0) return;
 
-    const freeArrows =
-    arrows.filter(a =>
-    !activeButtons.some(
-    b => b.dataset.key === a
-    ));
-
-    if(freeArrows.length === 0)
-    return;
-
-    const greens =
-    activeButtons.filter(
-    b => b.dataset.action === "green"
-    ).length;
-
-    const reds =
-    activeButtons.filter(
-    b => b.dataset.action === "red"
-    ).length;
+    const greens = activeButtons.filter(b => b.dataset.action === "green").length;
+    const reds = activeButtons.filter(b => b.dataset.action === "red").length;
 
     let type = "green";
 
-    if(greens >= 3){
-
+    // Massimo 3 verdi e 2 rossi, mai tutti verdi
+    if (greens >= 3) {
         type = "red";
-
-    }
-
-    if(reds >= 2){
-
+    } else if (reds >= 2) {
         type = "green";
-
+    } else if (greens === 2 && reds === 0) {
+        type = "red";
+    } else {
+        type = Math.random() < 0.6 ? "green" : "red";
     }
 
-    if(
-    Math.random() < 0.02 &&
-    greens > 0
-    ){
-
+    // Pulsante Oro molto raro: appare SOLO se timer < 2.5s (1.5% di probabilità)
+    if (time < 2.5 && greens > 0 && Math.random() < 0.015) {
         type = "gold";
-
     }
 
-    const btn =
-    document.createElement("button");
+    const btn = document.createElement("button");
+    btn.classList.add("button-circle");
 
-    btn.classList.add(
-    "button-circle"
-    );
-
-    const key =
-    freeArrows[
-    Math.floor(
-    Math.random()
-    *
-    freeArrows.length
-    )
-    ];
-
+    const key = freeArrows[Math.floor(Math.random() * freeArrows.length)];
     let valueText = "";
 
-    if(type === "green"){
-
+    if (type === "green") {
         btn.classList.add("green");
-
-        const value =
-        [0.2,0.3,0.4,0.5]
-        [
-        Math.floor(
-        Math.random()*4
-        )
-        ];
-
-        btn.dataset.value =
-        value;
-
-        valueText =
-        "+" + value;
-
-    }else if(type==="red"){
-
+        const value = [0.5, 0.6, 0.7, 0.8][Math.floor(Math.random() * 4)];
+        btn.dataset.value = value;
+        valueText = "+" + value.toFixed(1);
+    } else if (type === "red") {
         btn.classList.add("red");
-
-        const value =
-        [0.4,0.5,0.6,0.7]
-        [
-        Math.floor(
-        Math.random()*4
-        )
-        ];
-
-        btn.dataset.value =
-        value;
-
-        valueText =
-        "-" + value;
-
-    }else{
-
+        const value = [0.4, 0.5, 0.6, 0.7][Math.floor(Math.random() * 4)];
+        btn.dataset.value = value;
+        valueText = "-" + value.toFixed(1);
+    } else {
         btn.classList.add("gold");
-
         valueText = "x2";
-
     }
 
     btn.dataset.key = key;
     btn.dataset.action = type;
-
-    btn.innerHTML =
-
-    `<div class="arrow">
-    ${symbols[key]}
-    </div>
-
-    <div class="value">
-    ${valueText}
-    </div>`;
-
-    let x;
-    let y;
-
+    btn.innerHTML = `
+        <div class="arrow">${symbols[key]}</div>
+        <div class="value">${valueText}</div>
+    `;
+const btnSize = 92;
+    const margin = 15;
+    let x, y;
     let valid = false;
     let attempts = 0;
 
-    while(
-        !valid &&
-        attempts < 50
-    ){
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
 
+    while (!valid && attempts < 80) {
         attempts++;
-
-        x =
-        Math.random()
-        *
-        (window.innerWidth-120);
-
-        y =
-        Math.random()
-        *
-        (window.innerHeight-120);
+        x = margin + Math.random() * (window.innerWidth - btnSize - margin * 2);
+        y = 85 + Math.random() * (window.innerHeight - btnSize - 105);
 
         valid = true;
 
-        if(
-        x >
-        window.innerWidth/2-320 &&
-        x <
-        window.innerWidth/2+180 &&
-        y >
-        window.innerHeight/2-320 &&
-        y <
-        window.innerHeight/2+180
-        ){
+        // Non copre il cerchio centrale
+        const distCenter = Math.hypot((x + btnSize / 2) - centerX, (y + btnSize / 2) - centerY);
+        if (distCenter < 155) {
             valid = false;
         }
 
-        activeButtons.forEach(
-        existing=>{
-
-            const ex =
-            parseInt(
-            existing.style.left
-            );
-
-            const ey =
-            parseInt(
-            existing.style.top
-            );
-
-            const distance =
-            Math.sqrt(
-
-            Math.pow(
-            x-ex,
-            2
-            )
-
-            +
-
-            Math.pow(
-            y-ey,
-            2
-            )
-
-            );
-
-            if(distance < 210){
-
-                valid = false;
-
+        // Non si sovrappone agli altri pulsanti
+        if (valid) {
+            for (const existing of activeButtons) {
+                const ex = parseFloat(existing.style.left);
+                const ey = parseFloat(existing.style.top);
+                const distance = Math.hypot(x - ex, y - ey);
+                if (distance < 115) {
+                    valid = false;
+                    break;
+                }
             }
-
-        });
-
+        }
     }
 
-    if(!valid){
-        return;
-    }
+    if (!valid) return;
 
-    btn.style.left =
-    x + "px";
+    btn.style.left = x + "px";
+    btn.style.top = y + "px";
 
-    btn.style.top =
-    y + "px";
+    btn.onpointerdown = (e) => {
+        e.preventDefault();
+        activateButton(btn);
+    };
 
-    btn.onclick =
-    () => activateButton(btn);
-
-    document.body.appendChild(btn);
-
+    game.appendChild(btn);
     activeButtons.push(btn);
 
-    setTimeout(()=>{
-
+    setTimeout(() => {
         removeButton(btn);
-
-    },buttonDuration);
-
+    }, buttonDuration);
 }
 
-function activateButton(btn){
+function spawnStars(x, y, isGold) {
+    const count = isGold ? 18 : 9;
+    const icons = isGold ? ["⭐", "✨", "🌟", "💫"] : ["✨", "⭐"];
 
-    const action =
-    btn.dataset.action;
+    for (let i = 0; i < count; i++) {
+        const star = document.createElement("span");
+        star.className = "star-particle";
+        star.textContent = icons[Math.floor(Math.random() * icons.length)];
 
-    if(action==="green"){
+        const angle = (Math.PI * 2 * i) / count + (Math.random() * 0.4);
+        const radius = 12 + Math.random() * 26;
+        const dx = Math.cos(angle) * radius;
+        const dy = Math.sin(angle) * radius;
 
-        playAudio(greenSound);
+        star.style.left = x + "px";
+        star.style.top = y + "px";
+        star.style.setProperty("--dx", dx + "px");
+        star.style.setProperty("--dy", dy + "px");
 
-        const value =
-        Number(btn.dataset.value);
+        game.appendChild(star);
 
-        time +=
-        doubleBonus
-        ? value*2
-        : value;
+        setTimeout(() => {
+            star.remove();
+        }, 550);
+    }
+}
 
+function activateButton(btn) {
+    if (!btn.parentNode || !running) return;
+
+    const action = btn.dataset.action;
+    const rect = btn.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    if (action === "green") {
+        const wasCritical = time <= 0.6;
+        const value = Number(btn.dataset.value);
+
+        time += doubleBonus ? value * 2 : value;
         comboCount++;
+        score += 100 + comboCount * 20;
 
-        score +=
-        100 +
-        comboCount*20;
+        spawnStars(centerX, centerY, false);
 
-    }
-
-    if(action==="red"){
-
+        if (wasCritical) {
+            playAudio(epicSound);
+            showMessage("EPIC SAVE!", "Epic save!");
+        } else {
+            playAudio(greenSound);
+            checkComboMessages();
+        }
+    } else if (action === "red") {
         playAudio(redSound);
-
-        const value =
-        Number(btn.dataset.value);
-
+        const value = Number(btn.dataset.value);
         time -= value;
-
         comboCount = 0;
-    }
 
-    if(action==="gold"){
-
+        if (time <= 0) {
+            time = 0;
+            timerCircle.textContent = "0.0";
+            removeButton(btn);
+            gameOver();
+            return;
+        }
+    } else if (action === "gold") {
         playAudio(goldSound);
-
         doubleBonus = true;
+        spawnStars(centerX, centerY, true);
+        showMessage("INCREDIBLE!", "Incredible!");
 
-        showMessage(
-        "INCREDIBLE!"
-        );
-
-        setTimeout(()=>{
-
+        setTimeout(() => {
             doubleBonus = false;
-
-        },5000);
-
+        }, 5000);
     }
 
-    scoreText.textContent =
-    "SCORE: " +
-    Number(score)
-    .toLocaleString("it-IT");
-
-    comboText.textContent =
-    "COMBO " +
-    comboCount;
+    timerCircle.textContent = time.toFixed(1);
+    scoreText.textContent = "SCORE: " + score.toLocaleString("it-IT");
+    comboText.textContent = "COMBO " + comboCount;
 
     removeButton(btn);
 }
 
-function showMessage(text){
-
-    specialMessage.textContent =
-    text;
-
-    specialMessage.style.display =
-    "block";
-
-    setTimeout(()=>{
-
-        specialMessage.style.display =
-        "none";
-
-    },1200);
-
+function checkComboMessages() {
+    if (comboCount === 5) {
+        showMessage("GREAT!", "Great!");
+    } else if (comboCount === 10) {
+        showMessage("FANTASTIC!", "Fantastic!");
+    } else if (comboCount === 15) {
+        showMessage("AMAZING!", "Amazing!");
+    } else if (comboCount === 20) {
+        showMessage("UNBELIEVABLE!", "Unbelievable!");
+    } else if (comboCount > 0 && comboCount % 25 === 0) {
+        showMessage("LEGENDARY!", "Legendary!");
+    }
 }
 
-function removeButton(btn){
+function showMessage(text, spokenText = "") {
+    clearTimeout(messageTimeout);
+    specialMessage.textContent = text;
+    specialMessage.style.display = "none";
+    void specialMessage.offsetWidth;
+    specialMessage.style.display = "block";
 
-    if(!btn.parentNode)
-    return;
-
-    const index =
-    activeButtons.indexOf(btn);
-
-    if(index > -1){
-
-        activeButtons.splice(
-        index,
-        1
-        );
-
+    if (spokenText) {
+        speakEnglish(spokenText, 1.2, 1.25);
     }
 
-    btn.remove();
-
+    messageTimeout = setTimeout(() => {
+        specialMessage.style.display = "none";
+    }, 1100);
 }
 
-function gameOver(){
+function removeButton(btn) {
+    if (!btn) return;
+    const index = activeButtons.indexOf(btn);
+    if (index > -1) {
+        activeButtons.splice(index, 1);
+    }
+    if (btn.parentNode) {
+        btn.remove();
+    }
+}
 
+function animateScoreCounter(element, prefix, targetValue, onComplete) {
+    let current = 0;
+    const duration = 1400;
+    const steps = 45;
+    const increment = targetValue / steps;
+    const stepTime = duration / steps;
+
+    const counter = setInterval(() => {
+        current += increment;
+        if (current >= targetValue) {
+            current = targetValue;
+            clearInterval(counter);
+            element.textContent = prefix + Math.round(current).toLocaleString("it-IT");
+            if (onComplete) onComplete();
+        } else {
+            element.textContent = prefix + Math.round(current).toLocaleString("it-IT");
+        }
+    }, stepTime);
+}
+
+function gameOver() {
+    if (!running) return;
     running = false;
+    clearInterval(timerInterval);
+    clearInterval(spawnInterval);
+    if (bgMusic) bgMusic.pause();
 
-    if(score > record){
-
-        record = score;
-
-        localStorage.setItem(
-        "record",
-        record
-        );
-
-        newRecordMessage.style.display =
-        "block";
-
+    // Fix: rimuove correttamente tutti i pulsanti attivi senza creare loop infiniti
+    while (activeButtons.length > 0) {
+        removeButton(activeButtons[0]);
     }
 
-    finalScore.textContent =
-    "SCORE: " +
-    Number(score)
-    .toLocaleString("it-IT");
+    gameOverScreen.style.display = "flex";
+    finalScore.textContent = "SCORE: " + score.toLocaleString("it-IT");
 
-    finalRecord.textContent =
-    "RECORD: " +
-    Number(record)
-    .toLocaleString("it-IT");
+    if (score > record && score > 0) {
+        record = score;
+        localStorage.setItem("record", record);
+        newRecordMessage.style.display = "block";
+        isAnimatingRecord = true;
+        speakEnglish("New record!", 1.15, 1.25);
 
-    gameOverScreen.style.display =
-    "flex";
-
+        finalRecord.textContent = "RECORD: 0";
+        animateScoreCounter(finalRecord, "RECORD: ", record, () => {
+            isAnimatingRecord = false;
+        });
+    } else {
+        newRecordMessage.style.display = "none";
+        finalRecord.textContent = "RECORD: " + record.toLocaleString("it-IT");
+    }
 }
 
-document.addEventListener(
-"keydown",
-(event)=>{
-
-    const target =
-    activeButtons.find(
-    b =>
-    b.dataset.key ===
-    event.key
-    );
-
-    if(target){
-
-        activateButton(
-        target
-        );
-
+document.addEventListener("keydown", (event) => {
+    if (!running) return;
+    const target = activeButtons.find(b => b.dataset.key === event.key);
+    if (target) {
+        activateButton(target);
     }
-
 });

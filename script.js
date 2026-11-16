@@ -48,9 +48,107 @@ const symbols = {
 };
 
 const isDesktop = window.innerWidth > 900;
-// Durata aumentata per rendere i pulsanti verdi più comodi da prendere
-let buttonDuration = isDesktop ? 1850 : 1550;
-let spawnDelay = isDesktop ? 240 : 280;
+// Su telefono ridotto di 200ms (da 1550ms a 1350ms) per renderlo più sfidante
+let buttonDuration = isDesktop ? 1850 : 1350;
+let spawnDelay = isDesktop ? 240 : 260;
+
+// --- MOTORE AUDIO SINTETIZZATO PER TELEFONO E PC ---
+let audioCtx = null;
+
+function initAudio() {
+    if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            audioCtx = new AudioContext();
+        }
+    }
+    if (audioCtx && audioCtx.state === "suspended") {
+        audioCtx.resume();
+    }
+}
+
+function playSynthEffect(type) {
+    initAudio();
+    if (!audioCtx) return;
+
+    const now = audioCtx.currentTime;
+
+    if (type === "green") {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(520, now);
+        osc.frequency.exponentialRampToValueAtTime(980, now + 0.12);
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.14);
+    } else if (type === "red") {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(190, now);
+        osc.frequency.linearRampToValueAtTime(95, now + 0.22);
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.24);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.24);
+    } else if (type === "gold") {
+        const notes =[523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(freq, now + idx * 0.055);
+            gain.gain.setValueAtTime(0.3, now + idx * 0.055);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.055 + 0.18);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.055);
+            osc.stop(now + idx * 0.055 + 0.18);
+        });
+    } else if (type === "epic") {
+        const notes =[440, 554.37, 659.25, 880];
+        notes.forEach((freq) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(freq, now);
+            gain.gain.setValueAtTime(0.22, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.35);
+        });
+    } else if (type === "beep") {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(440, now);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.12);
+    } else if (type === "go") {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(880, now);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.25);
+    }
+}
 
 playBtn.onclick = startCountdown;
 
@@ -62,7 +160,10 @@ homeBtn.onclick = () => {
     if (!isAnimatingRecord) location.reload();
 };
 
-function playAudio(sound) {
+function playAudio(sound, synthFallback) {
+    if (synthFallback) {
+        playSynthEffect(synthFallback);
+    }
     if (!sound) return;
     sound.currentTime = 0;
     sound.volume = 1;
@@ -94,27 +195,28 @@ if ("speechSynthesis" in window) {
 }
 
 function startCountdown() {
+    initAudio(); // Sblocca subito l'audio sul telefono al primo tap
     menu.style.display = "none";
     countdown.style.display = "block";
     countdown.textContent = "3";
-    playAudio(threeSound);
+    playAudio(threeSound, "beep");
     speakEnglish("Three!", 1.1, 1.1);
 
     setTimeout(() => {
         countdown.textContent = "2";
-        playAudio(twoSound);
+        playAudio(twoSound, "beep");
         speakEnglish("Two!", 1.1, 1.15);
     }, 1000);
 
     setTimeout(() => {
         countdown.textContent = "1";
-        playAudio(oneSound);
+        playAudio(oneSound, "beep");
         speakEnglish("One!", 1.1, 1.2);
     }, 2000);
 
     setTimeout(() => {
         countdown.textContent = "GO!";
-        playAudio(goSound);
+        playAudio(goSound, "go");
         speakEnglish("Go!", 1.25, 1.3);
     }, 3000);
 
@@ -162,7 +264,6 @@ function startGame() {
         }
     }, spawnDelay);
 }
-
 function createButton() {
     const freeArrows = arrows.filter(
         a => !activeButtons.some(b => b.dataset.key === a)
@@ -218,7 +319,8 @@ function createButton() {
         <div class="arrow">${symbols[key]}</div>
         <div class="value">${valueText}</div>
     `;
-const btnSize = 92;
+
+    const btnSize = 92;
     const margin = 15;
     let x, y;
     let valid = false;
@@ -234,13 +336,11 @@ const btnSize = 92;
 
         valid = true;
 
-        // Non copre il cerchio centrale
         const distCenter = Math.hypot((x + btnSize / 2) - centerX, (y + btnSize / 2) - centerY);
         if (distCenter < 155) {
             valid = false;
         }
 
-        // Non si sovrappone agli altri pulsanti
         if (valid) {
             for (const existing of activeButtons) {
                 const ex = parseFloat(existing.style.left);
@@ -318,14 +418,14 @@ function activateButton(btn) {
         spawnStars(centerX, centerY, false);
 
         if (wasCritical) {
-            playAudio(epicSound);
+            playAudio(epicSound, "epic");
             showMessage("EPIC SAVE!", "Epic save!");
         } else {
-            playAudio(greenSound);
+            playAudio(greenSound, "green");
             checkComboMessages();
         }
     } else if (action === "red") {
-        playAudio(redSound);
+        playAudio(redSound, "red");
         const value = Number(btn.dataset.value);
         time -= value;
         comboCount = 0;
@@ -338,7 +438,7 @@ function activateButton(btn) {
             return;
         }
     } else if (action === "gold") {
-        playAudio(goldSound);
+        playAudio(goldSound, "gold");
         doubleBonus = true;
         spawnStars(centerX, centerY, true);
         showMessage("INCREDIBLE!", "Incredible!");
@@ -423,7 +523,6 @@ function gameOver() {
     clearInterval(spawnInterval);
     if (bgMusic) bgMusic.pause();
 
-    // Fix: rimuove correttamente tutti i pulsanti attivi senza creare loop infiniti
     while (activeButtons.length > 0) {
         removeButton(activeButtons[0]);
     }

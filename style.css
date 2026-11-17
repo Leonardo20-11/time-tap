@@ -6,7 +6,6 @@
     -webkit-user-select: none;
 }
 
-/* Classe utilitaria per testo massiccio stile Block Blast (riempimento pieno + bordo scuro spesso) */
 .chunky-text {
     font-family: 'Lilita One', 'Arial Black', sans-serif;
     paint-order: stroke fill;
@@ -15,7 +14,6 @@
 body {
     overflow: hidden;
     font-family: 'Lilita One', 'Arial Black', sans-serif;
-    /* Sfondo pulito e satinato stile Block Blast (azzurro-indaco morbido, non scuro) */
     background: radial-gradient(circle at 50% 35%, #5b8def 0%, #3b66c4 55%, #284794 100%);
     min-height: 100vh;
 }
@@ -64,7 +62,6 @@ body {
     z-index: 10;
 }
 
-/* Pillole Record e Max Combo spesse in alto */
 .home-stats {
     position: absolute;
     top: 22px;
@@ -154,7 +151,6 @@ body {
     position: relative;
 }
 
-/* Riflesso lucido in alto tipico dei blocchi di Block Blast */
 .block-letter::after {
     content: "";
     position: absolute;
@@ -240,7 +236,6 @@ body {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.06); }
 }
-/* --- COUNTDOWN SPESSO E BOMBASTICO (3, 2, 1, GO!) --- */
 #countdown {
     font-family: 'Lilita One', 'Arial Black', sans-serif;
     position: absolute;
@@ -613,4 +608,29 @@ body {
 #playAgainBtn:active,
 #homeBtn:active {
     transform: translateY(6px);
+}
+
+/* --- CERCHI PIÙ GRANDI SU COMPUTER --- */
+@media (min-width: 901px) {
+    #timerCircle {
+        width: 225px;
+        height: 225px;
+        font-size: 82px;
+        -webkit-text-stroke: 10px #1e293b;
+    }
+
+    .button-circle {
+        width: 126px;
+        height: 126px;
+        border-width: 5px;
+    }
+
+    .arrow {
+        font-size: 48px;
+    }
+
+    .value {
+        font-size: 22px;
+        margin-top: 3px;
+    }
 }

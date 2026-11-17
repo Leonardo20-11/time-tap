@@ -322,8 +322,10 @@ function createButton() {
     btn.dataset.action = type;
     btn.innerHTML = `<div class="arrow">${symbols[key]}</div><div class="value">${valueText}</div>`;
 
-    const btnSize = 94;
-    const margin = 15;
+    const btnSize = isDesktop ? 126 : 94;
+    const minCenterDist = isDesktop ? 205 : 155;
+    const minBtnDist = isDesktop ? 155 : 115;
+    const margin = 20;
     let x = 0;
     let y = 0;
     let valid = false;
@@ -335,11 +337,11 @@ function createButton() {
     while (!valid && attempts < 80) {
         attempts++;
         x = margin + Math.random() * (window.innerWidth - btnSize - margin * 2);
-        y = 90 + Math.random() * (window.innerHeight - btnSize - 110);
+        y = 95 + Math.random() * (window.innerHeight - btnSize - 115);
         valid = true;
 
         const distCenter = Math.hypot((x + btnSize / 2) - centerX, (y + btnSize / 2) - centerY);
-        if (distCenter < 155) {
+        if (distCenter < minCenterDist) {
             valid = false;
         }
 
@@ -347,7 +349,7 @@ function createButton() {
             for (const existing of activeButtons) {
                 const ex = parseFloat(existing.style.left);
                 const ey = parseFloat(existing.style.top);
-                if (Math.hypot(x - ex, y - ey) < 115) {
+                if (Math.hypot(x - ex, y - ey) < minBtnDist) {
                     valid = false;
                     break;
                 }
@@ -550,12 +552,11 @@ function gameOver() {
         isAnimatingRecord = true;
         playSynthEffect("newrecord");
         speakEnglish("New record!", 1.0, 0.9);
-
-        finalRecord.textContent = "0";
-        animateScoreCounter(finalRecord, record, () => {
-            isAnimatingRecord = false;
-        });
-    } else {
+finalRecord.textContent = "0";
+animateScoreCounter(finalRecord, record, () => {
+isAnimatingRecord = false;
+});
+} else {
 newRecordMessage.style.display = "none";
 playSynthEffect("gameover");
 speakEnglish("Game over!", 0.9, 0.7);

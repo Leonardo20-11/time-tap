@@ -9,6 +9,7 @@ const specialMessage = document.getElementById("specialMessage");
 const gameOverScreen = document.getElementById("gameOverScreen");
 const finalScore = document.getElementById("finalScore");
 const finalRecord = document.getElementById("finalRecord");
+const finalCombo = document.getElementById("finalCombo");
 const playAgainBtn = document.getElementById("playAgainBtn");
 const homeBtn = document.getElementById("homeBtn");
 const newRecordMessage = document.getElementById("newRecordMessage");
@@ -26,6 +27,7 @@ const bgMusic = document.getElementById("bgMusic");
 let time = 2.5;
 let score = 0;
 let comboCount = 0;
+let maxComboRun = 0;
 let running = false;
 let doubleBonus = false;
 let isAnimatingRecord = false;
@@ -33,10 +35,13 @@ let isAnimatingRecord = false;
 let timerInterval = null;
 let spawnInterval = null;
 let messageTimeout = null;
+let panicTickCounter = 0;
 
 let record = Number(localStorage.getItem("record")) || 0;
-document.getElementById("record").textContent =
-    "🏆 RECORD: " + record.toLocaleString("it-IT");
+let bestCombo = Number(localStorage.getItem("bestCombo")) || 0;
+
+document.getElementById("record").textContent = "🏆 RECORD: " + record.toLocaleString("it-IT");
+document.getElementById("bestComboHome").textContent = "🔥 MAX COMBO: " + bestCombo.toLocaleString("it-IT");
 
 const activeButtons = [];
 const arrows = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
@@ -51,13 +56,11 @@ const isDesktop = window.innerWidth > 900;
 let buttonDuration = isDesktop ? 1850 : 1350;
 let spawnDelay = isDesktop ? 240 : 260;
 
-// --- MOTORE AUDIO SINTETIZZATO PER TELEFONO E PC ---
 let audioCtx = null;
 
 function initAudio() {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (!AudioCtx) return;
-
     if (!audioCtx) {
         audioCtx = new AudioCtx();
     }
@@ -74,119 +77,89 @@ function initAudio() {
 document.addEventListener("touchstart", initAudio, { once: true });
 document.addEventListener("pointerdown", initAudio, { once: true });
 
+function playTone(freq, endFreq, type, startTime, duration, vol) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, startTime);
+    if (endFreq !== null) {
+        osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + duration);
+    }
+    gain.gain.setValueAtTime(vol, startTime);
+    gain.gain.exponentialRampToValueAtTime(0.008, startTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(startTime);
+    osc.stop(startTime + duration);
+}
+
 function playSynthEffect(type) {
     initAudio();
     if (!audioCtx) return;
-
     const now = audioCtx.currentTime;
 
     if (type === "green") {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = "triangle";
-        osc.frequency.setValueAtTime(580, now);
-        osc.frequency.exponentialRampToValueAtTime(1150, now + 0.11);
-        gain.gain.setValueAtTime(0.55, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.13);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now);
-        osc.stop(now + 0.13);
+        const boost = Math.min(comboCount * 28, 520);
+        playTone(520 + boost, 1040 + boost, "triangle", now, 0.13, 0.55);
     } else if (type === "red") {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = "sawtooth";
-        osc.frequency.setValueAtTime(210, now);
-        osc.frequency.linearRampToValueAtTime(85, now + 0.22);
-        gain.gain.setValueAtTime(0.5, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.24);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now);
-        osc.stop(now + 0.24);
+        playTone(210, 80, "sawtooth", now, 0.24, 0.5);
     } else if (type === "gold") {
-        const goldNotes = [523.25, 659.25, 783.99, 1046.50];
-        goldNotes.forEach((freq, idx) => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = "triangle";
-            osc.frequency.setValueAtTime(freq, now + idx * 0.055);
-            gain.gain.setValueAtTime(0.45, now + idx * 0.055);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.055 + 0.18);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(now + idx * 0.055);
-            osc.stop(now + idx * 0.055 + 0.18);
+        const goldNotes = [523.25, 659.25, 783.99, 1046.5, 1318.5];
+        goldNotes.forEach((f, i) => {
+            playTone(f, null, "triangle", now + i * 0.05, 0.18, 0.45);
         });
     } else if (type === "epic") {
         const epicNotes = [440, 554.37, 659.25, 880];
-        epicNotes.forEach((freq) => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = "triangle";
-            osc.frequency.setValueAtTime(freq, now);
-            gain.gain.setValueAtTime(0.35, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(now);
-            osc.stop(now + 0.35);
+        epicNotes.forEach((f) => {
+            playTone(f, null, "triangle", now, 0.35, 0.35);
         });
+    } else if (type === "milestone") {
+        const mileNotes = [587.33, 783.99, 1046.5];
+        mileNotes.forEach((f, i) => {
+            playTone(f, null, "sine", now + i * 0.06, 0.2, 0.3);
+        });
+    } else if (type === "newrecord") {
+        const recNotes = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
+        recNotes.forEach((f, i) => {
+            playTone(f, null, "triangle", now + i * 0.09, 0.25, 0.4);
+        });
+    } else if (type === "tick") {
+        playTone(750, null, "sine", now, 0.05, 0.22);
+    } else if (type === "click") {
+        playTone(660, 990, "sine", now, 0.08, 0.35);
     } else if (type === "beep") {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(440, now);
-        gain.gain.setValueAtTime(0.35, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now);
-        osc.stop(now + 0.12);
+        playTone(440, null, "sine", now, 0.12, 0.35);
     } else if (type === "go") {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(880, now);
-        gain.gain.setValueAtTime(0.45, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now);
-        osc.stop(now + 0.25);
+        playTone(880, null, "sine", now, 0.25, 0.45);
     } else if (type === "gameover") {
-        const sadNotes = [
-            { freq: 311.13, start: 0.0, dur: 0.26, slide: false },
-            { freq: 293.66, start: 0.28, dur: 0.26, slide: false },
-            { freq: 277.18, start: 0.56, dur: 0.26, slide: false },
-            { freq: 261.63, start: 0.84, dur: 0.75, slide: true }
-        ];
-        sadNotes.forEach((n) => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = "sawtooth";
-            osc.frequency.setValueAtTime(n.freq, now + n.start);
-            if (n.slide) {
-                osc.frequency.linearRampToValueAtTime(220, now + n.start + n.dur);
-            }
-            gain.gain.setValueAtTime(0.32, now + n.start);
-            gain.gain.exponentialRampToValueAtTime(0.008, now + n.start + n.dur);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(now + n.start);
-            osc.stop(now + n.start + n.dur);
-        });
+        playTone(311.13, null, "sawtooth", now, 0.26, 0.32);
+        playTone(293.66, null, "sawtooth", now + 0.28, 0.26, 0.32);
+        playTone(277.18, null, "sawtooth", now + 0.56, 0.26, 0.32);
+        playTone(261.63, 210, "sawtooth", now + 0.84, 0.75, 0.32);
     }
 }
 
-playBtn.onclick = startCountdown;
+playBtn.onclick = () => {
+    playSynthEffect("click");
+    startCountdown();
+};
 
 playAgainBtn.onclick = () => {
-    if (!isAnimatingRecord) location.reload();
+    if (!isAnimatingRecord) {
+        playSynthEffect("click");
+        setTimeout(() => {
+            location.reload();
+        }, 90);
+    }
 };
 
 homeBtn.onclick = () => {
-    if (!isAnimatingRecord) location.reload();
+    if (!isAnimatingRecord) {
+        playSynthEffect("click");
+        setTimeout(() => {
+            location.reload();
+        }, 90);
+    }
 };
 
 function playAudio(sound, synthFallback) {
@@ -199,8 +172,7 @@ function playAudio(sound, synthFallback) {
     sound.play().catch(() => {});
 }
 
-// Voce sintetizzata in inglese
-function speakEnglish(phrase, rate = 1.15, pitch = 1.15) {
+function speakEnglish(phrase, rate = 1.0, pitch = 0.85) {
     if (!("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(phrase);
@@ -210,12 +182,15 @@ function speakEnglish(phrase, rate = 1.15, pitch = 1.15) {
     utterance.volume = 1;
 
     const voices = window.speechSynthesis.getVoices();
-    const englishVoice = voices.find(v => v.lang.startsWith("en-US")) ||
-                         voices.find(v => v.lang.startsWith("en"));
-    if (englishVoice) {
-        utterance.voice = englishVoice;
-    }
+    const maleNames = ["Daniel", "Alex", "David", "Guy", "Arthur", "Male", "Mark", "James"];
+    const maleVoice =
+        voices.find(v => v.lang.startsWith("en") && maleNames.some(n => v.name.includes(n))) ||
+        voices.find(v => v.lang.startsWith("en-GB")) ||
+        voices.find(v => v.lang.startsWith("en"));
 
+    if (maleVoice) {
+        utterance.voice = maleVoice;
+    }
     window.speechSynthesis.speak(utterance);
 }
 
@@ -223,30 +198,29 @@ if ("speechSynthesis" in window) {
     window.speechSynthesis.getVoices();
 }
 
+function triggerCountdownStep(text, soundObj, synthType, spoken, pitch) {
+    countdown.textContent = text;
+    countdown.classList.remove("countdown-pop");
+    void countdown.offsetWidth;
+    countdown.classList.add("countdown-pop");
+    playAudio(soundObj, synthType);
+    speakEnglish(spoken, 1.05, pitch);
+}
+
 function startCountdown() {
     initAudio();
     menu.style.display = "none";
     countdown.style.display = "block";
-    countdown.textContent = "3";
-    playAudio(threeSound, "beep");
-    speakEnglish("Three!", 1.1, 1.1);
 
+    triggerCountdownStep("3", threeSound, "beep", "Three!", 0.85);
     setTimeout(() => {
-        countdown.textContent = "2";
-        playAudio(twoSound, "beep");
-        speakEnglish("Two!", 1.1, 1.15);
+        triggerCountdownStep("2", twoSound, "beep", "Two!", 0.9);
     }, 1000);
-
     setTimeout(() => {
-        countdown.textContent = "1";
-        playAudio(oneSound, "beep");
-        speakEnglish("One!", 1.1, 1.2);
+        triggerCountdownStep("1", oneSound, "beep", "One!", 0.95);
     }, 2000);
-
     setTimeout(() => {
-        countdown.textContent = "GO!";
-        playAudio(goSound, "go");
-        speakEnglish("Go!", 1.25, 1.3);
+        triggerCountdownStep("GO!", goSound, "go", "Go!", 1.05);
     }, 3000);
 
     setTimeout(() => {
@@ -260,7 +234,6 @@ function startCountdown() {
         startGame();
     }, 4000);
 }
-
 function startGame() {
     running = true;
 
@@ -271,11 +244,19 @@ function startGame() {
         timerCircle.textContent = time.toFixed(1);
 
         if (time <= 1.0) {
-            timerCircle.style.border = "6px solid #ef4444";
-            timerCircle.style.boxShadow = "0 10px 0 #8e1b1b, 0 0 25px rgba(239, 68, 68, 0.8)";
+            timerCircle.style.background = "radial-gradient(circle at 30% 30%, #fecaca 0%, #ef4444 45%, #991b1b 100%)";
+            timerCircle.style.boxShadow = "0 11px 0 #7f1d1d, 0 0 30px rgba(239, 68, 68, 0.9)";
+            timerCircle.classList.add("timer-panic");
+
+            panicTickCounter++;
+            if (panicTickCounter % 2 === 0 && time > 0) {
+                playSynthEffect("tick");
+            }
         } else {
-            timerCircle.style.border = "6px solid #ffffff";
-            timerCircle.style.boxShadow = "0 10px 0 #1e3a8a, 0 18px 28px rgba(0, 0, 0, 0.45)";
+            timerCircle.style.background = "radial-gradient(circle at 30% 30%, #ffffff 0%, #fde047 35%, #f97316 100%)";
+            timerCircle.style.boxShadow = "0 11px 0 #c2410c, 0 20px 35px rgba(0, 0, 0, 0.45)";
+            timerCircle.classList.remove("timer-panic");
+            panicTickCounter = 0;
         }
 
         if (time <= 0) {
@@ -291,19 +272,15 @@ function startGame() {
         }
     }, spawnDelay);
 }
-function createButton() {
-    const freeArrows = arrows.filter(
-        a => !activeButtons.some(b => b.dataset.key === a)
-    );
 
+function createButton() {
+    const freeArrows = arrows.filter(a => !activeButtons.some(b => b.dataset.key === a));
     if (freeArrows.length === 0) return;
 
     const greens = activeButtons.filter(b => b.dataset.action === "green").length;
     const reds = activeButtons.filter(b => b.dataset.action === "red").length;
 
     let type = "green";
-
-    // Massimo 3 verdi e 2 rossi, mai tutti verdi
     if (greens >= 3) {
         type = "red";
     } else if (reds >= 2) {
@@ -314,7 +291,6 @@ function createButton() {
         type = Math.random() < 0.6 ? "green" : "red";
     }
 
-    // Pulsante Oro molto raro: appare SOLO se timer < 2.5s (1.5% di probabilità)
     if (time < 2.5 && greens > 0 && Math.random() < 0.015) {
         type = "gold";
     }
@@ -327,10 +303,7 @@ function createButton() {
 
     if (type === "green") {
         btn.classList.add("green");
-        // Su PC: 400, 500, 550 | Su telefono: 300, 350, 400
-        const greenOptions = isDesktop
-            ? [0.400, 0.500, 0.550]
-            : [0.300, 0.350, 0.400];
+        const greenOptions = isDesktop ? [0.400, 0.500, 0.550] : [0.300, 0.350, 0.400];
         const value = greenOptions[Math.floor(Math.random() * greenOptions.length)];
         btn.dataset.value = value;
         valueText = "+" + value.toFixed(3);
@@ -347,14 +320,12 @@ function createButton() {
 
     btn.dataset.key = key;
     btn.dataset.action = type;
-    btn.innerHTML = `
-        <div class="arrow">${symbols[key]}</div>
-        <div class="value">${valueText}</div>
-    `;
+    btn.innerHTML = `<div class="arrow">${symbols[key]}</div><div class="value">${valueText}</div>`;
 
-    const btnSize = 92;
+    const btnSize = 94;
     const margin = 15;
-    let x, y;
+    let x = 0;
+    let y = 0;
     let valid = false;
     let attempts = 0;
 
@@ -364,8 +335,7 @@ function createButton() {
     while (!valid && attempts < 80) {
         attempts++;
         x = margin + Math.random() * (window.innerWidth - btnSize - margin * 2);
-        y = 85 + Math.random() * (window.innerHeight - btnSize - 105);
-
+        y = 90 + Math.random() * (window.innerHeight - btnSize - 110);
         valid = true;
 
         const distCenter = Math.hypot((x + btnSize / 2) - centerX, (y + btnSize / 2) - centerY);
@@ -377,8 +347,7 @@ function createButton() {
             for (const existing of activeButtons) {
                 const ex = parseFloat(existing.style.left);
                 const ey = parseFloat(existing.style.top);
-                const distance = Math.hypot(x - ex, y - ey);
-                if (distance < 115) {
+                if (Math.hypot(x - ex, y - ey) < 115) {
                     valid = false;
                     break;
                 }
@@ -415,16 +384,12 @@ function spawnStars(x, y, isGold) {
 
         const angle = (Math.PI * 2 * i) / count + (Math.random() * 0.4);
         const radius = 12 + Math.random() * 26;
-        const dx = Math.cos(angle) * radius;
-        const dy = Math.sin(angle) * radius;
-
         star.style.left = x + "px";
         star.style.top = y + "px";
-        star.style.setProperty("--dx", dx + "px");
-        star.style.setProperty("--dy", dy + "px");
+        star.style.setProperty("--dx", (Math.cos(angle) * radius) + "px");
+        star.style.setProperty("--dy", (Math.sin(angle) * radius) + "px");
 
         game.appendChild(star);
-
         setTimeout(() => {
             star.remove();
         }, 550);
@@ -445,6 +410,9 @@ function activateButton(btn) {
 
         time = Number((time + (doubleBonus ? value * 2 : value)).toFixed(3));
         comboCount++;
+        if (comboCount > maxComboRun) {
+            maxComboRun = comboCount;
+        }
         score += 100 + comboCount * 20;
 
         spawnStars(centerX, centerY, false);
@@ -474,7 +442,6 @@ function activateButton(btn) {
         doubleBonus = true;
         spawnStars(centerX, centerY, true);
         showMessage("INCREDIBLE!", "Incredible!");
-
         setTimeout(() => {
             doubleBonus = false;
         }, 5000);
@@ -489,14 +456,19 @@ function activateButton(btn) {
 
 function checkComboMessages() {
     if (comboCount === 5) {
+        playSynthEffect("milestone");
         showMessage("GREAT!", "Great!");
     } else if (comboCount === 10) {
+        playSynthEffect("milestone");
         showMessage("FANTASTIC!", "Fantastic!");
     } else if (comboCount === 15) {
+        playSynthEffect("milestone");
         showMessage("AMAZING!", "Amazing!");
     } else if (comboCount === 20) {
+        playSynthEffect("milestone");
         showMessage("UNBELIEVABLE!", "Unbelievable!");
     } else if (comboCount > 0 && comboCount % 25 === 0) {
+        playSynthEffect("milestone");
         showMessage("LEGENDARY!", "Legendary!");
     }
 }
@@ -509,7 +481,7 @@ function showMessage(text, spokenText = "") {
     specialMessage.style.display = "block";
 
     if (spokenText) {
-        speakEnglish(spokenText, 1.2, 1.25);
+        speakEnglish(spokenText, 1.05, 0.9);
     }
 
     messageTimeout = setTimeout(() => {
@@ -528,24 +500,21 @@ function removeButton(btn) {
     }
 }
 
-function animateScoreCounter(element, prefix, targetValue, onComplete) {
+function animateScoreCounter(element, targetValue, onComplete) {
     let current = 0;
-    const duration = 1400;
     const steps = 45;
     const increment = targetValue / steps;
-    const stepTime = duration / steps;
-
     const counter = setInterval(() => {
         current += increment;
         if (current >= targetValue) {
             current = targetValue;
             clearInterval(counter);
-            element.textContent = prefix + Math.round(current).toLocaleString("it-IT");
+            element.textContent = Math.round(current).toLocaleString("it-IT");
             if (onComplete) onComplete();
         } else {
-            element.textContent = prefix + Math.round(current).toLocaleString("it-IT");
+            element.textContent = Math.round(current).toLocaleString("it-IT");
         }
-    }, stepTime);
+    }, 30);
 }
 
 function gameOver() {
@@ -553,9 +522,10 @@ function gameOver() {
     running = false;
     clearInterval(timerInterval);
     clearInterval(spawnInterval);
-    if (bgMusic) bgMusic.pause();
-
-    playSynthEffect("gameover");
+    timerCircle.classList.remove("timer-panic");
+    if (bgMusic) {
+        bgMusic.pause();
+    }
 
     while (activeButtons.length > 0) {
         const firstBtn = activeButtons.shift();
@@ -564,31 +534,38 @@ function gameOver() {
         }
     }
 
+    if (maxComboRun > bestCombo) {
+        bestCombo = maxComboRun;
+        localStorage.setItem("bestCombo", bestCombo);
+    }
+
     gameOverScreen.style.display = "flex";
-    finalScore.textContent = "SCORE: " + score.toLocaleString("it-IT");
+    finalScore.textContent = score.toLocaleString("it-IT");
+    finalCombo.textContent = maxComboRun.toLocaleString("it-IT");
 
     if (score > record && score > 0) {
         record = score;
         localStorage.setItem("record", record);
         newRecordMessage.style.display = "block";
         isAnimatingRecord = true;
-        speakEnglish("Game over! New record!", 1.0, 1.0);
+        playSynthEffect("newrecord");
+        speakEnglish("New record!", 1.0, 0.9);
 
-        finalRecord.textContent = "RECORD: 0";
-        animateScoreCounter(finalRecord, "RECORD: ", record, () => {
+        finalRecord.textContent = "0";
+        animateScoreCounter(finalRecord, record, () => {
             isAnimatingRecord = false;
         });
     } else {
         newRecordMessage.style.display = "none";
-        speakEnglish("Game over!", 0.9, 0.75);
-        finalRecord.textContent = "RECORD: " + record.toLocaleString("it-IT");
-    }
+        playSynthEffect("gameover");
+speakEnglish("Game over!", 0.9, 0.7);
+finalRecord.textContent = record.toLocaleString("it-IT");
 }
-
+}
 document.addEventListener("keydown", (event) => {
-    if (!running) return;
-    const target = activeButtons.find(b => b.dataset.key === event.key);
-    if (target) {
-        activateButton(target);
-    }
+if (!running) return;
+const target = activeButtons.find(b => b.dataset.key === event.key);
+if (target) {
+activateButton(target);
+}
 });

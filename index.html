@@ -5,10 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TIME TAP</title>
+    <!-- Font Arcade stile Block Blast -->
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Fredoka:wght@700;800&family=Lilita+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+
+    <!-- SFONDO ANIMATO CON BOLLE LUMINOSE -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
 
     <!-- COUNTDOWN -->
     <div id="countdown"></div>
@@ -16,21 +24,21 @@
     <!-- MESSAGGI SPECIALI -->
     <div id="specialMessage"></div>
 
-    <!-- NEW RECORD -->
-    <div id="newRecordMessage">
-        🏆 NEW RECORD! 🏆
-    </div>
-
-    <!-- MENU -->
+    <!-- MENU HOME -->
     <div id="menu">
 
-        <div id="record">
-            🏆 RECORD: 0
+        <div class="home-stats">
+            <div id="record" class="stat-badge record-badge">
+                🏆 RECORD: 0
+            </div>
+            <div id="bestComboHome" class="stat-badge combo-badge">
+                🔥 MAX COMBO: 0
+            </div>
         </div>
 
         <div class="title-container">
             <h1>
-                TIME TAP
+                TIME<br>TAP
             </h1>
         </div>
 
@@ -43,12 +51,9 @@
     <!-- GIOCO -->
     <div id="game">
 
-        <div id="score">
-            SCORE: 0
-        </div>
-
-        <div id="combo">
-            COMBO 0
+        <div class="hud-top">
+            <div id="score">SCORE: 0</div>
+            <div id="combo">COMBO 0</div>
         </div>
 
         <div id="timerCircle">
@@ -57,46 +62,49 @@
 
     </div>
 
-    <!-- GAME OVER -->
+    <!-- GAME OVER ARCADE CARD -->
     <div id="gameOverScreen">
 
-        <h2>
-            GAME OVER
-        </h2>
+        <div class="gameover-card">
+            <h2>GAME OVER</h2>
 
-        <div id="finalScore">
-            SCORE: 0
+            <div id="newRecordMessage">
+                ✨ NEW RECORD! ✨
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-label">SCORE</span>
+                    <span id="finalScore" class="stat-value">0</span>
+                </div>
+
+                <div class="stat-box highlight-gold">
+                    <span class="stat-label">🏆 BEST RECORD</span>
+                    <span id="finalRecord" class="stat-value">0</span>
+                </div>
+
+                <div class="stat-box highlight-fire">
+                    <span class="stat-label">🔥 MAX COMBO</span>
+                    <span id="finalCombo" class="stat-value">0</span>
+                </div>
+            </div>
+
+            <div class="gameover-buttons">
+                <button id="playAgainBtn">PLAY AGAIN</button>
+                <button id="homeBtn">HOME</button>
+            </div>
         </div>
-
-        <div id="finalRecord">
-            RECORD: 0
-        </div>
-
-        <button id="playAgainBtn">
-            PLAY AGAIN
-        </button>
-
-        <button id="homeBtn">
-            HOME
-        </button>
 
     </div>
 
     <!-- SUONI -->
     <audio id="greenSound" src="sounds/green.mp3"></audio>
-
     <audio id="redSound" src="sounds/red.mp3"></audio>
-
     <audio id="goldSound" src="sounds/incredible.mp3"></audio>
-
     <audio id="epicSound" src="sounds/epicsave.mp3"></audio>
-
     <audio id="threeSound" src="sounds/three.mp3"></audio>
-
     <audio id="twoSound" src="sounds/two.mp3"></audio>
-
     <audio id="oneSound" src="sounds/one.mp3"></audio>
-
     <audio id="goSound" src="sounds/go.mp3"></audio>
 
     <!-- MUSICA -->

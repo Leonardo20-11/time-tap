@@ -109,43 +109,45 @@ function initTimeTapGame() {
         const now = audioCtx.currentTime;
 
         if (type === "green") {
-            const boost = Math.min(comboCount * 28, 520);
-            playTone(520 + boost, 1040 + boost, "triangle", now, 0.13, 0.55);
+            /* Suono POP morbido, rotondo e soddisfacente (mai stridulo) */
+            const step = Math.min(comboCount * 10, 160);
+            playTone(260 + step, 440 + step, "sine", now, 0.11, 0.55);
+            playTone(150 + step * 0.4, 90, "triangle", now, 0.08, 0.35);
         } else if (type === "red") {
-            playTone(210, 80, "sawtooth", now, 0.24, 0.5);
+            playTone(190, 75, "sawtooth", now, 0.22, 0.45);
         } else if (type === "gold") {
-            const goldNotes = [523.25, 659.25, 783.99, 1046.5, 1318.5];
+            const goldNotes = [440, 554.37, 659.25, 880];
             goldNotes.forEach((f, i) => {
-                playTone(f, null, "triangle", now + i * 0.05, 0.18, 0.45);
+                playTone(f, null, "sine", now + i * 0.045, 0.16, 0.42);
             });
         } else if (type === "epic") {
-            const epicNotes = [440, 554.37, 659.25, 880];
+            const epicNotes = [392, 493.88, 587.33, 783.99];
             epicNotes.forEach((f) => {
-                playTone(f, null, "triangle", now, 0.35, 0.35);
+                playTone(f, null, "triangle", now, 0.3, 0.32);
             });
         } else if (type === "milestone") {
-            const mileNotes = [587.33, 783.99, 1046.5];
+            const mileNotes = [440, 587.33, 783.99];
             mileNotes.forEach((f, i) => {
-                playTone(f, null, "sine", now + i * 0.06, 0.2, 0.3);
+                playTone(f, null, "sine", now + i * 0.055, 0.18, 0.28);
             });
         } else if (type === "newrecord") {
-            const recNotes = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
+            const recNotes = [440, 554.37, 659.25, 880, 659.25, 880];
             recNotes.forEach((f, i) => {
-                playTone(f, null, "triangle", now + i * 0.09, 0.25, 0.4);
+                playTone(f, null, "triangle", now + i * 0.085, 0.22, 0.38);
             });
         } else if (type === "tick") {
-            playTone(750, null, "sine", now, 0.05, 0.22);
+            playTone(620, null, "sine", now, 0.045, 0.2);
         } else if (type === "click") {
-            playTone(660, 990, "sine", now, 0.08, 0.35);
+            playTone(420, 640, "sine", now, 0.075, 0.32);
         } else if (type === "beep") {
-            playTone(440, null, "sine", now, 0.12, 0.35);
+            playTone(392, null, "sine", now, 0.11, 0.32);
         } else if (type === "go") {
-            playTone(880, null, "sine", now, 0.25, 0.45);
+            playTone(659.25, null, "sine", now, 0.22, 0.42);
         } else if (type === "gameover") {
-            playTone(311.13, null, "sawtooth", now, 0.26, 0.32);
-            playTone(293.66, null, "sawtooth", now + 0.28, 0.26, 0.32);
-            playTone(277.18, null, "sawtooth", now + 0.56, 0.26, 0.32);
-            playTone(261.63, 210, "sawtooth", now + 0.84, 0.75, 0.32);
+            playTone(293.66, null, "sawtooth", now, 0.24, 0.28);
+            playTone(277.18, null, "sawtooth", now + 0.26, 0.24, 0.28);
+            playTone(261.63, null, "sawtooth", now + 0.52, 0.24, 0.28);
+            playTone(246.94, 190, "sawtooth", now + 0.78, 0.7, 0.28);
         }
     }
 
@@ -268,9 +270,8 @@ function initTimeTapGame() {
     function startGame() {
         running = true;
 
-        timerInterval = setInterval(() => {
-            if (!running) return;
-
+timerInterval = setInterval(() => {
+if (!running) return;
 time = Math.max(0, Number((time - 0.1).toFixed(2)));
 timerCircle.textContent = time.toFixed(1);
 if (time <= 1.0) {
@@ -339,18 +340,22 @@ valueText = "x2";
 }
 btn.dataset.key = key;
 btn.dataset.action = type;
+if (isDesktop) {
 btn.innerHTML = '' + symbols[key] + '' + valueText + '';
-const btnSize = isDesktop ? 155 : 96;
-const minCenterDist = isDesktop ? 230 : 130;
-const minBtnDist = isDesktop ? 185 : 118;
-const margin = 22;
+} else {
+btn.innerHTML = '' + valueText + '';
+}
+const btnSize = isDesktop ? 165 : 108;
+const minCenterDist = isDesktop ? 245 : 155;
+const minBtnDist = isDesktop ? 195 : 128;
+const margin = 20;
 let x = 0;
 let y = 0;
 let valid = false;
 let attempts = 0;
 const centerX = window.innerWidth / 2;
 const centerY = window.innerHeight / 2;
-while (!valid && attempts < 90) {
+while (!valid && attempts < 100) {
 attempts++;
 x = margin + Math.random() * (window.innerWidth - btnSize - margin * 2);
 y = 95 + Math.random() * (window.innerHeight - btnSize - 115);

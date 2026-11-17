@@ -40,8 +40,8 @@ let panicTickCounter = 0;
 let record = Number(localStorage.getItem("record")) || 0;
 let bestCombo = Number(localStorage.getItem("bestCombo")) || 0;
 
-document.getElementById("record").textContent = "🏆 RECORD: " + record.toLocaleString("it-IT");
-document.getElementById("bestComboHome").textContent = "🔥 MAX COMBO: " + bestCombo.toLocaleString("it-IT");
+document.getElementById("record").textContent = record.toLocaleString("it-IT");
+document.getElementById("bestComboHome").textContent = bestCombo.toLocaleString("it-IT");
 
 const activeButtons = [];
 const arrows = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
@@ -244,8 +244,8 @@ function startGame() {
         timerCircle.textContent = time.toFixed(1);
 
         if (time <= 1.0) {
-            timerCircle.style.background = "radial-gradient(circle at 30% 30%, #fecaca 0%, #ef4444 45%, #991b1b 100%)";
-            timerCircle.style.boxShadow = "0 11px 0 #7f1d1d, 0 0 30px rgba(239, 68, 68, 0.9)";
+            timerCircle.style.background = "radial-gradient(circle at 30% 30%, #fecaca 0%, #ef4444 50%, #b91c1c 100%)";
+            timerCircle.style.boxShadow = "inset 0 8px 0 rgba(255, 255, 255, 0.45), 0 10px 0 #7f1d1d, 0 14px 0 #1e293b, 0 0 28px rgba(239, 68, 68, 0.9)";
             timerCircle.classList.add("timer-panic");
 
             panicTickCounter++;
@@ -253,8 +253,8 @@ function startGame() {
                 playSynthEffect("tick");
             }
         } else {
-            timerCircle.style.background = "radial-gradient(circle at 30% 30%, #ffffff 0%, #fde047 35%, #f97316 100%)";
-            timerCircle.style.boxShadow = "0 11px 0 #c2410c, 0 20px 35px rgba(0, 0, 0, 0.45)";
+            timerCircle.style.background = "radial-gradient(circle at 30% 30%, #ffffff 0%, #7dd3fc 45%, #0284c7 100%)";
+            timerCircle.style.boxShadow = "inset 0 8px 0 rgba(255, 255, 255, 0.5), 0 10px 0 #0369a1, 0 14px 0 #1e293b, 0 20px 30px rgba(0, 0, 0, 0.35)";
             timerCircle.classList.remove("timer-panic");
             panicTickCounter = 0;
         }
@@ -556,8 +556,8 @@ function gameOver() {
             isAnimatingRecord = false;
         });
     } else {
-        newRecordMessage.style.display = "none";
-        playSynthEffect("gameover");
+newRecordMessage.style.display = "none";
+playSynthEffect("gameover");
 speakEnglish("Game over!", 0.9, 0.7);
 finalRecord.textContent = record.toLocaleString("it-IT");
 }

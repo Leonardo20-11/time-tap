@@ -5,18 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TIME TAP</title>
-    <!-- Font Arcade stile Block Blast -->
     <link rel="preconnect" href="https://googleapis.com">
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
-    <link href="https://googleapis.com/css2?family=Fredoka:wght@700;800&family=Lilita+One&display=swap" rel="stylesheet">
+    <link href="https://googleapis.com/css2?family=Fredoka:wght@700&family=Lilita+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <!-- SFONDO ANIMATO CON BOLLE LUMINOSE -->
-    <div class="bg-glow bg-glow-1"></div>
-    <div class="bg-glow bg-glow-2"></div>
+    <!-- BLOCCHI DECORATIVI SULLO SFONDO STILE BLOCK BLAST -->
+    <div class="bg-blocks" aria-hidden="true">
+        <span class="b-tile t1"></span>
+        <span class="b-tile t2"></span>
+        <span class="b-tile t3"></span>
+        <span class="b-tile t4"></span>
+        <span class="b-tile t5"></span>
+        <span class="b-tile t6"></span>
+    </div>
 
     <!-- COUNTDOWN -->
     <div id="countdown"></div>
@@ -28,18 +33,29 @@
     <div id="menu">
 
         <div class="home-stats">
-            <div id="record" class="stat-badge record-badge">
-                🏆 RECORD: 0
+            <div class="stat-pill gold-pill">
+                <span class="pill-icon">👑</span>
+                <span id="record">0</span>
             </div>
-            <div id="bestComboHome" class="stat-badge combo-badge">
-                🔥 MAX COMBO: 0
+            <div class="stat-pill fire-pill">
+                <span class="pill-icon">🔥</span>
+                <span id="bestComboHome">0</span>
             </div>
         </div>
 
-        <div class="title-container">
-            <h1>
-                TIME<br>TAP
-            </h1>
+        <!-- LOGO STILE BLOCK BLAST CON TESSERE 3D -->
+        <div class="logo-wrapper">
+            <div class="logo-row row-top">
+                <span class="block-letter c-red">T</span>
+                <span class="block-letter c-orange">I</span>
+                <span class="block-letter c-yellow">M</span>
+                <span class="block-letter c-green">E</span>
+            </div>
+            <div class="logo-row row-bottom">
+                <span class="block-letter c-cyan">T</span>
+                <span class="block-letter c-purple">A</span>
+                <span class="block-letter c-pink">P</span>
+            </div>
         </div>
 
         <button id="playBtn">
@@ -62,35 +78,34 @@
 
     </div>
 
-    <!-- GAME OVER ARCADE CARD -->
+    <!-- GAME OVER -->
     <div id="gameOverScreen">
 
-        <div class="gameover-card">
+        <div class="gameover-panel">
             <h2>GAME OVER</h2>
 
             <div id="newRecordMessage">
-                ✨ NEW RECORD! ✨
+                👑 NEW BEST! 👑
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <span class="stat-label">SCORE</span>
-                    <span id="finalScore" class="stat-value">0</span>
-                </div>
+            <div class="score-showcase">
+                <span class="showcase-title">SCORE</span>
+                <span id="finalScore" class="showcase-big">0</span>
+            </div>
 
-                <div class="stat-box highlight-gold">
-                    <span class="stat-label">🏆 BEST RECORD</span>
-                    <span id="finalRecord" class="stat-value">0</span>
+            <div class="mini-stats-row">
+                <div class="mini-card gold-card">
+                    <span class="mini-label">👑 BEST</span>
+                    <span id="finalRecord" class="mini-value">0</span>
                 </div>
-
-                <div class="stat-box highlight-fire">
-                    <span class="stat-label">🔥 MAX COMBO</span>
-                    <span id="finalCombo" class="stat-value">0</span>
+                <div class="mini-card fire-card">
+                    <span class="mini-label">🔥 COMBO</span>
+                    <span id="finalCombo" class="mini-value">0</span>
                 </div>
             </div>
 
             <div class="gameover-buttons">
-                <button id="playAgainBtn">PLAY AGAIN</button>
+                <button id="playAgainBtn">PLAY</button>
                 <button id="homeBtn">HOME</button>
             </div>
         </div>

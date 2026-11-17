@@ -24,7 +24,10 @@ const oneSound = document.getElementById("oneSound");
 const goSound = document.getElementById("goSound");
 const bgMusic = document.getElementById("bgMusic");
 
-let time = 2.5;
+const isDesktop = window.innerWidth > 900;
+let time = isDesktop ? 3.0 : 2.5;
+timerCircle.textContent = time.toFixed(1);
+
 let score = 0;
 let comboCount = 0;
 let maxComboRun = 0;
@@ -52,7 +55,6 @@ const symbols = {
     ArrowRight: "→"
 };
 
-const isDesktop = window.innerWidth > 900;
 let buttonDuration = isDesktop ? 1850 : 1350;
 let spawnDelay = isDesktop ? 240 : 260;
 
@@ -172,7 +174,7 @@ function playAudio(sound, synthFallback) {
     sound.play().catch(() => {});
 }
 
-function speakEnglish(phrase, rate = 1.0, pitch = 0.85) {
+function speakEnglish(phrase, rate = 1.05, pitch = 1.08) {
     if (!("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(phrase);
@@ -182,20 +184,32 @@ function speakEnglish(phrase, rate = 1.0, pitch = 0.85) {
     utterance.volume = 1;
 
     const voices = window.speechSynthesis.getVoices();
-    const maleNames = ["Daniel", "Alex", "David", "Guy", "Arthur", "Male", "Mark", "James"];
-    const maleVoice =
-        voices.find(v => v.lang.startsWith("en") && maleNames.some(n => v.name.includes(n))) ||
-        voices.find(v => v.lang.startsWith("en-GB")) ||
+    const preferredVoices = [
+        "Google US English",
+        "Microsoft Aria",
+        "Microsoft Jenny",
+        "Samantha",
+        "Karen",
+        "Serena",
+        "Natural"
+    ];
+
+    const selectedVoice =
+        voices.find(v => v.lang.startsWith("en") && preferredVoices.some(name => v.name.includes(name))) ||
+        voices.find(v => v.lang === "en-US") ||
         voices.find(v => v.lang.startsWith("en"));
 
-    if (maleVoice) {
-        utterance.voice = maleVoice;
+    if (selectedVoice) {
+        utterance.voice = selectedVoice;
     }
     window.speechSynthesis.speak(utterance);
 }
 
 if ("speechSynthesis" in window) {
     window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+    };
 }
 
 function triggerCountdownStep(text, soundObj, synthType, spoken, pitch) {
@@ -204,7 +218,7 @@ function triggerCountdownStep(text, soundObj, synthType, spoken, pitch) {
     void countdown.offsetWidth;
     countdown.classList.add("countdown-pop");
     playAudio(soundObj, synthType);
-    speakEnglish(spoken, 1.05, pitch);
+    speakEnglish(spoken, 1.08, pitch);
 }
 
 function startCountdown() {
@@ -212,15 +226,15 @@ function startCountdown() {
     menu.style.display = "none";
     countdown.style.display = "block";
 
-    triggerCountdownStep("3", threeSound, "beep", "Three!", 0.85);
+    triggerCountdownStep("3", threeSound, "beep", "Three!", 1.0);
     setTimeout(() => {
-        triggerCountdownStep("2", twoSound, "beep", "Two!", 0.9);
+        triggerCountdownStep("2", twoSound, "beep", "Two!", 1.05);
     }, 1000);
     setTimeout(() => {
-        triggerCountdownStep("1", oneSound, "beep", "One!", 0.95);
+        triggerCountdownStep("1", oneSound, "beep", "One!", 1.1);
     }, 2000);
     setTimeout(() => {
-        triggerCountdownStep("GO!", goSound, "go", "Go!", 1.05);
+        triggerCountdownStep("GO!", goSound, "go", "Go!", 1.2);
     }, 3000);
 
     setTimeout(() => {
@@ -234,6 +248,7 @@ function startCountdown() {
         startGame();
     }, 4000);
 }
+
 function startGame() {
     running = true;
 
@@ -245,7 +260,7 @@ function startGame() {
 
         if (time <= 1.0) {
             timerCircle.style.background = "radial-gradient(circle at 30% 30%, #fecaca 0%, #ef4444 50%, #b91c1c 100%)";
-            timerCircle.style.boxShadow = "inset 0 8px 0 rgba(255, 255, 255, 0.45), 0 11px 0 #7f1d1d, 0 0 28px rgba(239, 68, 68, 0.9)";
+            timerCircle.style.boxShadow = "inset 0 8px 0 rgba(255, 255, 255, 0.35), 0 11px 0 #7f1d1d, 0 0 28px rgba(239, 68, 68, 0.9)";
             timerCircle.classList.add("timer-panic");
 
             panicTickCounter++;
@@ -253,8 +268,8 @@ function startGame() {
                 playSynthEffect("tick");
             }
         } else {
-            timerCircle.style.background = "radial-gradient(circle at 30% 30%, #ffffff 0%, #60a5fa 45%, #1d4ed8 100%)";
-            timerCircle.style.boxShadow = "inset 0 8px 0 rgba(255, 255, 255, 0.55), 0 11px 0 #1e3a8a, 0 20px 30px rgba(0, 0, 0, 0.45)";
+            timerCircle.style.background = "radial-gradient(circle at 30% 30%, #bfdbfe 0%, #3b82f6 50%, #1d4ed8 100%)";
+            timerCircle.style.boxShadow = "inset 0 6px 0 rgba(255, 255, 255, 0.32), 0 11px 0 #1e3a8a, 0 20px 30px rgba(0, 0, 0, 0.45)";
             timerCircle.classList.remove("timer-panic");
             panicTickCounter = 0;
         }
@@ -281,286 +296,247 @@ function createButton() {
     const reds = activeButtons.filter(b => b.dataset.action === "red").length;
 
     let type = "green";
-    if (greens >= 3) {
-        type = "red";
-    } else if (reds >= 2) {
-        type = "green";
-    } else if (greens === 2 && reds === 0) {
-        type = "red";
-    } else {
-        type = Math.random() < 0.6 ? "green" : "red";
-    }
-
-    if (time < 2.5 && greens > 0 && Math.random() < 0.015) {
-        type = "gold";
-    }
-
-    const btn = document.createElement("button");
-    btn.classList.add("button-circle");
-
-    const key = freeArrows[Math.floor(Math.random() * freeArrows.length)];
-    let valueText = "";
-
-    if (type === "green") {
-        btn.classList.add("green");
-        const greenOptions = isDesktop ? [0.400, 0.500, 0.550] : [0.300, 0.350, 0.400];
-        const value = greenOptions[Math.floor(Math.random() * greenOptions.length)];
-        btn.dataset.value = value;
-        valueText = "+" + value.toFixed(3);
-    } else if (type === "red") {
-        btn.classList.add("red");
-        const redOptions = [0.4, 0.5, 0.6, 0.7];
-        const value = redOptions[Math.floor(Math.random() * redOptions.length)];
-        btn.dataset.value = value;
-        valueText = "-" + value.toFixed(1);
-    } else {
-        btn.classList.add("gold");
-        valueText = "x2";
-    }
-
-    btn.dataset.key = key;
-    btn.dataset.action = type;
-    btn.innerHTML = `<div class="arrow">${symbols[key]}</div><div class="value">${valueText}</div>`;
-
-    const btnSize = isDesktop ? 150 : 96;
-    const minCenterDist = isDesktop ? 230 : 155;
-    const minBtnDist = isDesktop ? 185 : 118;
-    const margin = 22;
-    let x = 0;
-    let y = 0;
-    let valid = false;
-    let attempts = 0;
-
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-
-    while (!valid && attempts < 90) {
-        attempts++;
-        x = margin + Math.random() * (window.innerWidth - btnSize - margin * 2);
-        y = 95 + Math.random() * (window.innerHeight - btnSize - 115);
-        valid = true;
-
-        const distCenter = Math.hypot((x + btnSize / 2) - centerX, (y + btnSize / 2) - centerY);
-        if (distCenter < minCenterDist) {
-            valid = false;
-        }
-
-        if (valid) {
-            for (const existing of activeButtons) {
-                const ex = parseFloat(existing.style.left);
-                const ey = parseFloat(existing.style.top);
-                if (Math.hypot(x - ex, y - ey) < minBtnDist) {
-                    valid = false;
-                    break;
-                }
-            }
-        }
-    }
-
-    if (!valid) return;
-
-    btn.style.left = x + "px";
-    btn.style.top = y + "px";
-
-    btn.onpointerdown = (e) => {
-        e.preventDefault();
-        activateButton(btn);
-    };
-
-    game.appendChild(btn);
-    activeButtons.push(btn);
-
-    setTimeout(() => {
-        removeButton(btn);
-    }, buttonDuration);
+Usa il codice con cautela.
+if (greens >= 3) {
+type = "red";
+} else if (reds >= 2) {
+type = "green";
+} else if (greens === 2 && reds === 0) {
+type = "red";
+} else {
+type = Math.random() < 0.6 ? "green" : "red";
 }
-
+if (time < 2.5 && greens > 0 && Math.random() < 0.015) {
+type = "gold";
+}
+const btn = document.createElement("button");
+btn.classList.add("button-circle");
+const key = freeArrows[Math.floor(Math.random() * freeArrows.length)];
+let valueText = "";
+if (type === "green") {
+btn.classList.add("green");
+const greenOptions = isDesktop ? [0.400, 0.500, 0.550] : [0.300, 0.350, 0.400];
+const value = greenOptions[Math.floor(Math.random() * greenOptions.length)];
+btn.dataset.value = value;
+valueText = "+" + value.toFixed(3);
+} else if (type === "red") {
+btn.classList.add("red");
+const redOptions = [0.4, 0.5, 0.6, 0.7];
+const value = redOptions[Math.floor(Math.random() * redOptions.length)];
+btn.dataset.value = value;
+valueText = "-" + value.toFixed(1);
+} else {
+btn.classList.add("gold");
+valueText = "x2";
+}
+btn.dataset.key = key;
+btn.dataset.action = type;
+btn.innerHTML = '' + symbols[key] + '' + valueText + '';
+const btnSize = isDesktop ? 150 : 96;
+const minCenterDist = isDesktop ? 230 : 130;
+const minBtnDist = isDesktop ? 185 : 118;
+const margin = 22;
+let x = 0;
+let y = 0;
+let valid = false;
+let attempts = 0;
+const centerX = window.innerWidth / 2;
+const centerY = window.innerHeight / 2;
+while (!valid && attempts < 90) {
+attempts++;
+x = margin + Math.random() * (window.innerWidth - btnSize - margin * 2);
+y = 95 + Math.random() * (window.innerHeight - btnSize - 115);
+valid = true;
+const distCenter = Math.hypot((x + btnSize / 2) - centerX, (y + btnSize / 2) - centerY);
+if (distCenter < minCenterDist) {
+valid = false;
+}
+if (valid) {
+for (const existing of activeButtons) {
+const ex = parseFloat(existing.style.left);
+const ey = parseFloat(existing.style.top);
+if (Math.hypot(x - ex, y - ey) < minBtnDist) {
+valid = false;
+break;
+}
+}
+}
+}
+if (!valid) return;
+btn.style.left = x + "px";
+btn.style.top = y + "px";
+btn.onpointerdown = (e) => {
+e.preventDefault();
+activateButton(btn);
+};
+game.appendChild(btn);
+activeButtons.push(btn);
+setTimeout(() => {
+removeButton(btn);
+}, buttonDuration);
+}
 function spawnStars(x, y, isGold) {
-    const count = isGold ? 18 : 9;
-    const icons = isGold ? ["⭐", "✨", "🌟", "💫"] : ["✨", "⭐"];
-
-    for (let i = 0; i < count; i++) {
-        const star = document.createElement("span");
-        star.className = "star-particle";
-        star.textContent = icons[Math.floor(Math.random() * icons.length)];
-
-        const angle = (Math.PI * 2 * i) / count + (Math.random() * 0.4);
-        const radius = 12 + Math.random() * 26;
-        star.style.left = x + "px";
-        star.style.top = y + "px";
-        star.style.setProperty("--dx", (Math.cos(angle) * radius) + "px");
-        star.style.setProperty("--dy", (Math.sin(angle) * radius) + "px");
-
-        game.appendChild(star);
-        setTimeout(() => {
-            star.remove();
-        }, 550);
-    }
+const count = isGold ? 18 : 9;
+const icons = isGold ? ["⭐", "✨", "🌟", "💫"] : ["✨", "⭐"];
+for (let i = 0; i < count; i++) {
+const star = document.createElement("span");
+star.className = "star-particle";
+star.textContent = icons[Math.floor(Math.random() * icons.length)];
+const angle = (Math.PI * 2 * i) / count + (Math.random() * 0.4);
+const radius = 12 + Math.random() * 26;
+star.style.left = x + "px";
+star.style.top = y + "px";
+star.style.setProperty("--dx", (Math.cos(angle) * radius) + "px");
+star.style.setProperty("--dy", (Math.sin(angle) * radius) + "px");
+game.appendChild(star);
+setTimeout(() => {
+star.remove();
+}, 550);
 }
-
+}
 function activateButton(btn) {
-    if (!btn.parentNode || !running) return;
-
-    const action = btn.dataset.action;
-    const rect = btn.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-
-    if (action === "green") {
-        const wasCritical = time <= 0.6;
-        const value = Number(btn.dataset.value);
-
-        time = Number((time + (doubleBonus ? value * 2 : value)).toFixed(3));
-        comboCount++;
-        if (comboCount > maxComboRun) {
-            maxComboRun = comboCount;
-        }
-        score += 100 + comboCount * 20;
-
-        spawnStars(centerX, centerY, false);
-
-        if (wasCritical) {
-            playAudio(epicSound, "epic");
-            showMessage("EPIC SAVE!", "Epic save!");
-        } else {
-            playAudio(greenSound, "green");
-            checkComboMessages();
-        }
-    } else if (action === "red") {
-        playAudio(redSound, "red");
-        const value = Number(btn.dataset.value);
-        time = Number((time - value).toFixed(3));
-        comboCount = 0;
-
-        if (time <= 0) {
-            time = 0;
-            timerCircle.textContent = "0.0";
-            removeButton(btn);
-            gameOver();
-            return;
-        }
-    } else if (action === "gold") {
-        playAudio(goldSound, "gold");
-        doubleBonus = true;
-        spawnStars(centerX, centerY, true);
-        showMessage("INCREDIBLE!", "Incredible!");
-        setTimeout(() => {
-            doubleBonus = false;
-        }, 5000);
-    }
-
-    timerCircle.textContent = time.toFixed(1);
-    scoreText.textContent = "SCORE: " + score.toLocaleString("it-IT");
-    comboText.textContent = "COMBO " + comboCount;
-
-    removeButton(btn);
+if (!btn.parentNode || !running) return;
+const action = btn.dataset.action;
+const rect = btn.getBoundingClientRect();
+const centerX = rect.left + rect.width / 2;
+const centerY = rect.top + rect.height / 2;
+if (action === "green") {
+const wasCritical = time <= 0.6;
+const value = Number(btn.dataset.value);
+time = Number((time + (doubleBonus ? value * 2 : value)).toFixed(3));
+comboCount++;
+if (comboCount > maxComboRun) {
+maxComboRun = comboCount;
 }
-
+score += 100 + comboCount * 20;
+spawnStars(centerX, centerY, false);
+if (wasCritical) {
+playAudio(epicSound, "epic");
+showMessage("EPIC SAVE!", "Epic save!");
+} else {
+playAudio(greenSound, "green");
+checkComboMessages();
+}
+} else if (action === "red") {
+playAudio(redSound, "red");
+const value = Number(btn.dataset.value);
+time = Number((time - value).toFixed(3));
+comboCount = 0;
+if (time <= 0) {
+time = 0;
+timerCircle.textContent = "0.0";
+removeButton(btn);
+gameOver();
+return;
+}
+} else if (action === "gold") {
+playAudio(goldSound, "gold");
+doubleBonus = true;
+spawnStars(centerX, centerY, true);
+showMessage("INCREDIBLE!", "Incredible!");
+setTimeout(() => {
+doubleBonus = false;
+}, 3000);
+}
+timerCircle.textContent = time.toFixed(1);
+scoreText.textContent = "SCORE: " + score.toLocaleString("it-IT");
+comboText.textContent = "COMBO " + comboCount;
+removeButton(btn);
+}
 function checkComboMessages() {
-    if (comboCount === 5) {
-        playSynthEffect("milestone");
-        showMessage("GREAT!", "Great!");
-    } else if (comboCount === 10) {
-        playSynthEffect("milestone");
-        showMessage("FANTASTIC!", "Fantastic!");
-    } else if (comboCount === 15) {
-        playSynthEffect("milestone");
-        showMessage("AMAZING!", "Amazing!");
-    } else if (comboCount === 20) {
-        playSynthEffect("milestone");
-        showMessage("UNBELIEVABLE!", "Unbelievable!");
-    } else if (comboCount > 0 && comboCount % 25 === 0) {
-        playSynthEffect("milestone");
-        showMessage("LEGENDARY!", "Legendary!");
-    }
+if (comboCount === 5) {
+playSynthEffect("milestone");
+showMessage("GREAT!", "Great!");
+} else if (comboCount === 10) {
+playSynthEffect("milestone");
+showMessage("FANTASTIC!", "Fantastic!");
+} else if (comboCount === 15) {
+playSynthEffect("milestone");
+showMessage("AMAZING!", "Amazing!");
+} else if (comboCount === 20) {
+playSynthEffect("milestone");
+showMessage("UNBELIEVABLE!", "Unbelievable!");
+} else if (comboCount > 0 && comboCount % 25 === 0) {
+playSynthEffect("milestone");
+showMessage("LEGENDARY!", "Legendary!");
 }
-
+}
 function showMessage(text, spokenText = "") {
-    clearTimeout(messageTimeout);
-    specialMessage.textContent = text;
-    specialMessage.style.display = "none";
-    void specialMessage.offsetWidth;
-    specialMessage.style.display = "block";
-
-    if (spokenText) {
-        speakEnglish(spokenText, 1.05, 0.9);
-    }
-
-    messageTimeout = setTimeout(() => {
-        specialMessage.style.display = "none";
-    }, 1100);
+clearTimeout(messageTimeout);
+specialMessage.textContent = text;
+specialMessage.style.display = "none";
+void specialMessage.offsetWidth;
+specialMessage.style.display = "block";
+if (spokenText) {
+speakEnglish(spokenText, 1.08, 1.12);
 }
-
+messageTimeout = setTimeout(() => {
+specialMessage.style.display = "none";
+}, 1100);
+}
 function removeButton(btn) {
-    if (!btn) return;
-    const index = activeButtons.indexOf(btn);
-    if (index > -1) {
-        activeButtons.splice(index, 1);
-    }
-    if (btn.parentNode) {
-        btn.remove();
-    }
+if (!btn) return;
+const index = activeButtons.indexOf(btn);
+if (index > -1) {
+activeButtons.splice(index, 1);
 }
-
+if (btn.parentNode) {
+btn.remove();
+}
+}
 function animateScoreCounter(element, targetValue, onComplete) {
-    let current = 0;
-    const steps = 45;
-    const increment = targetValue / steps;
-    const counter = setInterval(() => {
-        current += increment;
-        if (current >= targetValue) {
-            current = targetValue;
-            clearInterval(counter);
-            element.textContent = Math.round(current).toLocaleString("it-IT");
-            if (onComplete) onComplete();
-        } else {
-            element.textContent = Math.round(current).toLocaleString("it-IT");
-        }
-    }, 30);
+let current = 0;
+const steps = 45;
+const increment = targetValue / steps;
+const counter = setInterval(() => {
+current += increment;
+if (current >= targetValue) {
+current = targetValue;
+clearInterval(counter);
+element.textContent = Math.round(current).toLocaleString("it-IT");
+if (onComplete) onComplete();
+} else {
+element.textContent = Math.round(current).toLocaleString("it-IT");
 }
-
+}, 30);
+}
 function gameOver() {
-    if (!running) return;
-    running = false;
-    clearInterval(timerInterval);
-    clearInterval(spawnInterval);
-    timerCircle.classList.remove("timer-panic");
-    if (bgMusic) {
-        bgMusic.pause();
-    }
-
-    while (activeButtons.length > 0) {
-        const firstBtn = activeButtons.shift();
-        if (firstBtn && firstBtn.parentNode) {
-            firstBtn.remove();
-        }
-    }
-
-    if (maxComboRun > bestCombo) {
-        bestCombo = maxComboRun;
-        localStorage.setItem("bestCombo", bestCombo);
-    }
-
-    gameOverScreen.style.display = "flex";
-    finalScore.textContent = score.toLocaleString("it-IT");
-    finalCombo.textContent = maxComboRun.toLocaleString("it-IT");
-
-    if (score > record && score > 0) {
-        record = score;
-        localStorage.setItem("record", record);
-        newRecordMessage.style.display = "block";
-        isAnimatingRecord = true;
-        playSynthEffect("newrecord");
-        speakEnglish("New record!", 1.0, 0.9);
-
-        finalRecord.textContent = "0";
+if (!running) return;
+running = false;
+clearInterval(timerInterval);
+clearInterval(spawnInterval);
+timerCircle.classList.remove("timer-panic");
+if (bgMusic) {
+bgMusic.pause();
+}
+while (activeButtons.length > 0) {
+const firstBtn = activeButtons.shift();
+if (firstBtn && firstBtn.parentNode) {
+firstBtn.remove();
+}
+}
+if (maxComboRun > bestCombo) {
+bestCombo = maxComboRun;
+localStorage.setItem("bestCombo", bestCombo);
+}
+gameOverScreen.style.display = "flex";
+finalScore.textContent = score.toLocaleString("it-IT");
+finalCombo.textContent = maxComboRun.toLocaleString("it-IT");
+if (score > record && score > 0) {
+record = score;
+localStorage.setItem("record", record);
+newRecordMessage.style.display = "block";
+isAnimatingRecord = true;
+playSynthEffect("newrecord");
+speakEnglish("New record!", 1.05, 1.15);
+finalRecord.textContent = "0";
 animateScoreCounter(finalRecord, record, () => {
 isAnimatingRecord = false;
 });
 } else {
 newRecordMessage.style.display = "none";
 playSynthEffect("gameover");
-speakEnglish("Game over!", 0.9, 0.7);
+speakEnglish("Game over!", 0.95, 0.95);
 finalRecord.textContent = record.toLocaleString("it-IT");
 }
 }

@@ -1,37 +1,26 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TIME TAP</title>
     <link rel="preconnect" href="https://googleapis.com">
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
-    <link href="https://googleapis.com/css2?family=Fredoka:wght@700&family=Lilita+One&display=swap" rel="stylesheet">
+    <link href="https://googleapis.com/css2?family=Fredoka:wght@600;700&family=Lilita+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-    <!-- BLOCCHI DECORATIVI SULLO SFONDO STILE BLOCK BLAST -->
-    <div class="bg-blocks" aria-hidden="true">
-        <span class="b-tile t1"></span>
-        <span class="b-tile t2"></span>
-        <span class="b-tile t3"></span>
-        <span class="b-tile t4"></span>
-        <span class="b-tile t5"></span>
-        <span class="b-tile t6"></span>
+    <div class="bg-blocks">
+        <div class="b-tile t1"></div>
+        <div class="b-tile t2"></div>
+        <div class="b-tile t3"></div>
+        <div class="b-tile t4"></div>
+        <div class="b-tile t5"></div>
+        <div class="b-tile t6"></div>
     </div>
 
-    <!-- COUNTDOWN -->
-    <div id="countdown"></div>
-
-    <!-- MESSAGGI SPECIALI -->
-    <div id="specialMessage"></div>
-
-    <!-- MENU HOME -->
     <div id="menu">
-
         <div class="home-stats">
             <div class="stat-pill gold-pill">
                 <span class="pill-icon">👑</span>
@@ -43,50 +32,40 @@
             </div>
         </div>
 
-        <!-- LOGO STILE BLOCK BLAST CON TESSERE 3D -->
         <div class="logo-wrapper">
             <div class="logo-row row-top">
-                <span class="block-letter c-red">T</span>
-                <span class="block-letter c-orange">I</span>
-                <span class="block-letter c-yellow">M</span>
-                <span class="block-letter c-green">E</span>
+                <div class="block-letter c-red">T</div>
+                <div class="block-letter c-orange">I</div>
+                <div class="block-letter c-yellow">M</div>
+                <div class="block-letter c-green">E</div>
             </div>
             <div class="logo-row row-bottom">
-                <span class="block-letter c-cyan">T</span>
-                <span class="block-letter c-purple">A</span>
-                <span class="block-letter c-pink">P</span>
+                <div class="block-letter c-cyan">T</div>
+                <div class="block-letter c-purple">A</div>
+                <div class="block-letter c-pink">P</div>
             </div>
         </div>
 
-        <button id="playBtn">
-            PLAY
-        </button>
-
+        <button id="playBtn">PLAY</button>
     </div>
 
-    <!-- GIOCO -->
-    <div id="game">
+    <div id="countdown">3</div>
 
+    <div id="game">
         <div class="hud-top">
             <div id="score">SCORE: 0</div>
             <div id="combo">COMBO 0</div>
         </div>
 
-        <div id="timerCircle">
-            2.5
-        </div>
+        <div id="specialMessage"></div>
 
+        <div id="timerCircle">2.5</div>
     </div>
 
-    <!-- GAME OVER -->
     <div id="gameOverScreen">
-
         <div class="gameover-panel">
             <h2>GAME OVER</h2>
-
-            <div id="newRecordMessage">
-                👑 NEW BEST! 👑
-            </div>
+            <div id="newRecordMessage">👑 NEW BEST! 👑</div>
 
             <div class="score-showcase">
                 <span class="showcase-title">SCORE</span>
@@ -109,25 +88,18 @@
                 <button id="homeBtn">HOME</button>
             </div>
         </div>
-
     </div>
 
-    <!-- SUONI -->
-    <audio id="greenSound" src="sounds/green.mp3"></audio>
-    <audio id="redSound" src="sounds/red.mp3"></audio>
-    <audio id="goldSound" src="sounds/incredible.mp3"></audio>
-    <audio id="epicSound" src="sounds/epicsave.mp3"></audio>
-    <audio id="threeSound" src="sounds/three.mp3"></audio>
-    <audio id="twoSound" src="sounds/two.mp3"></audio>
-    <audio id="oneSound" src="sounds/one.mp3"></audio>
-    <audio id="goSound" src="sounds/go.mp3"></audio>
+    <audio id="greenSound"></audio>
+    <audio id="redSound"></audio>
+    <audio id="goldSound"></audio>
+    <audio id="epicSound"></audio>
+    <audio id="threeSound"></audio>
+    <audio id="twoSound"></audio>
+    <audio id="oneSound"></audio>
+    <audio id="goSound"></audio>
+    <audio id="bgMusic" loop></audio>
 
-    <!-- MUSICA -->
-    <audio id="bgMusic" src="sounds/music.mp3" loop></audio>
-
-    <!-- SCRIPT -->
     <script src="script.js"></script>
-
 </body>
-
 </html>

@@ -346,14 +346,14 @@ body {
     text-shadow: 0 4px 0 #1e293b, 0 6px 10px rgba(0, 0, 0, 0.4);
 }
 
-/* Cerchio Timer Centrale */
+/* Cerchio Timer Centrale (più piccolo su telefono) */
 #timerCircle {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 175px;
-    height: 175px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, #bfdbfe 0%, #3b82f6 50%, #1d4ed8 100%);
     border: 4px solid rgba(248, 250, 252, 0.6);
@@ -361,12 +361,11 @@ body {
     justify-content: center;
     align-items: center;
     color: #f8fafc;
-    font-size: 64px;
+    font-size: 52px;
     font-weight: 900;
     -webkit-text-stroke: 2.5px #1e3a8a;
     stroke-linejoin: round;
-    stroke-linecap: round;
-Usa il codice con cautela.
+stroke-linecap: round;
 paint-order: stroke fill;
 text-shadow: 0 4px 0 #1e3a8a, 0 7px 0 #0f172a, 0 10px 15px rgba(0, 0, 0, 0.4);
 box-shadow: inset 0 6px 0 rgba(255, 255, 255, 0.32),

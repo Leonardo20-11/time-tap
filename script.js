@@ -26,7 +26,7 @@ const bgMusic = document.getElementById("bgMusic");
 
 const isDesktop = window.innerWidth > 900;
 let time = isDesktop ? 3.0 : 2.5;
-timerCircle.textContent = time.toFixed(1);
+if (timerCircle) timerCircle.textContent = time.toFixed(1);
 
 let score = 0;
 let comboCount = 0;
@@ -43,8 +43,10 @@ let panicTickCounter = 0;
 let record = Number(localStorage.getItem("record")) || 0;
 let bestCombo = Number(localStorage.getItem("bestCombo")) || 0;
 
-document.getElementById("record").textContent = record.toLocaleString("it-IT");
-document.getElementById("bestComboHome").textContent = bestCombo.toLocaleString("it-IT");
+const recordEl = document.getElementById("record");
+const bestComboEl = document.getElementById("bestComboHome");
+if (recordEl) recordEl.textContent = record.toLocaleString("it-IT");
+if (bestComboEl) bestComboEl.textContent = bestCombo.toLocaleString("it-IT");
 
 const activeButtons = [];
 const arrows = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
@@ -61,25 +63,28 @@ let spawnDelay = isDesktop ? 240 : 260;
 let audioCtx = null;
 
 function initAudio() {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx) return;
-    if (!audioCtx) {
-        audioCtx = new AudioCtx();
-    }
-    if (audioCtx.state === "suspended") {
-        audioCtx.resume();
-    }
-    const buffer = audioCtx.createBuffer(1, 1, 22050);
-    const source = audioCtx.createBufferSource();
-    source.buffer = buffer;
-    source.connect(audioCtx.destination);
-    source.start(0);
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        if (!audioCtx) {
+            audioCtx = new AudioCtx();
+        }
+        if (audioCtx.state === "suspended") {
+            audioCtx.resume();
+        }
+        const buffer = audioCtx.createBuffer(1, 1, 22050);
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioCtx.destination);
+        source.start(0);
+    } catch (e) {}
 }
 
 document.addEventListener("touchstart", initAudio, { once: true });
 document.addEventListener("pointerdown", initAudio, { once: true });
 
 function playTone(freq, endFreq, type, startTime, duration, vol) {
+    if (!audioCtx) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = type;
@@ -141,28 +146,34 @@ function playSynthEffect(type) {
     }
 }
 
-playBtn.onclick = () => {
-    playSynthEffect("click");
-    startCountdown();
-};
-
-playAgainBtn.onclick = () => {
-    if (!isAnimatingRecord) {
+if (playBtn) {
+    playBtn.onclick = () => {
         playSynthEffect("click");
-        setTimeout(() => {
-            location.reload();
-        }, 90);
-    }
-};
+        startCountdown();
+    };
+}
 
-homeBtn.onclick = () => {
-    if (!isAnimatingRecord) {
-        playSynthEffect("click");
-        setTimeout(() => {
-            location.reload();
-        }, 90);
-    }
-};
+if (playAgainBtn) {
+    playAgainBtn.onclick = () => {
+        if (!isAnimatingRecord) {
+            playSynthEffect("click");
+            setTimeout(() => {
+                location.reload();
+            }, 90);
+        }
+    };
+}
+
+if (homeBtn) {
+    homeBtn.onclick = () => {
+        if (!isAnimatingRecord) {
+            playSynthEffect("click");
+            setTimeout(() => {
+                location.reload();
+            }, 90);
+        }
+    };
+}
 
 function playAudio(sound, synthFallback) {
     if (synthFallback) {
@@ -175,34 +186,36 @@ function playAudio(sound, synthFallback) {
 }
 
 function speakEnglish(phrase, rate = 1.05, pitch = 1.08) {
-    if (!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(phrase);
-    utterance.lang = "en-US";
-    utterance.rate = rate;
-    utterance.pitch = pitch;
-    utterance.volume = 1;
+    try {
+        if (!("speechSynthesis" in window)) return;
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(phrase);
+        utterance.lang = "en-US";
+        utterance.rate = rate;
+        utterance.pitch = pitch;
+        utterance.volume = 1;
 
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoices = [
-        "Google US English",
-        "Microsoft Aria",
-        "Microsoft Jenny",
-        "Samantha",
-        "Karen",
-        "Serena",
-        "Natural"
-    ];
+        const voices = window.speechSynthesis.getVoices();
+        const preferredVoices = [
+            "Google US English",
+            "Microsoft Aria",
+            "Microsoft Jenny",
+            "Samantha",
+            "Karen",
+            "Serena",
+            "Natural"
+        ];
 
-    const selectedVoice =
-        voices.find(v => v.lang.startsWith("en") && preferredVoices.some(name => v.name.includes(name))) ||
-        voices.find(v => v.lang === "en-US") ||
-        voices.find(v => v.lang.startsWith("en"));
+        const selectedVoice =
+            voices.find(v => v.lang.startsWith("en") && preferredVoices.some(name => v.name.includes(name))) ||
+            voices.find(v => v.lang === "en-US") ||
+            voices.find(v => v.lang.startsWith("en"));
 
-    if (selectedVoice) {
-        utterance.voice = selectedVoice;
-    }
-    window.speechSynthesis.speak(utterance);
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+        }
+        window.speechSynthesis.speak(utterance);
+    } catch (e) {}
 }
 
 if ("speechSynthesis" in window) {
@@ -282,20 +295,17 @@ function startGame() {
     createButton();
     spawnInterval = setInterval(() => {
         if (!running) return;
-        if (activeButtons.length < 4) {
-            createButton();
-        }
-    }, spawnDelay);
+if (activeButtons.length < 4) {
+createButton();
 }
-
+}, spawnDelay);
+}
 function createButton() {
-    const freeArrows = arrows.filter(a => !activeButtons.some(b => b.dataset.key === a));
-    if (freeArrows.length === 0) return;
-
-    const greens = activeButtons.filter(b => b.dataset.action === "green").length;
-    const reds = activeButtons.filter(b => b.dataset.action === "red").length;
-
-    let type = "green";
+const freeArrows = arrows.filter(a => !activeButtons.some(b => b.dataset.key === a));
+if (freeArrows.length === 0) return;
+const greens = activeButtons.filter(b => b.dataset.action === "green").length;
+const reds = activeButtons.filter(b => b.dataset.action === "red").length;
+let type = "green";
 if (greens >= 3) {
 type = "red";
 } else if (reds >= 2) {

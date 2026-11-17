@@ -629,7 +629,7 @@ box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.3), 0 7px 0 #78350f;
 #homeBtn:active {
 transform: translateY(6px);
 }
-/* --- COMPUTER: CERCHI PIÙ GRANDI, FRECCE VISIBILI E LUMINOSITÀ ORIGINALE --- */
+/* --- COMPUTER: CERCHI PIÙ GRANDI, FRECCE VISIBILI E DECIMI INGRANDITI --- */
 @media (min-width: 901px) {
 #timerCircle {
 width: 245px;
@@ -656,11 +656,11 @@ box-shadow: inset 0 6px 0 rgba(255, 255, 255, 0.75), 0 7px 0 #a16207, 0 0 22px #
 }
 .arrow {
 display: block;
-font-size: 54px;
+font-size: 52px;
 line-height: 1;
 }
 .value {
-font-size: 25px;
+font-size: 35px;
 margin-top: 4px;
 }
 }

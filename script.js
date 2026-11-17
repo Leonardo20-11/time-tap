@@ -296,7 +296,6 @@ function createButton() {
     const reds = activeButtons.filter(b => b.dataset.action === "red").length;
 
     let type = "green";
-Usa il codice con cautela.
 if (greens >= 3) {
 type = "red";
 } else if (reds >= 2) {

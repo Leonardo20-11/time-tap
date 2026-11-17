@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TIME TAP</title>
     <link rel="preconnect" href="https://googleapis.com">
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
-    <link href="https://googleapis.com/css2?family=Fredoka:wght@600;700&family=Lilita+One&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link href="https://googleapis.com/css2?family=Fredoka:wght@700&family=Lilita+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -20,6 +20,7 @@
         <div class="b-tile t6"></div>
     </div>
 
+    <!-- MENU HOME -->
     <div id="menu">
         <div class="home-stats">
             <div class="stat-pill gold-pill">
@@ -46,11 +47,13 @@
             </div>
         </div>
 
-        <button id="playBtn" type="button">PLAY</button>
+        <button id="playBtn">PLAY</button>
     </div>
 
+    <!-- COUNTDOWN -->
     <div id="countdown">3</div>
 
+    <!-- AREA DI GIOCO -->
     <div id="game">
         <div class="hud-top">
             <div id="score">SCORE: 0</div>
@@ -58,48 +61,38 @@
         </div>
 
         <div id="specialMessage"></div>
-
         <div id="timerCircle">2.5</div>
     </div>
 
+    <!-- SCHERMATA GAME OVER -->
     <div id="gameOverScreen">
         <div class="gameover-panel">
             <h2>GAME OVER</h2>
             <div id="newRecordMessage">👑 NEW BEST! 👑</div>
 
             <div class="score-showcase">
-                <span class="showcase-title">SCORE</span>
-                <span id="finalScore" class="showcase-big">0</span>
+                <div class="showcase-title">SCORE</div>
+                <div id="finalScore" class="showcase-big">0</div>
             </div>
 
             <div class="mini-stats-row">
                 <div class="mini-card gold-card">
-                    <span class="mini-label">👑 BEST</span>
-                    <span id="finalRecord" class="mini-value">0</span>
+                    <div class="mini-label">👑 BEST</div>
+                    <div id="finalRecord" class="mini-value">0</div>
                 </div>
                 <div class="mini-card fire-card">
-                    <span class="mini-label">🔥 COMBO</span>
-                    <span id="finalCombo" class="mini-value">0</span>
+                    <div class="mini-label">🔥 COMBO</div>
+                    <div id="finalCombo" class="mini-value">0</div>
                 </div>
             </div>
 
             <div class="gameover-buttons">
-                <button id="playAgainBtn" type="button">PLAY</button>
-                <button id="homeBtn" type="button">HOME</button>
+                <button id="playAgainBtn">PLAY</button>
+                <button id="homeBtn">HOME</button>
             </div>
         </div>
     </div>
 
-    <audio id="greenSound"></audio>
-    <audio id="redSound"></audio>
-    <audio id="goldSound"></audio>
-    <audio id="epicSound"></audio>
-    <audio id="threeSound"></audio>
-    <audio id="twoSound"></audio>
-    <audio id="oneSound"></audio>
-    <audio id="goSound"></audio>
-    <audio id="bgMusic" loop></audio>
-
-    <script src="script.js"></script>
+    <script src="script.js?v=2"></script>
 </body>
 </html>

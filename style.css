@@ -381,7 +381,7 @@ animation: panicPulse 0.35s infinite alternate;
 0% { transform: translate(-50%, -50%) scale(1); }
 100% { transform: translate(-50%, -50%) scale(1.08); }
 }
-/* --- PULSANTI GIOCO (LEGGERMENTE PIÙ GRANDI E CON DECIMI MOLTO GRANDI) --- */
+/* --- PULSANTI GIOCO (DECIMI VISIBILI E PROPORZIONATI SU TELEFONO) --- */
 .button-circle {
 font-family: 'Lilita One', 'Fredoka', sans-serif;
 position: absolute;
@@ -394,6 +394,8 @@ display: flex;
 flex-direction: column;
 justify-content: center;
 align-items: center;
+font-size: 32px !important;
+font-weight: 900 !important;
 z-index: 20;
 animation: spawnBtn 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -408,9 +410,9 @@ transform: scale(0.9) translateY(4px);
 .button-circle .arrow {
 display: none !important;
 }
-/* Decimi molto grandi e nitidi dentro i pallini */
+/* Decimi ben leggibili dentro i pallini su telefono */
 .button-circle .value {
-font-size: 38px !important;
+font-size: 32px !important;
 font-weight: 900 !important;
 line-height: 1 !important;
 letter-spacing: 0.5px;
@@ -632,7 +634,7 @@ box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.3), 0 7px 0 #78350f;
 #homeBtn:active {
 transform: translateY(6px);
 }
-/* --- COMPUTER: CERCHI GRANDI, FRECCE VISIBILI E DECIMI GRANDISSIMI --- */
+/* --- COMPUTER: CERCHI GRANDI, FRECCE VISIBILI E DECIMI PROPORZIONATI --- */
 @media (min-width: 768px) {
 #timerCircle {
 width: 245px;
@@ -644,6 +646,7 @@ width: 165px;
 height: 165px;
 border-width: 5px;
 border-color: rgba(255, 255, 255, 0.85);
+font-size: 40px !important;
 }
 .green {
 background: radial-gradient(circle at 30% 30%, #bbf7d0 0%, #22c55e 55%, #15803d 100%);
@@ -659,12 +662,13 @@ box-shadow: inset 0 6px 0 rgba(255, 255, 255, 0.75), 0 7px 0 #a16207, 0 0 22px #
 }
 .button-circle .arrow {
 display: block !important;
-font-size: 54px !important;
+font-size: 48px !important;
 line-height: 1 !important;
 }
 .button-circle .value {
-font-size: 46px !important;
+font-size: 40px !important;
 font-weight: 900 !important;
+line-height: 1 !important;
 margin-top: 4px;
 }
 }

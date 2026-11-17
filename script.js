@@ -109,7 +109,6 @@ function initTimeTapGame() {
         const now = audioCtx.currentTime;
 
         if (type === "green") {
-            /* Suono POP morbido, rotondo e soddisfacente (mai stridulo) */
             const step = Math.min(comboCount * 10, 160);
             playTone(260 + step, 440 + step, "sine", now, 0.11, 0.55);
             playTone(150 + step * 0.4, 90, "triangle", now, 0.08, 0.35);
@@ -270,8 +269,8 @@ function initTimeTapGame() {
     function startGame() {
         running = true;
 
-timerInterval = setInterval(() => {
-if (!running) return;
+        timerInterval = setInterval(() => {
+            if (!running) return;
 time = Math.max(0, Number((time - 0.1).toFixed(2)));
 timerCircle.textContent = time.toFixed(1);
 if (time <= 1.0) {

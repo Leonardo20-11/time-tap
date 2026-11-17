@@ -46,18 +46,18 @@ body {
     100% { transform: translateY(-18px) rotate(8deg); }
 }
 
-/* --- PULSANTE AUDIO HOME --- */
+/* --- PULSANTE AUDIO HOME (BEN STACCATO A DESTRA) --- */
 .audio-btn {
     position: absolute;
-    top: 22px;
-    right: 20px;
-    width: 54px;
-    height: 54px;
+    top: 20px;
+    right: 16px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     border: 3px solid rgba(248, 250, 252, 0.65);
     background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
     color: #ffffff;
-    font-size: 26px;
+    font-size: 22px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -90,24 +90,23 @@ body {
 
 .home-stats {
     position: absolute;
-    top: 22px;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 20px;
+    left: 16px;
+    right: 76px;
     display: flex;
-    gap: 14px;
-    justify-content: center;
-    width: 72%;
+    gap: 10px;
+    justify-content: flex-start;
     z-index: 20;
 }
 
 .stat-pill {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 9px 18px;
-    border-radius: 24px;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 22px;
     border: 3px solid rgba(245, 248, 255, 0.55);
-    font-size: clamp(20px, 5vw, 28px);
+    font-size: clamp(18px, 4.5vw, 24px);
     font-weight: 900;
     color: #f8fafc;
     -webkit-text-stroke: 1.5px rgba(15, 23, 42, 0.7);
@@ -120,17 +119,17 @@ body {
 
 .gold-pill {
     background: linear-gradient(180deg, #facc15 0%, #d97706 100%);
-    box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.4), 0 7px 0 #92400e, 0 12px 20px rgba(0, 0, 0, 0.35);
+    box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.4), 0 6px 0 #92400e, 0 10px 16px rgba(0, 0, 0, 0.35);
 }
 
 .fire-pill {
     background: linear-gradient(180deg, #f43f5e 0%, #be123c 100%);
-    box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.35), 0 7px 0 #881337, 0 12px 20px rgba(0, 0, 0, 0.35);
+    box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.35), 0 6px 0 #881337, 0 10px 16px rgba(0, 0, 0, 0.35);
     animation-delay: 0.35s;
 }
 
 .pill-icon {
-    font-size: 22px;
+    font-size: 20px;
     filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.4));
 }
 
@@ -309,21 +308,21 @@ body {
     font-family: 'Lilita One', 'Fredoka', sans-serif;
     position: absolute;
     left: 50%;
-    top: 15%;
+    top: 14%;
     transform: translateX(-50%);
     color: #facc15;
     width: 95%;
     text-align: center;
-    font-size: clamp(44px, 11.5vw, 66px);
+    font-size: clamp(38px, 10vw, 58px);
     font-weight: 900;
     letter-spacing: 2px;
-    -webkit-text-stroke: 3.5px #78350f;
+    -webkit-text-stroke: 3px #78350f;
     stroke-linejoin: round;
     stroke-linecap: round;
     paint-order: stroke fill;
     text-shadow: 0 5px 0 #9a3412,
-                 0 9px 0 #1e293b,
-                 0 15px 25px rgba(0, 0, 0, 0.5);
+                 0 8px 0 #1e293b,
+                 0 14px 22px rgba(0, 0, 0, 0.5);
     display: none;
     z-index: 100;
     pointer-events: none;
@@ -332,11 +331,11 @@ body {
 
 @keyframes popMessage {
     0% { transform: translateX(-50%) scale(0.2) rotate(-8deg); opacity: 0; }
-    75% { transform: translateX(-50%) scale(1.18) rotate(4deg); opacity: 1; }
+    75% { transform: translateX(-50%) scale(1.15) rotate(4deg); opacity: 1; }
     100% { transform: translateX(-50%) scale(1) rotate(0deg); opacity: 1; }
 }
 
-/* --- AREA DI GIOCO --- */
+/* --- AREA DI GIOCO (HUD PIÙ COMPATTA PER DARE SPAZIO) --- */
 #game {
     display: none;
     width: 100vw;
@@ -347,34 +346,35 @@ body {
 
 .hud-top {
     position: absolute;
-    top: 18px;
-    left: 24px;
+    top: 14px;
+    left: 18px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
     z-index: 50;
+    pointer-events: none;
 }
 
 #score {
-    font-size: 33px;
+    font-size: 25px;
     font-weight: 900;
     color: #f8fafc;
-    -webkit-text-stroke: 2px #0f172a;
+    -webkit-text-stroke: 1.8px #0f172a;
     stroke-linejoin: round;
     stroke-linecap: round;
     paint-order: stroke fill;
-    text-shadow: 0 4px 0 #0f172a, 0 6px 10px rgba(0, 0, 0, 0.4);
+    text-shadow: 0 3px 0 #0f172a, 0 5px 8px rgba(0, 0, 0, 0.4);
 }
 
 #combo {
-    font-size: 26px;
+    font-size: 20px;
     font-weight: 900;
     color: #facc15;
-    -webkit-text-stroke: 2px #78350f;
+-webkit-text-stroke: 1.5px #78350f;
 stroke-linejoin: round;
 stroke-linecap: round;
 paint-order: stroke fill;
-text-shadow: 0 4px 0 #1e293b, 0 6px 10px rgba(0, 0, 0, 0.4);
+text-shadow: 0 3px 0 #1e293b, 0 5px 8px rgba(0, 0, 0, 0.4);
 }
 /* Cerchio Timer Centrale (su telefono) */
 #timerCircle {
@@ -483,48 +483,44 @@ border-color: #ef4444;
 text-shadow: 0 3px 0 #000000;
 box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.2), 0 6px 0 #020617, 0 0 16px rgba(239, 68, 68, 0.75);
 }
-/* --- TESTI VOLANTI E SCOSSA SCHERMO --- */
+/* --- TESTI VOLANTI E MICRO-SCOSSA SCHERMO --- */
 .floating-text {
 position: absolute;
 pointer-events: none;
-font-size: 32px;
+font-size: 26px;
 font-weight: 900;
 z-index: 80;
--webkit-text-stroke: 2px #0f172a;
+-webkit-text-stroke: 1.5px #0f172a;
 paint-order: stroke fill;
-text-shadow: 0 4px 0 #0f172a;
-animation: floatUp 0.7s ease-out forwards;
+text-shadow: 0 3px 0 #0f172a;
+animation: floatUp 0.6s ease-out forwards;
 }
 @keyframes floatUp {
 0% {
-transform: translate(-50%, -50%) scale(0.5);
-opacity: 1;
-}
-50% {
-transform: translate(-50%, -110%) scale(1.2);
+transform: translate(-50%, -50%) scale(0.6);
 opacity: 1;
 }
 100% {
-transform: translate(-50%, -160%) scale(1);
+transform: translate(-50%, -135%) scale(1.05);
 opacity: 0;
 }
 }
 .screen-shake {
-animation: shakeAnim 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+animation: shakeAnim 0.22s ease-in-out both;
 }
 @keyframes shakeAnim {
-10%, 90% { transform: translate3d(-5px, 0, 0); }
-20%, 80% { transform: translate3d(7px, 0, 0); }
-30%, 50%, 70% { transform: translate3d(-9px, 0, 0); }
-40%, 60% { transform: translate3d(9px, 0, 0); }
+0%, 100% { transform: translate3d(0, 0, 0); }
+25% { transform: translate3d(-2px, 1px, 0); }
+50% { transform: translate3d(2px, -1px, 0); }
+75% { transform: translate3d(-2px, 0, 0); }
 }
 /* --- STELLINE --- */
 .star-particle {
 position: absolute;
 pointer-events: none;
 z-index: 5;
-font-size: 20px;
-animation: starBurst 0.55s ease-out forwards;
+font-size: 18px;
+animation: starBurst 0.5s ease-out forwards;
 }
 @keyframes starBurst {
 0% {
@@ -532,7 +528,7 @@ transform: translate(-50%, -50%) scale(0.4) rotate(0deg);
 opacity: 1;
 }
 100% {
-transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.25) rotate(180deg);
+transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.15) rotate(180deg);
 opacity: 0;
 }
 }
@@ -717,6 +713,12 @@ transform: translateY(6px);
 }
 /* --- COMPUTER: CERCHI GRANDI, FRECCE VISIBILI E DECIMI PROPORZIONATI --- */
 @media (min-width: 768px) {
+#score {
+font-size: 28px;
+}
+#combo {
+font-size: 22px;
+}
 #timerCircle {
 width: 245px;
 height: 245px;

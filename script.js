@@ -198,7 +198,7 @@ function initTimeTapGame() {
         el.style.top = y + "px";
         el.style.color = color;
         game.appendChild(el);
-        setTimeout(() => el.remove(), 700);
+        setTimeout(() => el.remove(), 600);
     }
 
     function triggerScreenShake() {
@@ -377,26 +377,25 @@ type = "green";
 } else if (greens === 2 && reds === 0) {
 type = "red";
 } else {
-type = Math.random() < 0.6 ? "green" : "red";
+type = Math.random() < 0.65 ? "green" : "red";
 }
-/* --- PALLINI SPECIALI RARI --- */
-if (!hasSpecial && greens > 0) {
+/* --- SOSTITUISCE SOLO I ROSSI E MAI INSIEME --- */
+if (type === "red" && !hasSpecial) {
 const rand = Math.random();
-if (rand < 0.025) {
-// Bomba molto rara (2.5% di probabilità)
+if (rand < 0.03) {
+// Bomba molto rara (sostituisce un rosso)
 type = "bomb";
-} else if (rand < 0.065 && !isFrozen) {
-// Ghiaccio raro (4% di probabilità)
+} else if (rand < 0.08 && !isFrozen) {
+// Ghiaccio raro (sostituisce un rosso)
 type = "ice";
-} else if (rand < 0.085 && time < 2.5) {
-// Oro x2 raro
-type = "gold";
 }
+} else if (type === "green" && !hasSpecial && time < 2.2 && Math.random() < 0.02) {
+// Oro x2 raro quando hai poco tempo
+type = "gold";
 }
 const btn = document.createElement("button");
 btn.classList.add("button-circle");
-const key = freeArrows[Math.floor(
-Math.random() * freeArrows.length)];
+const key = freeArrows[Math.floor(Math.random() * freeArrows.length)];
 let valueText = "";
 if (type === "green") {
 btn.classList.add("green");
@@ -440,7 +439,7 @@ const centerY = window.innerHeight / 2;
 while (!valid && attempts < 100) {
 attempts++;
 x = margin + Math.random() * (window.innerWidth - btnSize - margin * 2);
-y = 95 + Math.random() * (window.innerHeight - btnSize - 115);
+y = 85 + Math.random() * (window.innerHeight - btnSize - 105);
 valid = true;
 const distCenter = Math.hypot((x + btnSize / 2) - centerX, (y + btnSize / 2) - centerY);
 if (distCenter < minCenterDist) {
@@ -496,7 +495,7 @@ star.style.setProperty("--dy", (Math.sin(angle) * radius) + "px");
 game.appendChild(star);
 setTimeout(() => {
 star.remove();
-}, 550);
+}, 500);
 }
 }
 function activateButton(btn) {

@@ -245,7 +245,7 @@ function startGame() {
 
         if (time <= 1.0) {
             timerCircle.style.background = "radial-gradient(circle at 30% 30%, #fecaca 0%, #ef4444 50%, #b91c1c 100%)";
-            timerCircle.style.boxShadow = "inset 0 8px 0 rgba(255, 255, 255, 0.45), 0 10px 0 #7f1d1d, 0 14px 0 #1e293b, 0 0 28px rgba(239, 68, 68, 0.9)";
+            timerCircle.style.boxShadow = "inset 0 8px 0 rgba(255, 255, 255, 0.45), 0 11px 0 #7f1d1d, 0 0 28px rgba(239, 68, 68, 0.9)";
             timerCircle.classList.add("timer-panic");
 
             panicTickCounter++;
@@ -253,8 +253,8 @@ function startGame() {
                 playSynthEffect("tick");
             }
         } else {
-            timerCircle.style.background = "radial-gradient(circle at 30% 30%, #ffffff 0%, #7dd3fc 45%, #0284c7 100%)";
-            timerCircle.style.boxShadow = "inset 0 8px 0 rgba(255, 255, 255, 0.5), 0 10px 0 #0369a1, 0 14px 0 #1e293b, 0 20px 30px rgba(0, 0, 0, 0.35)";
+            timerCircle.style.background = "radial-gradient(circle at 30% 30%, #ffffff 0%, #60a5fa 45%, #1d4ed8 100%)";
+            timerCircle.style.boxShadow = "inset 0 8px 0 rgba(255, 255, 255, 0.55), 0 11px 0 #1e3a8a, 0 20px 30px rgba(0, 0, 0, 0.45)";
             timerCircle.classList.remove("timer-panic");
             panicTickCounter = 0;
         }
@@ -322,10 +322,10 @@ function createButton() {
     btn.dataset.action = type;
     btn.innerHTML = `<div class="arrow">${symbols[key]}</div><div class="value">${valueText}</div>`;
 
-    const btnSize = isDesktop ? 126 : 94;
-    const minCenterDist = isDesktop ? 205 : 155;
-    const minBtnDist = isDesktop ? 155 : 115;
-    const margin = 20;
+    const btnSize = isDesktop ? 150 : 96;
+    const minCenterDist = isDesktop ? 230 : 155;
+    const minBtnDist = isDesktop ? 185 : 118;
+    const margin = 22;
     let x = 0;
     let y = 0;
     let valid = false;
@@ -334,7 +334,7 @@ function createButton() {
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
 
-    while (!valid && attempts < 80) {
+    while (!valid && attempts < 90) {
         attempts++;
         x = margin + Math.random() * (window.innerWidth - btnSize - margin * 2);
         y = 95 + Math.random() * (window.innerHeight - btnSize - 115);
@@ -552,7 +552,8 @@ function gameOver() {
         isAnimatingRecord = true;
         playSynthEffect("newrecord");
         speakEnglish("New record!", 1.0, 0.9);
-finalRecord.textContent = "0";
+
+        finalRecord.textContent = "0";
 animateScoreCounter(finalRecord, record, () => {
 isAnimatingRecord = false;
 });

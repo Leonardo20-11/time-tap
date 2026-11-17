@@ -4,21 +4,17 @@
     box-sizing: border-box;
     user-select: none;
     -webkit-user-select: none;
-}
-
-.chunky-text {
-    font-family: 'Lilita One', 'Arial Black', sans-serif;
-    paint-order: stroke fill;
+    -webkit-font-smoothing: antialiased;
 }
 
 body {
     overflow: hidden;
-    font-family: 'Lilita One', 'Arial Black', sans-serif;
-    background: radial-gradient(circle at 50% 35%, #5b8def 0%, #3b66c4 55%, #284794 100%);
+    font-family: 'Lilita One', 'Fredoka', 'Arial Rounded MT Bold', sans-serif;
+    background: radial-gradient(circle at 50% 30%, #4f86f7 0%, #2b59c3 55%, #1b3b8c 100%);
     min-height: 100vh;
 }
 
-/* --- TESSERE DECORATIVE SFONDO --- */
+/* --- TESSERE DECORATIVE SFONDO NITIDE --- */
 .bg-blocks {
     position: fixed;
     inset: 0;
@@ -29,21 +25,21 @@ body {
 
 .b-tile {
     position: absolute;
-    width: 64px;
-    height: 64px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 3px solid rgba(255, 255, 255, 0.14);
-    box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.15), 0 6px 0 rgba(15, 23, 42, 0.15);
-    animation: tileDrift 9s ease-in-out infinite alternate;
+    width: 68px;
+    height: 68px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 100%);
+    border: 3px solid rgba(255, 255, 255, 0.18);
+    box-shadow: inset 0 6px 0 rgba(255, 255, 255, 0.2), 0 8px 0 rgba(15, 23, 42, 0.2);
+    animation: tileDrift 8s ease-in-out infinite alternate;
 }
 
-.t1 { top: 12%; left: 8%; transform: rotate(-12deg); }
-.t2 { top: 20%; right: 10%; width: 52px; height: 52px; transform: rotate(15deg); animation-delay: 1s; }
-.t3 { bottom: 18%; left: 12%; width: 72px; height: 72px; transform: rotate(10deg); animation-delay: 2s; }
-.t4 { bottom: 14%; right: 9%; transform: rotate(-18deg); animation-delay: 1.5s; }
-.t5 { top: 52%; left: 4%; width: 46px; height: 46px; transform: rotate(22deg); animation-delay: 0.5s; }
-.t6 { top: 48%; right: 5%; width: 56px; height: 56px; transform: rotate(-10deg); animation-delay: 2.5s; }
+.t1 { top: 11%; left: 7%; transform: rotate(-12deg); }
+.t2 { top: 19%; right: 9%; width: 54px; height: 54px; transform: rotate(15deg); animation-delay: 1s; }
+.t3 { bottom: 17%; left: 10%; width: 74px; height: 74px; transform: rotate(10deg); animation-delay: 2s; }
+.t4 { bottom: 13%; right: 8%; transform: rotate(-18deg); animation-delay: 1.5s; }
+.t5 { top: 52%; left: 4%; width: 48px; height: 48px; transform: rotate(22deg); animation-delay: 0.5s; }
+.t6 { top: 48%; right: 5%; width: 58px; height: 58px; transform: rotate(-10deg); animation-delay: 2.5s; }
 
 @keyframes tileDrift {
     0% { transform: translateY(0px) rotate(-10deg); }
@@ -62,6 +58,7 @@ body {
     z-index: 10;
 }
 
+/* Pillole Record e Max Combo in alto */
 .home-stats {
     position: absolute;
     top: 22px;
@@ -78,32 +75,29 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 18px;
-    border-radius: 22px;
-    border: 4px solid #1e293b;
+    padding: 9px 20px;
+    border-radius: 24px;
+    border: 3px solid rgba(255, 255, 255, 0.75);
     font-size: clamp(22px, 5.5vw, 28px);
     color: #ffffff;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 5px #1e293b;
-    text-shadow: 0 4px 0 #1e293b;
+    text-shadow: 0 3px 0 rgba(0, 0, 0, 0.55), 0 0 2px rgba(0, 0, 0, 0.8);
     animation: pillBob 2.6s ease-in-out infinite;
 }
 
 .gold-pill {
-    background: linear-gradient(180deg, #fde047 0%, #f59e0b 100%);
-    box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.65), 0 6px 0 #1e293b;
+    background: linear-gradient(180deg, #ffe047 0%, #f59e0b 100%);
+    box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.7), 0 7px 0 #b45309, 0 12px 20px rgba(0, 0, 0, 0.35);
 }
 
 .fire-pill {
-    background: linear-gradient(180deg, #fb7185 0%, #e11d48 100%);
-    box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.55), 0 6px 0 #1e293b;
+    background: linear-gradient(180deg, #ff6b8b 0%, #e11d48 100%);
+    box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.6), 0 7px 0 #9f1239, 0 12px 20px rgba(0, 0, 0, 0.35);
     animation-delay: 0.35s;
 }
 
 .pill-icon {
     font-size: 24px;
-    -webkit-text-stroke: 0;
-    filter: drop-shadow(0 2px 0 #1e293b);
+    filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.4));
 }
 
 @keyframes pillBob {
@@ -116,15 +110,15 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 52px;
+    gap: 12px;
+    margin-bottom: 54px;
     margin-top: 25px;
     animation: logoFloat 3s ease-in-out infinite;
 }
 
 .logo-row {
     display: flex;
-    gap: 8px;
+    gap: 9px;
 }
 
 .row-top {
@@ -136,18 +130,19 @@ body {
 }
 
 .block-letter {
-    width: clamp(64px, 16vw, 94px);
-    height: clamp(68px, 17vw, 98px);
-    border-radius: 20px;
-    border: 4px solid #1e293b;
+    width: clamp(66px, 16vw, 96px);
+    height: clamp(70px, 17vw, 100px);
+    border-radius: 22px;
+    border: 3px solid rgba(255, 255, 255, 0.8);
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: clamp(46px, 12vw, 72px);
     color: #ffffff;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 7px #1e293b;
-    text-shadow: 0 5px 0 #1e293b;
+    text-shadow: 0 2px 0 #1e293b,
+                 0 4px 0 #1e293b,
+                 0 6px 0 #0f172a,
+                 0 8px 10px rgba(0, 0, 0, 0.45);
     position: relative;
 }
 
@@ -157,44 +152,44 @@ body {
     top: 5px;
     left: 10%;
     width: 80%;
-    height: 22%;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.45);
+    height: 24%;
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.1) 100%);
 }
 
 .c-red {
-    background: linear-gradient(180deg, #ff6b6b 0%, #ef4444 100%);
-    box-shadow: 0 8px 0 #991b1b, 0 12px 0 #1e293b, 0 18px 25px rgba(0, 0, 0, 0.35);
+    background: linear-gradient(180deg, #ff7575 0%, #dc2626 100%);
+    box-shadow: 0 9px 0 #991b1b, 0 16px 24px rgba(0, 0, 0, 0.4);
 }
 
 .c-orange {
-    background: linear-gradient(180deg, #ffb347 0%, #f97316 100%);
-    box-shadow: 0 8px 0 #9a3412, 0 12px 0 #1e293b, 0 18px 25px rgba(0, 0, 0, 0.35);
+    background: linear-gradient(180deg, #ffba52 0%, #ea580c 100%);
+    box-shadow: 0 9px 0 #9a3412, 0 16px 24px rgba(0, 0, 0, 0.4);
 }
 
 .c-yellow {
     background: linear-gradient(180deg, #fef08a 0%, #eab308 100%);
-    box-shadow: 0 8px 0 #854d0e, 0 12px 0 #1e293b, 0 18px 25px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 9px 0 #854d0e, 0 16px 24px rgba(0, 0, 0, 0.4);
 }
 
 .c-green {
-    background: linear-gradient(180deg, #6ee7b7 0%, #10b981 100%);
-    box-shadow: 0 8px 0 #065f46, 0 12px 0 #1e293b, 0 18px 25px rgba(0, 0, 0, 0.35);
+    background: linear-gradient(180deg, #6ee7b7 0%, #059669 100%);
+    box-shadow: 0 9px 0 #065f46, 0 16px 24px rgba(0, 0, 0, 0.4);
 }
 
 .c-cyan {
-    background: linear-gradient(180deg, #67e8f9 0%, #06b6d4 100%);
-    box-shadow: 0 8px 0 #155e75, 0 12px 0 #1e293b, 0 18px 25px rgba(0, 0, 0, 0.35);
+    background: linear-gradient(180deg, #67e8f9 0%, #0891b2 100%);
+    box-shadow: 0 9px 0 #155e75, 0 16px 24px rgba(0, 0, 0, 0.4);
 }
 
 .c-purple {
-    background: linear-gradient(180deg, #d8b4fe 0%, #a855f7 100%);
-    box-shadow: 0 8px 0 #581c87, 0 12px 0 #1e293b, 0 18px 25px rgba(0, 0, 0, 0.35);
+    background: linear-gradient(180deg, #d8b4fe 0%, #9333ea 100%);
+    box-shadow: 0 9px 0 #581c87, 0 16px 24px rgba(0, 0, 0, 0.4);
 }
 
 .c-pink {
-    background: linear-gradient(180deg, #f9a8d4 0%, #ec4899 100%);
-    box-shadow: 0 8px 0 #831843, 0 12px 0 #1e293b, 0 18px 25px rgba(0, 0, 0, 0.35);
+    background: linear-gradient(180deg, #f9a8d4 0%, #db2777 100%);
+    box-shadow: 0 9px 0 #831843, 0 16px 24px rgba(0, 0, 0, 0.4);
 }
 
 @keyframes logoFloat {
@@ -202,34 +197,29 @@ body {
     50% { transform: translateY(-10px) scale(1.03); }
 }
 
-/* Pulsante PLAY cicciotto 3D */
+/* Pulsante PLAY 3D lucido */
 #playBtn {
-    font-family: 'Lilita One', 'Arial Black', sans-serif;
-    width: 270px;
+    font-family: 'Lilita One', 'Fredoka', sans-serif;
+    width: 275px;
     padding: 18px;
-    border: 4px solid #1e293b;
-    border-radius: 30px;
+    border: 4px solid rgba(255, 255, 255, 0.85);
+    border-radius: 34px;
     font-size: 46px;
     letter-spacing: 2px;
     cursor: pointer;
     color: #ffffff;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 6px #1e293b;
-    text-shadow: 0 4px 0 #1e293b;
+    text-shadow: 0 2px 0 #065f46, 0 4px 0 #064e3b, 0 6px 8px rgba(0, 0, 0, 0.4);
     background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%);
-    box-shadow: inset 0 6px 0 rgba(255, 255, 255, 0.55),
-                0 9px 0 #14532d,
-                0 13px 0 #1e293b,
-                0 20px 30px rgba(0, 0, 0, 0.35);
+    box-shadow: inset 0 7px 0 rgba(255, 255, 255, 0.55),
+                0 10px 0 #14532d,
+                0 18px 28px rgba(0, 0, 0, 0.4);
     transition: transform 0.1s ease;
     animation: playBounce 1.8s infinite;
 }
 
 #playBtn:active {
     transform: translateY(8px);
-    box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.4),
-                0 3px 0 #14532d,
-                0 6px 0 #1e293b;
+    box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.4), 0 3px 0 #14532d;
 }
 
 @keyframes playBounce {
@@ -237,16 +227,18 @@ body {
     50% { transform: scale(1.06); }
 }
 #countdown {
-    font-family: 'Lilita One', 'Arial Black', sans-serif;
+    font-family: 'Lilita One', 'Fredoka', sans-serif;
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
     font-size: clamp(135px, 32vw, 200px);
-    color: #fde047;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 14px #1e293b;
-    text-shadow: 0 10px 0 #1e293b, 0 20px 35px rgba(0, 0, 0, 0.45);
+    color: #ffe047;
+    text-shadow: 0 4px 0 #d97706,
+                 0 8px 0 #b45309,
+                 0 12px 0 #78350f,
+                 0 16px 0 #1e293b,
+                 0 24px 35px rgba(0, 0, 0, 0.55);
     display: none;
     z-index: 5000;
 }
@@ -261,21 +253,22 @@ body {
     100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
 }
 
-/* --- MESSAGGI SPECIALI (EPIC SAVE, FANTASTIC, ECC.) --- */
+/* --- MESSAGGI SPECIALI 3D --- */
 #specialMessage {
-    font-family: 'Lilita One', 'Arial Black', sans-serif;
+    font-family: 'Lilita One', 'Fredoka', sans-serif;
     position: absolute;
     left: 50%;
     top: 15%;
     transform: translateX(-50%);
-    color: #fde047;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 9px #1e293b;
+    color: #ffe047;
     width: 95%;
     text-align: center;
     font-size: clamp(42px, 11vw, 64px);
     letter-spacing: 2px;
-    text-shadow: 0 7px 0 #1e293b, 0 14px 25px rgba(0, 0, 0, 0.45);
+    text-shadow: 0 3px 0 #d97706,
+                 0 6px 0 #9a3412,
+                 0 9px 0 #1e293b,
+                 0 15px 25px rgba(0, 0, 0, 0.5);
     display: none;
     z-index: 100;
     pointer-events: none;
@@ -310,20 +303,16 @@ body {
 #score {
     font-size: 32px;
     color: #ffffff;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 6px #1e293b;
-    text-shadow: 0 4px 0 #1e293b;
+    text-shadow: 0 2px 0 #1e293b, 0 4px 0 #0f172a, 0 6px 10px rgba(0, 0, 0, 0.4);
 }
 
 #combo {
     font-size: 25px;
-    color: #fde047;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 5px #1e293b;
-    text-shadow: 0 3px 0 #1e293b;
+    color: #ffe047;
+    text-shadow: 0 2px 0 #9a3412, 0 4px 0 #1e293b, 0 6px 10px rgba(0, 0, 0, 0.4);
 }
 
-/* Cerchio Timer Centrale */
+/* Cerchio Timer Centrale 3D Lucido */
 #timerCircle {
     position: absolute;
     left: 50%;
@@ -332,20 +321,17 @@ body {
     width: 175px;
     height: 175px;
     border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #ffffff 0%, #7dd3fc 45%, #0284c7 100%);
-    border: 6px solid #1e293b;
+    background: radial-gradient(circle at 30% 30%, #ffffff 0%, #60a5fa 45%, #1d4ed8 100%);
+    border: 5px solid rgba(255, 255, 255, 0.9);
     display: flex;
     justify-content: center;
     align-items: center;
     color: #ffffff;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 8px #1e293b;
     font-size: 64px;
-    text-shadow: 0 5px 0 #1e293b;
-    box-shadow: inset 0 8px 0 rgba(255, 255, 255, 0.5),
-                0 10px 0 #0369a1,
-                0 14px 0 #1e293b,
-                0 20px 30px rgba(0, 0, 0, 0.35);
+    text-shadow: 0 3px 0 #1e3a8a, 0 6px 0 #0f172a, 0 10px 15px rgba(0, 0, 0, 0.4);
+    box-shadow: inset 0 8px 0 rgba(255, 255, 255, 0.55),
+                0 11px 0 #1e3a8a,
+                0 20px 30px rgba(0, 0, 0, 0.45);
     z-index: 15;
 }
 
@@ -358,14 +344,14 @@ body {
     100% { transform: translate(-50%, -50%) scale(1.08); }
 }
 
-/* --- PULSANTI GIOCO 3D --- */
+/* --- PULSANTI GIOCO 3D LUCIDI --- */
 .button-circle {
-    font-family: 'Lilita One', 'Arial Black', sans-serif;
+    font-family: 'Lilita One', 'Fredoka', sans-serif;
     position: absolute;
-    width: 94px;
-    height: 94px;
+    width: 96px;
+    height: 96px;
     border-radius: 50%;
-    border: 4px solid #1e293b;
+    border: 4px solid rgba(255, 255, 255, 0.9);
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -384,38 +370,35 @@ body {
     transform: scale(0.9) translateY(4px);
 }
 
+/* Sul telefono nascondi le frecce e mostra solo il numero grande e nitido */
 .arrow {
-    font-size: 36px;
-    line-height: 1;
+    display: none;
 }
 
 .value {
-    font-size: 17px;
-    margin-top: 2px;
+    font-size: 25px;
+    line-height: 1;
 }
 
 .green {
     background: radial-gradient(circle at 30% 30%, #bbf7d0 0%, #22c55e 55%, #15803d 100%);
-    color: white;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 4px #14532d;
-    box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.45), 0 6px 0 #14532d, 0 10px 0 #1e293b;
+    color: #ffffff;
+    text-shadow: 0 2px 0 #14532d, 0 4px 0 #052e16;
+    box-shadow: inset 0 6px 0 rgba(255, 255, 255, 0.5), 0 7px 0 #14532d, 0 14px 20px rgba(0, 0, 0, 0.35);
 }
 
 .red {
     background: radial-gradient(circle at 30% 30%, #fecaca 0%, #ef4444 55%, #b91c1c 100%);
-    color: white;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 4px #7f1d1d;
-    box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.45), 0 6px 0 #7f1d1d, 0 10px 0 #1e293b;
+    color: #ffffff;
+    text-shadow: 0 2px 0 #7f1d1d, 0 4px 0 #450a0a;
+    box-shadow: inset 0 6px 0 rgba(255, 255, 255, 0.5), 0 7px 0 #7f1d1d, 0 14px 20px rgba(0, 0, 0, 0.35);
 }
 
 .gold {
     background: radial-gradient(circle at 35% 30%, #ffffff 0%, #fff700 45%, #eab308 100%);
     color: #ffffff;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 4px #713f12;
-    box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.7), 0 6px 0 #a16207, 0 10px 0 #1e293b, 0 0 22px #fff700;
+    text-shadow: 0 2px 0 #854d0e, 0 4px 0 #422006;
+    box-shadow: inset 0 6px 0 rgba(255, 255, 255, 0.75), 0 7px 0 #a16207, 0 0 22px #fff700;
 }
 
 /* --- STELLINE --- */
@@ -438,12 +421,11 @@ body {
     }
 }
 
-/* --- SCHERMATA GAME OVER STILE BLOCK BLAST --- */
+/* --- SCHERMATA GAME OVER NITIDA E TRIDIMENSIONALE (SENZA SFOCATURA) --- */
 #gameOverScreen {
     position: fixed;
     inset: 0;
-    background: rgba(30, 58, 138, 0.78);
-    backdrop-filter: blur(6px);
+    background: rgba(15, 23, 42, 0.84);
     display: none;
     justify-content: center;
     align-items: center;
@@ -454,17 +436,16 @@ body {
 .gameover-panel {
     width: 100%;
     max-width: 390px;
-    background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
-    border: 5px solid #1e293b;
-    border-radius: 34px;
-    padding: 26px 20px;
+    background: linear-gradient(180deg, #4f86f7 0%, #2563eb 100%);
+    border: 4px solid rgba(255, 255, 255, 0.85);
+    border-radius: 36px;
+    padding: 28px 22px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: inset 0 6px 0 rgba(255, 255, 255, 0.45),
-                0 12px 0 #1d4ed8,
-                0 17px 0 #1e293b,
-                0 25px 45px rgba(0, 0, 0, 0.45);
+    box-shadow: inset 0 7px 0 rgba(255, 255, 255, 0.5),
+                0 12px 0 #1e3a8a,
+                0 22px 45px rgba(0, 0, 0, 0.6);
     animation: panelPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -475,23 +456,23 @@ body {
 
 #gameOverScreen h2 {
     font-size: clamp(46px, 12vw, 60px);
-    color: #ff5a5a;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 8px #1e293b;
-    text-shadow: 0 5px 0 #1e293b;
-    margin-bottom: 10px;
+    color: #ff6b6b;
+    text-shadow: 0 3px 0 #b91c1c,
+                 0 6px 0 #7f1d1d,
+                 0 9px 0 #1e293b,
+                 0 14px 20px rgba(0, 0, 0, 0.45);
+    margin-bottom: 12px;
 }
 
 #newRecordMessage {
-    background: linear-gradient(180deg, #fde047 0%, #f59e0b 100%);
+    background: linear-gradient(180deg, #ffe047 0%, #f59e0b 100%);
     color: #ffffff;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 4px #1e293b;
-    padding: 6px 18px;
-    border-radius: 18px;
-    border: 3px solid #1e293b;
+    text-shadow: 0 2px 0 #92400e, 0 4px 0 #451a03;
+    padding: 7px 20px;
+    border-radius: 20px;
+    border: 3px solid #ffffff;
     font-size: 24px;
-    box-shadow: 0 5px 0 #1e293b;
+    box-shadow: 0 5px 0 #b45309, 0 10px 18px rgba(0, 0, 0, 0.35);
     margin-bottom: 14px;
     display: none;
     animation: badgeBounce 0.6s infinite alternate;
@@ -504,15 +485,15 @@ body {
 
 .score-showcase {
     width: 100%;
-    background: #1e3a8a;
-    border: 4px solid #1e293b;
-    border-radius: 24px;
-    padding: 12px;
+    background: linear-gradient(180deg, #1e3a8a 0%, #172554 100%);
+    border: 3px solid rgba(255, 255, 255, 0.35);
+    border-radius: 26px;
+    padding: 14px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 12px;
-    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.35);
+    margin-bottom: 14px;
+    box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.45);
 }
 
 .showcase-title {
@@ -522,54 +503,49 @@ body {
 }
 
 .showcase-big {
-    font-size: 52px;
+    font-size: 56px;
     color: #ffffff;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 7px #1e293b;
-    text-shadow: 0 4px 0 #1e293b;
+    text-shadow: 0 3px 0 #3b82f6, 0 6px 0 #1e3a8a, 0 10px 15px rgba(0, 0, 0, 0.5);
     line-height: 1.1;
 }
 
 .mini-stats-row {
     width: 100%;
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 12px;
+    margin-bottom: 22px;
 }
 
 .mini-card {
     flex: 1;
-    border: 4px solid #1e293b;
-    border-radius: 20px;
-    padding: 10px 8px;
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    border-radius: 22px;
+    padding: 12px 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
 .gold-card {
-    background: linear-gradient(180deg, #fde047 0%, #f59e0b 100%);
-    box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.5), 0 5px 0 #1e293b;
+    background: linear-gradient(180deg, #ffe047 0%, #f59e0b 100%);
+    box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.65), 0 6px 0 #b45309;
 }
 
 .fire-card {
-    background: linear-gradient(180deg, #fb7185 0%, #e11d48 100%);
-    box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.45), 0 5px 0 #1e293b;
+    background: linear-gradient(180deg, #ff6b8b 0%, #e11d48 100%);
+    box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.55), 0 6px 0 #9f1239;
 }
 
 .mini-label {
     font-size: 18px;
     color: #ffffff;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 4px #1e293b;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
 }
 
 .mini-value {
-    font-size: 30px;
+    font-size: 32px;
     color: #ffffff;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 5px #1e293b;
-    text-shadow: 0 3px 0 #1e293b;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.5), 0 4px 0 rgba(0, 0, 0, 0.35);
 }
 
 .gameover-buttons {
@@ -580,29 +556,28 @@ body {
 
 #playAgainBtn,
 #homeBtn {
-    font-family: 'Lilita One', 'Arial Black', sans-serif;
+    font-family: 'Lilita One', 'Fredoka', sans-serif;
     flex: 1;
     padding: 16px 10px;
-    border: 4px solid #1e293b;
-    border-radius: 24px;
+    border: 3px solid rgba(255, 255, 255, 0.85);
+    border-radius: 26px;
     font-size: 28px;
     letter-spacing: 1px;
     cursor: pointer;
     color: #ffffff;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 5px #1e293b;
-    text-shadow: 0 3px 0 #1e293b;
     transition: transform 0.1s;
 }
 
 #playAgainBtn {
     background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%);
-    box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.5), 0 7px 0 #14532d, 0 11px 0 #1e293b;
+    text-shadow: 0 2px 0 #14532d, 0 4px 0 #052e16;
+    box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.55), 0 7px 0 #14532d;
 }
 
 #homeBtn {
     background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
-    box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.5), 0 7px 0 #92400e, 0 11px 0 #1e293b;
+    text-shadow: 0 2px 0 #92400e, 0 4px 0 #451a03;
+    box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.55), 0 7px 0 #92400e;
 }
 
 #playAgainBtn:active,
@@ -610,27 +585,28 @@ body {
     transform: translateY(6px);
 }
 
-/* --- CERCHI PIÙ GRANDI SU COMPUTER --- */
+/* --- COMPUTER: CERCHI ANCORA PIÙ GRANDI E FRECCE VISIBILI --- */
 @media (min-width: 901px) {
     #timerCircle {
-        width: 225px;
-        height: 225px;
-        font-size: 82px;
-        -webkit-text-stroke: 10px #1e293b;
+        width: 245px;
+        height: 245px;
+        font-size: 88px;
     }
 
     .button-circle {
-        width: 126px;
-        height: 126px;
+        width: 150px;
+        height: 150px;
         border-width: 5px;
     }
 
     .arrow {
-        font-size: 48px;
+        display: block;
+        font-size: 54px;
+        line-height: 1;
     }
 
     .value {
-        font-size: 22px;
-        margin-top: 3px;
+        font-size: 25px;
+        margin-top: 4px;
     }
 }

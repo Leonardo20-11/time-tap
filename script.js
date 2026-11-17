@@ -1,300 +1,299 @@
-const playBtn = document.getElementById("playBtn");
-const menu = document.getElementById("menu");
-const game = document.getElementById("game");
-const timerCircle = document.getElementById("timerCircle");
-const countdown = document.getElementById("countdown");
-const scoreText = document.getElementById("score");
-const comboText = document.getElementById("combo");
-const specialMessage = document.getElementById("specialMessage");
-const gameOverScreen = document.getElementById("gameOverScreen");
-const finalScore = document.getElementById("finalScore");
-const finalRecord = document.getElementById("finalRecord");
-const finalCombo = document.getElementById("finalCombo");
-const playAgainBtn = document.getElementById("playAgainBtn");
-const homeBtn = document.getElementById("homeBtn");
-const newRecordMessage = document.getElementById("newRecordMessage");
+function initTimeTapGame() {
+    const playBtn = document.getElementById("playBtn");
+    const menu = document.getElementById("menu");
+    const game = document.getElementById("game");
+    const timerCircle = document.getElementById("timerCircle");
+    const countdown = document.getElementById("countdown");
+    const scoreText = document.getElementById("score");
+    const comboText = document.getElementById("combo");
+    const specialMessage = document.getElementById("specialMessage");
+    const gameOverScreen = document.getElementById("gameOverScreen");
+    const finalScore = document.getElementById("finalScore");
+    const finalRecord = document.getElementById("finalRecord");
+    const finalCombo = document.getElementById("finalCombo");
+    const playAgainBtn = document.getElementById("playAgainBtn");
+    const homeBtn = document.getElementById("homeBtn");
+    const newRecordMessage = document.getElementById("newRecordMessage");
 
-const greenSound = document.getElementById("greenSound");
-const redSound = document.getElementById("redSound");
-const goldSound = document.getElementById("goldSound");
-const epicSound = document.getElementById("epicSound");
-const threeSound = document.getElementById("threeSound");
-const twoSound = document.getElementById("twoSound");
-const oneSound = document.getElementById("oneSound");
-const goSound = document.getElementById("goSound");
-const bgMusic = document.getElementById("bgMusic");
+    const greenSound = document.getElementById("greenSound");
+    const redSound = document.getElementById("redSound");
+    const goldSound = document.getElementById("goldSound");
+    const epicSound = document.getElementById("epicSound");
+    const threeSound = document.getElementById("threeSound");
+    const twoSound = document.getElementById("twoSound");
+    const oneSound = document.getElementById("oneSound");
+    const goSound = document.getElementById("goSound");
+    const bgMusic = document.getElementById("bgMusic");
 
-const isDesktop = window.innerWidth > 900;
-let time = isDesktop ? 3.0 : 2.5;
-if (timerCircle) timerCircle.textContent = time.toFixed(1);
-
-let score = 0;
-let comboCount = 0;
-let maxComboRun = 0;
-let running = false;
-let doubleBonus = false;
-let isAnimatingRecord = false;
-
-let timerInterval = null;
-let spawnInterval = null;
-let messageTimeout = null;
-let panicTickCounter = 0;
-
-let record = Number(localStorage.getItem("record")) || 0;
-let bestCombo = Number(localStorage.getItem("bestCombo")) || 0;
-
-const recordEl = document.getElementById("record");
-const bestComboEl = document.getElementById("bestComboHome");
-if (recordEl) recordEl.textContent = record.toLocaleString("it-IT");
-if (bestComboEl) bestComboEl.textContent = bestCombo.toLocaleString("it-IT");
-
-const activeButtons = [];
-const arrows = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
-const symbols = {
-    ArrowUp: "↑",
-    ArrowDown: "↓",
-    ArrowLeft: "←",
-    ArrowRight: "→"
-};
-
-let buttonDuration = isDesktop ? 1850 : 1350;
-let spawnDelay = isDesktop ? 240 : 260;
-
-let audioCtx = null;
-
-function initAudio() {
-    try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-        if (!audioCtx) {
-            audioCtx = new AudioCtx();
-        }
-        if (audioCtx.state === "suspended") {
-            audioCtx.resume();
-        }
-        const buffer = audioCtx.createBuffer(1, 1, 22050);
-        const source = audioCtx.createBufferSource();
-        source.buffer = buffer;
-        source.connect(audioCtx.destination);
-        source.start(0);
-    } catch (e) {}
-}
-
-document.addEventListener("touchstart", initAudio, { once: true });
-document.addEventListener("pointerdown", initAudio, { once: true });
-
-function playTone(freq, endFreq, type, startTime, duration, vol) {
-    if (!audioCtx) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, startTime);
-    if (endFreq !== null) {
-        osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + duration);
-    }
-    gain.gain.setValueAtTime(vol, startTime);
-    gain.gain.exponentialRampToValueAtTime(0.008, startTime + duration);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start(startTime);
-    osc.stop(startTime + duration);
-}
-
-function playSynthEffect(type) {
-    initAudio();
-    if (!audioCtx) return;
-    const now = audioCtx.currentTime;
-
-    if (type === "green") {
-        const boost = Math.min(comboCount * 28, 520);
-        playTone(520 + boost, 1040 + boost, "triangle", now, 0.13, 0.55);
-    } else if (type === "red") {
-        playTone(210, 80, "sawtooth", now, 0.24, 0.5);
-    } else if (type === "gold") {
-        const goldNotes = [523.25, 659.25, 783.99, 1046.5, 1318.5];
-        goldNotes.forEach((f, i) => {
-            playTone(f, null, "triangle", now + i * 0.05, 0.18, 0.45);
-        });
-    } else if (type === "epic") {
-        const epicNotes = [440, 554.37, 659.25, 880];
-        epicNotes.forEach((f) => {
-            playTone(f, null, "triangle", now, 0.35, 0.35);
-        });
-    } else if (type === "milestone") {
-        const mileNotes = [587.33, 783.99, 1046.5];
-        mileNotes.forEach((f, i) => {
-            playTone(f, null, "sine", now + i * 0.06, 0.2, 0.3);
-        });
-    } else if (type === "newrecord") {
-        const recNotes = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
-        recNotes.forEach((f, i) => {
-            playTone(f, null, "triangle", now + i * 0.09, 0.25, 0.4);
-        });
-    } else if (type === "tick") {
-        playTone(750, null, "sine", now, 0.05, 0.22);
-    } else if (type === "click") {
-        playTone(660, 990, "sine", now, 0.08, 0.35);
-    } else if (type === "beep") {
-        playTone(440, null, "sine", now, 0.12, 0.35);
-    } else if (type === "go") {
-        playTone(880, null, "sine", now, 0.25, 0.45);
-    } else if (type === "gameover") {
-        playTone(311.13, null, "sawtooth", now, 0.26, 0.32);
-        playTone(293.66, null, "sawtooth", now + 0.28, 0.26, 0.32);
-        playTone(277.18, null, "sawtooth", now + 0.56, 0.26, 0.32);
-        playTone(261.63, 210, "sawtooth", now + 0.84, 0.75, 0.32);
-    }
-}
-
-if (playBtn) {
-    playBtn.onclick = () => {
-        playSynthEffect("click");
-        startCountdown();
-    };
-}
-
-if (playAgainBtn) {
-    playAgainBtn.onclick = () => {
-        if (!isAnimatingRecord) {
-            playSynthEffect("click");
-            setTimeout(() => {
-                location.reload();
-            }, 90);
-        }
-    };
-}
-
-if (homeBtn) {
-    homeBtn.onclick = () => {
-        if (!isAnimatingRecord) {
-            playSynthEffect("click");
-            setTimeout(() => {
-                location.reload();
-            }, 90);
-        }
-    };
-}
-
-function playAudio(sound, synthFallback) {
-    if (synthFallback) {
-        playSynthEffect(synthFallback);
-    }
-    if (!sound) return;
-    sound.currentTime = 0;
-    sound.volume = 1;
-    sound.play().catch(() => {});
-}
-
-function speakEnglish(phrase, rate = 1.05, pitch = 1.08) {
-    try {
-        if (!("speechSynthesis" in window)) return;
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(phrase);
-        utterance.lang = "en-US";
-        utterance.rate = rate;
-        utterance.pitch = pitch;
-        utterance.volume = 1;
-
-        const voices = window.speechSynthesis.getVoices();
-        const preferredVoices = [
-            "Google US English",
-            "Microsoft Aria",
-            "Microsoft Jenny",
-            "Samantha",
-            "Karen",
-            "Serena",
-            "Natural"
-        ];
-
-        const selectedVoice =
-            voices.find(v => v.lang.startsWith("en") && preferredVoices.some(name => v.name.includes(name))) ||
-            voices.find(v => v.lang === "en-US") ||
-            voices.find(v => v.lang.startsWith("en"));
-
-        if (selectedVoice) {
-            utterance.voice = selectedVoice;
-        }
-        window.speechSynthesis.speak(utterance);
-    } catch (e) {}
-}
-
-if ("speechSynthesis" in window) {
-    window.speechSynthesis.getVoices();
-    window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.getVoices();
-    };
-}
-
-function triggerCountdownStep(text, soundObj, synthType, spoken, pitch) {
-    countdown.textContent = text;
-    countdown.classList.remove("countdown-pop");
-    void countdown.offsetWidth;
-    countdown.classList.add("countdown-pop");
-    playAudio(soundObj, synthType);
-    speakEnglish(spoken, 1.08, pitch);
-}
-
-function startCountdown() {
-    initAudio();
-    menu.style.display = "none";
-    countdown.style.display = "block";
-
-    triggerCountdownStep("3", threeSound, "beep", "Three!", 1.0);
-    setTimeout(() => {
-        triggerCountdownStep("2", twoSound, "beep", "Two!", 1.05);
-    }, 1000);
-    setTimeout(() => {
-        triggerCountdownStep("1", oneSound, "beep", "One!", 1.1);
-    }, 2000);
-    setTimeout(() => {
-        triggerCountdownStep("GO!", goSound, "go", "Go!", 1.2);
-    }, 3000);
-
-    setTimeout(() => {
-        countdown.style.display = "none";
-        game.style.display = "block";
-        if (bgMusic) {
-            bgMusic.currentTime = 0;
-            bgMusic.volume = 0.4;
-            bgMusic.play().catch(() => {});
-        }
-        startGame();
-    }, 4000);
-}
-
-function startGame() {
-    running = true;
-
-    timerInterval = setInterval(() => {
-        if (!running) return;
-
-        time = Math.max(0, Number((time - 0.1).toFixed(2)));
+    const isDesktop = window.innerWidth >= 768;
+    let time = isDesktop ? 3.0 : 2.5;
+    if (timerCircle) {
         timerCircle.textContent = time.toFixed(1);
+    }
 
-        if (time <= 1.0) {
-            timerCircle.style.background = "radial-gradient(circle at 30% 30%, #fecaca 0%, #ef4444 50%, #b91c1c 100%)";
-            timerCircle.style.boxShadow = "inset 0 8px 0 rgba(255, 255, 255, 0.35), 0 11px 0 #7f1d1d, 0 0 28px rgba(239, 68, 68, 0.9)";
-            timerCircle.classList.add("timer-panic");
+    let score = 0;
+    let comboCount = 0;
+    let maxComboRun = 0;
+    let running = false;
+    let doubleBonus = false;
+    let isAnimatingRecord = false;
 
-            panicTickCounter++;
-            if (panicTickCounter % 2 === 0 && time > 0) {
-                playSynthEffect("tick");
+    let timerInterval = null;
+    let spawnInterval = null;
+    let messageTimeout = null;
+    let panicTickCounter = 0;
+
+    let record = Number(localStorage.getItem("record")) || 0;
+    let bestCombo = Number(localStorage.getItem("bestCombo")) || 0;
+
+    const recordEl = document.getElementById("record");
+    const bestComboEl = document.getElementById("bestComboHome");
+    if (recordEl) recordEl.textContent = record.toLocaleString("it-IT");
+    if (bestComboEl) bestComboEl.textContent = bestCombo.toLocaleString("it-IT");
+
+    const activeButtons = [];
+    const arrows = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+    const symbols = {
+        ArrowUp: "↑",
+        ArrowDown: "↓",
+        ArrowLeft: "←",
+        ArrowRight: "→"
+    };
+
+    let buttonDuration = isDesktop ? 1850 : 1350;
+    let spawnDelay = isDesktop ? 240 : 260;
+
+    let audioCtx = null;
+
+    function initAudio() {
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            if (!audioCtx) {
+                audioCtx = new AudioCtx();
             }
-        } else {
-            timerCircle.style.background = "radial-gradient(circle at 30% 30%, #bfdbfe 0%, #3b82f6 50%, #1d4ed8 100%)";
-            timerCircle.style.boxShadow = "inset 0 6px 0 rgba(255, 255, 255, 0.32), 0 11px 0 #1e3a8a, 0 20px 30px rgba(0, 0, 0, 0.45)";
-            timerCircle.classList.remove("timer-panic");
-            panicTickCounter = 0;
-        }
+            if (audioCtx.state === "suspended") {
+                audioCtx.resume();
+            }
+            const buffer = audioCtx.createBuffer(1, 1, 22050);
+            const source = audioCtx.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioCtx.destination);
+            source.start(0);
+        } catch (e) {}
+    }
 
-        if (time <= 0) {
-            gameOver();
-        }
-    }, 100);
+    document.addEventListener("touchstart", initAudio, { once: true });
+    document.addEventListener("pointerdown", initAudio, { once: true });
 
-    createButton();
-    spawnInterval = setInterval(() => {
-        if (!running) return;
+    function playTone(freq, endFreq, type, startTime, duration, vol) {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, startTime);
+        if (endFreq !== null) {
+            osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + duration);
+        }
+        gain.gain.setValueAtTime(vol, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.008, startTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+    }
+
+    function playSynthEffect(type) {
+        initAudio();
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+
+        if (type === "green") {
+            const boost = Math.min(comboCount * 28, 520);
+            playTone(520 + boost, 1040 + boost, "triangle", now, 0.13, 0.55);
+        } else if (type === "red") {
+            playTone(210, 80, "sawtooth", now, 0.24, 0.5);
+        } else if (type === "gold") {
+            const goldNotes = [523.25, 659.25, 783.99, 1046.5, 1318.5];
+            goldNotes.forEach((f, i) => {
+                playTone(f, null, "triangle", now + i * 0.05, 0.18, 0.45);
+            });
+        } else if (type === "epic") {
+            const epicNotes = [440, 554.37, 659.25, 880];
+            epicNotes.forEach((f) => {
+                playTone(f, null, "triangle", now, 0.35, 0.35);
+            });
+        } else if (type === "milestone") {
+            const mileNotes = [587.33, 783.99, 1046.5];
+            mileNotes.forEach((f, i) => {
+                playTone(f, null, "sine", now + i * 0.06, 0.2, 0.3);
+            });
+        } else if (type === "newrecord") {
+            const recNotes = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
+            recNotes.forEach((f, i) => {
+                playTone(f, null, "triangle", now + i * 0.09, 0.25, 0.4);
+            });
+        } else if (type === "tick") {
+            playTone(750, null, "sine", now, 0.05, 0.22);
+        } else if (type === "click") {
+            playTone(660, 990, "sine", now, 0.08, 0.35);
+        } else if (type === "beep") {
+            playTone(440, null, "sine", now, 0.12, 0.35);
+        } else if (type === "go") {
+            playTone(880, null, "sine", now, 0.25, 0.45);
+        } else if (type === "gameover") {
+            playTone(311.13, null, "sawtooth", now, 0.26, 0.32);
+            playTone(293.66, null, "sawtooth", now + 0.28, 0.26, 0.32);
+            playTone(277.18, null, "sawtooth", now + 0.56, 0.26, 0.32);
+            playTone(261.63, 210, "sawtooth", now + 0.84, 0.75, 0.32);
+        }
+    }
+
+    if (playBtn) {
+        playBtn.addEventListener("click", () => {
+            playSynthEffect("click");
+            startCountdown();
+        });
+    }
+
+    if (playAgainBtn) {
+        playAgainBtn.addEventListener("click", () => {
+            if (!isAnimatingRecord) {
+                playSynthEffect("click");
+                setTimeout(() => {
+                    location.reload();
+                }, 90);
+            }
+        });
+    }
+
+    if (homeBtn) {
+        homeBtn.addEventListener("click", () => {
+            if (!isAnimatingRecord) {
+                playSynthEffect("click");
+                setTimeout(() => {
+                    location.reload();
+                }, 90);
+            }
+        });
+    }
+
+    function playAudio(sound, synthFallback) {
+        if (synthFallback) {
+            playSynthEffect(synthFallback);
+        }
+        if (!sound) return;
+        sound.currentTime = 0;
+        sound.volume = 1;
+        sound.play().catch(() => {});
+    }
+
+    function speakEnglish(phrase, rate = 1.05, pitch = 1.08) {
+        try {
+            if (!("speechSynthesis" in window)) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(phrase);
+            utterance.lang = "en-US";
+            utterance.rate = rate;
+            utterance.pitch = pitch;
+            utterance.volume = 1;
+
+            const voices = window.speechSynthesis.getVoices();
+            const preferredVoices = [
+                "Google US English",
+                "Microsoft Aria",
+                "Microsoft Jenny",
+                "Samantha",
+                "Karen",
+                "Serena",
+                "Natural"
+            ];
+
+            const selectedVoice =
+                voices.find(v => v.lang.startsWith("en") && preferredVoices.some(name => v.name.includes(name))) ||
+                voices.find(v => v.lang === "en-US") ||
+                voices.find(v => v.lang.startsWith("en"));
+
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            }
+            window.speechSynthesis.speak(utterance);
+        } catch (e) {}
+    }
+
+    if ("speechSynthesis" in window) {
+        window.speechSynthesis.getVoices();
+        window.speechSynthesis.onvoiceschanged = () => {
+            window.speechSynthesis.getVoices();
+        };
+    }
+
+    function triggerCountdownStep(text, soundObj, synthType, spoken, pitch) {
+        countdown.textContent = text;
+        countdown.classList.remove("countdown-pop");
+        void countdown.offsetWidth;
+        countdown.classList.add("countdown-pop");
+        playAudio(soundObj, synthType);
+        speakEnglish(spoken, 1.08, pitch);
+    }
+
+    function startCountdown() {
+        initAudio();
+        menu.style.display = "none";
+        countdown.style.display = "block";
+
+        triggerCountdownStep("3", threeSound, "beep", "Three!", 1.0);
+        setTimeout(() => {
+            triggerCountdownStep("2", twoSound, "beep", "Two!", 1.05);
+        }, 1000);
+        setTimeout(() => {
+            triggerCountdownStep("1", oneSound, "beep", "One!", 1.1);
+        }, 2000);
+        setTimeout(() => {
+            triggerCountdownStep("GO!", goSound, "go", "Go!", 1.2);
+        }, 3000);
+
+        setTimeout(() => {
+            countdown.style.display = "none";
+            game.style.display = "block";
+            if (bgMusic) {
+                bgMusic.currentTime = 0;
+                bgMusic.volume = 0.4;
+                bgMusic.play().catch(() => {});
+            }
+            startGame();
+        }, 4000);
+    }
+
+    function startGame() {
+        running = true;
+
+        timerInterval = setInterval(() => {
+            if (!running) return;
+
+time = Math.max(0, Number((time - 0.1).toFixed(2)));
+timerCircle.textContent = time.toFixed(1);
+if (time <= 1.0) {
+timerCircle.style.background = "radial-gradient(circle at 30% 30%, #fecaca 0%, #ef4444 50%, #b91c1c 100%)";
+timerCircle.style.boxShadow = "inset 0 8px 0 rgba(255, 255, 255, 0.35), 0 11px 0 #7f1d1d, 0 0 28px rgba(239, 68, 68, 0.9)";
+timerCircle.classList.add("timer-panic");
+panicTickCounter++;
+if (panicTickCounter % 2 === 0 && time > 0) {
+playSynthEffect("tick");
+}
+} else {
+timerCircle.style.background = "radial-gradient(circle at 30% 30%, #bfdbfe 0%, #3b82f6 50%, #1d4ed8 100%)";
+timerCircle.style.boxShadow = "inset 0 6px 0 rgba(255, 255, 255, 0.32), 0 11px 0 #1e3a8a, 0 20px 30px rgba(0, 0, 0, 0.45)";
+timerCircle.classList.remove("timer-panic");
+panicTickCounter = 0;
+}
+if (time <= 0) {
+gameOver();
+}
+}, 100);
+createButton();
+spawnInterval = setInterval(() => {
+if (!running) return;
 if (activeButtons.length < 4) {
 createButton();
 }
@@ -341,7 +340,7 @@ valueText = "x2";
 btn.dataset.key = key;
 btn.dataset.action = type;
 btn.innerHTML = '' + symbols[key] + '' + valueText + '';
-const btnSize = isDesktop ? 150 : 96;
+const btnSize = isDesktop ? 155 : 96;
 const minCenterDist = isDesktop ? 230 : 130;
 const minBtnDist = isDesktop ? 185 : 118;
 const margin = 22;
@@ -445,7 +444,7 @@ spawnStars(centerX, centerY, true);
 showMessage("INCREDIBLE!", "Incredible!");
 setTimeout(() => {
 doubleBonus = false;
-}, 3000);
+}, 2000);
 }
 timerCircle.textContent = time.toFixed(1);
 scoreText.textContent = "SCORE: " + score.toLocaleString("it-IT");
@@ -556,3 +555,9 @@ if (target) {
 activateButton(target);
 }
 });
+}
+if (document.readyState === "loading") {
+document.addEventListener("DOMContentLoaded", initTimeTapGame);
+} else {
+initTimeTapGame();
+}

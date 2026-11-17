@@ -208,6 +208,8 @@ body {
 
 /* Pulsante PLAY 3D lucido */
 #playBtn {
+    position: relative;
+    z-index: 30;
     font-family: 'Lilita One', 'Fredoka', sans-serif;
     width: 275px;
     padding: 18px;
@@ -364,7 +366,7 @@ body {
     font-size: 52px;
     font-weight: 900;
     -webkit-text-stroke: 2.5px #1e3a8a;
-    stroke-linejoin: round;
+stroke-linejoin: round;
 stroke-linecap: round;
 paint-order: stroke fill;
 text-shadow: 0 4px 0 #1e3a8a, 0 7px 0 #0f172a, 0 10px 15px rgba(0, 0, 0, 0.4);
@@ -380,7 +382,7 @@ animation: panicPulse 0.35s infinite alternate;
 0% { transform: translate(-50%, -50%) scale(1); }
 100% { transform: translate(-50%, -50%) scale(1.08); }
 }
-/* --- PULSANTI GIOCO (MENO LUMINOSI SU TELEFONO E NUMERI PIÙ SNELLI) --- */
+/* --- PULSANTI GIOCO (MENO LUMINOSI SU TELEFONO) --- */
 .button-circle {
 font-family: 'Lilita One', 'Fredoka', sans-serif;
 position: absolute;
@@ -407,10 +409,10 @@ transform: scale(0.9) translateY(4px);
 .arrow {
 display: none;
 }
-/* Numero dentro il cerchio meno cicciotto */
-.value {
-font-size: 24px;
-font-weight: 400;
+/* Numero dentro il cerchio */
+.button-circle .value {
+font-size: 25px;
+font-weight: 700;
 line-height: 1;
 -webkit-text-stroke: 0px;
 }
@@ -629,16 +631,16 @@ box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.3), 0 7px 0 #78350f;
 #homeBtn:active {
 transform: translateY(6px);
 }
-/* --- COMPUTER: CERCHI PIÙ GRANDI, FRECCE VISIBILI E DECIMI INGRANDITI --- */
-@media (min-width: 901px) {
+/* --- COMPUTER: CERCHI GRANDI, FRECCE VISIBILI E DECIMI BEN LEGGIBILI --- */
+@media (min-width: 768px) {
 #timerCircle {
 width: 245px;
 height: 245px;
 font-size: 88px;
 }
 .button-circle {
-width: 150px;
-height: 150px;
+width: 155px;
+height: 155px;
 border-width: 5px;
 border-color: rgba(255, 255, 255, 0.85);
 }
@@ -654,13 +656,14 @@ box-shadow: inset 0 6px 0 rgba(255, 255, 255, 0.5), 0 7px 0 #7f1d1d, 0 14px 20px
 background: radial-gradient(circle at 35% 30%, #ffffff 0%, #fff700 45%, #eab308 100%);
 box-shadow: inset 0 6px 0 rgba(255, 255, 255, 0.75), 0 7px 0 #a16207, 0 0 22px #fff700;
 }
-.arrow {
+.button-circle .arrow {
 display: block;
 font-size: 52px;
 line-height: 1;
 }
-.value {
-font-size: 35px;
+.button-circle .value {
+font-size: 36px;
+font-weight: 900;
 margin-top: 4px;
 }
 }

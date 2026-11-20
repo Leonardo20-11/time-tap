@@ -36,11 +36,11 @@
                 <div id="homeProfileShield" class="profile-crest-slot"></div>
                 <div class="profile-text-group">
                     <span id="homeProfileName" class="home-profile-name">PLAYER</span>
-                    <span id="homeProfileTitle" class="home-profile-title">FRESH TAPPER</span>
+                    <span id="homeProfileTitle" class="home-profile-title">ROOKIE</span>
                 </div>
             </button>
 
-            <button id="openBadgesBtn" class="top-icon-btn badges-trigger" title="Badges &amp; Titles">
+            <button id="openBadgesBtn" class="top-icon-btn badges-trigger" title="Badges">
                 <span class="shield-css-icon"></span>
             </button>
         </div>
@@ -132,13 +132,13 @@
 
         <div class="profile-detail-body">
             <div class="profile-hero-card">
-                <button type="button" id="profileEquipSlotBtn" class="profile-equip-box" title="Tap to change equipped badge">
+                <button id="profileEquipSlotBtn" class="profile-equip-box" title="Tap to change equipped badge">
                     <div id="profileModalAvatar"></div>
                     <span class="equip-box-hint">CHANGE BADGE</span>
                 </button>
 
                 <h3 id="profileModalUsername" class="profile-hero-name">PLAYER</h3>
-                <div id="equippedTitleLabel" class="profile-hero-badge-tag">EQUIPPED: FRESH TAPPER</div>
+                <div id="equippedTitleLabel" class="profile-hero-badge-tag">EQUIPPED: ROOKIE</div>
                 <p id="profileModalStats" class="profile-hero-stats">GAMES: 0 | XP: 0</p>
             </div>
 
@@ -157,21 +157,21 @@
                 </div>
             </div>
 
-            <button type="button" id="goToBadgesFromProfileBtn" class="action-green-btn profile-badges-cta">OPEN BADGES GALLERY</button>
+            <button id="goToBadgesFromProfileBtn" class="action-green-btn profile-badges-cta">SELECT UNLOCKED BADGE</button>
         </div>
     </div>
 
     <div id="badgesModal" class="fullscreen-modal">
         <div class="fullscreen-header">
             <div class="header-title-group">
-                <h2>BADGES &amp; TITLES</h2>
+                <h2>UNLOCKED BADGES</h2>
             </div>
             <button id="closeBadgesBtn" class="close-fullscreen-btn">X</button>
         </div>
 
         <div class="ranked-status-strip">
-            <span id="badgesEquippedBanner" class="rank-badge-title">EQUIPPED: FRESH TAPPER</span>
-            <span class="xp-counter-text">TAP AN UNLOCKED BADGE TO EQUIP</span>
+            <span id="badgesEquippedBanner" class="rank-badge-title">EQUIPPED: ROOKIE</span>
+            <span class="xp-counter-text">TAP TO SET AS PROFILE</span>
         </div>
 
         <div id="badgesGridContainer" class="badges-fullscreen-grid"></div>
@@ -191,7 +191,7 @@
 
         <div class="ranked-status-strip">
             <span id="levelXpText" class="xp-counter-text">0 / 100.000 XP</span>
-            <span id="nextRankHint" class="next-rank-hint">NEXT: CHALLENGER (1.200 XP)</span>
+            <span id="nextRankHint" class="next-rank-hint">CHALLENGER • 1.200 XP</span>
         </div>
 
         <div class="ranked-road-viewport" id="rankedRoadViewport">
@@ -207,7 +207,7 @@
             <div class="celebration-tag">NEW RANK UNLOCKED!</div>
             <div id="celebrationShieldSlot" class="celebration-shield-slot"></div>
             <div id="celebrationRankName" class="celebration-rank-name">CHALLENGER</div>
-            <div id="celebrationTitleUnlocked" class="celebration-title-unlocked">TITLE: FAST FINGERS</div>
+            <div id="celebrationTitleUnlocked" class="celebration-title-unlocked">CHALLENGER</div>
             <button id="claimRankBtn" class="action-green-btn full-width-btn">AWESOME!</button>
         </div>
     </div>
@@ -216,6 +216,7 @@
         <div class="gameover-panel">
             <h2>GAME OVER</h2>
             <div id="newRecordMessage">NEW BEST!</div>
+            <div id="xpEarnedBadge" class="xp-earned-badge">+0 XP</div>
             <div class="score-showcase">
                 <span class="showcase-title">SCORE</span>
                 <span id="finalScore" class="showcase-big">0</span>

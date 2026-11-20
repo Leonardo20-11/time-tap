@@ -42,6 +42,7 @@ function initTimeTapGame() {
     const playAgainBtn = document.getElementById("playAgainBtn");
     const homeBtn = document.getElementById("homeBtn");
     const newRecordMessage = document.getElementById("newRecordMessage");
+    const xpEarnedBadge = document.getElementById("xpEarnedBadge");
 
     const pauseBtn = document.getElementById("pauseBtn");
     const pauseOverlay = document.getElementById("pauseOverlay");
@@ -128,7 +129,7 @@ function initTimeTapGame() {
     }
 
     function getAggressiveCrestHTML(lvlObj, sizePx = 56) {
-        const tier = (lvlObj && typeof lvlObj.level === "number") ? lvlObj : LEVELS_CONFIG;
+        const tier = (lvlObj && typeof lvlObj.level === "number") ? lvlObj : LEVELS_CONFIG[0];
         const lv = tier.level || 1;
         const auraHtml = lv >= 4 ? '<div class="emblem-aura"></div>' : "";
         const wingsClass = lv >= 6 ? "tier-high" : (lv >= 4 ? "tier-mid" : "");
@@ -149,8 +150,8 @@ function initTimeTapGame() {
     }
 
     function getCurrentAndNextTier(currentXP) {
-        let currentTier = LEVELS_CONFIG;
-        let nextTier = LEVELS_CONFIG || null;
+        let currentTier = LEVELS_CONFIG[0];
+        let nextTier = LEVELS_CONFIG[1] || null;
         for (let i = 0; i < LEVELS_CONFIG.length; i++) {
             const item = LEVELS_CONFIG[i];
             if (currentXP >= item.xpRequired) {
@@ -195,8 +196,7 @@ function initTimeTapGame() {
         }
 
         const activeBadge = LEVELS_CONFIG.find(l => l.level === equippedBadgeLevel) || currentTier;
-        const displayName = playerUsername || "PLAYER";
-
+const displayName = playerUsername || "PLAYER";
 if (homeProfileShield) homeProfileShield.innerHTML = getAggressiveCrestHTML(activeBadge, 46);
 if (homeProfileName) homeProfileName.textContent = displayName;
 if (homeProfileTitle) homeProfileTitle.textContent = activeBadge.title;
@@ -210,21 +210,22 @@ if (profileModalStats) {
 profileModalStats.textContent = "GAMES: " + fmtNum(gamesPlayed) + " | XP: " + fmtNum(currentXP);
 }
 if (equippedTitleLabel) {
-equippedTitleLabel.textContent = "EQUIPPED: " + activeBadge.title;
+equippedTitleLabel.textContent = "EQUIPPED: " + activeBadge.name;
 }
 if (profileBestScore) profileBestScore.textContent = fmtNum(record);
 if (profileBestCombo) profileBestCombo.textContent = fmtNum(bestCombo);
 if (profileCurrentRank) profileCurrentRank.textContent = currentTier.name;
-if (badgesEquippedBanner) badgesEquippedBanner.textContent = "EQUIPPED: " + activeBadge.title;
+if (badgesEquippedBanner) badgesEquippedBanner.textContent = "EQUIPPED: " + activeBadge.name;
+// GALLERIA STEMMI: solo quelli sbloccati, accanto allo stemma solo il nome
 if (badgesGridContainer) {
-badgesGridContainer.innerHTML = LEVELS_CONFIG.map(lvl => {
-const unlocked = currentXP >= lvl.xpRequired;
-const isEquipped = unlocked && lvl.level === equippedBadgeLevel;
-const cls = "badge-card tier-" + lvl.level + " " + (unlocked ? "unlocked" : "locked") + (isEquipped ? " equipped" : "");
-const statusText = !unlocked
-? "LOCKED • " + fmtNum(lvl.xpRequired) + " XP"
-: (isEquipped ? "EQUIPPED" : "TAP TO EQUIP");
-return '' + getAggressiveCrestHTML(lvl, 74) + '' + lvl.name + '' + lvl.title + '' + statusText + '';
+const unlockedLevels = LEVELS_CONFIG.filter(lvl => currentXP >= lvl.xpRequired);
+badgesGridContainer.innerHTML = unlockedLevels.map(lvl => {
+const isEquipped = lvl.level === equippedBadgeLevel;
+const cls = "badge-card tier-" + lvl.level + " unlocked" + (isEquipped ? " equipped" : "");
+return '' +
+'' + getAggressiveCrestHTML(lvl, 76) + '' +
+'' + lvl.name + '' +
+'';
 }).join("");
 badgesGridContainer.querySelectorAll(".badge-card.unlocked").forEach(card => {
 card.addEventListener("click", () => {
@@ -232,6 +233,8 @@ equippedBadgeLevel = Number(card.dataset.lvl);
 localStorage.setItem("equippedBadgeLevel", equippedBadgeLevel);
 playSynthEffect("gold");
 refreshAllProfileAndRankUI();
+if (badgesModal) badgesModal.style.display = "none";
+if (profileModal) profileModal.style.display = "flex";
 });
 });
 }
@@ -240,9 +243,10 @@ if (levelCurrentName) levelCurrentName.textContent = currentTier.name;
 if (levelXpText) levelXpText.textContent = fmtNum(currentXP) + " / 100.000 XP";
 if (nextRankHint) {
 nextRankHint.textContent = nextTier
-? "NEXT: " + nextTier.name + " (" + fmtNum(nextTier.xpRequired) + " XP)"
-: "MAX RANK ACHIEVED!";
+? nextTier.name + " • " + fmtNum(nextTier.xpRequired) + " XP"
+: "MAX RANK";
 }
+// LIVELLI (RANKED ROAD): 7 righe, stemma a sx, linea gialla/bianca con pallino XP, stemma traguardo a dx
 if (levelNodesContainer) {
 levelNodesContainer.innerHTML = LEVELS_CONFIG.map((lvl, i) => {
 const nextLvl = LEVELS_CONFIG[i + 1] || null;
@@ -268,20 +272,19 @@ const rightEndHtml = nextLvl
 ? getAggressiveCrestHTML(nextLvl, 34)
 : '';
 const pinHtml = hasPin
-? 'YOU'
+? '' + fmtNum(currentXP) + ' XP'
 : "";
-const targetText = nextLvl
-? fmtNum(lvl.xpRequired) + " → " + fmtNum(nextLvl.xpRequired) + " XP"
-: fmtNum(lvl.xpRequired) + " XP • MAX";
+const rowTitle = nextLvl ? nextLvl.name : lvl.name;
+const rowXp = nextLvl ? fmtNum(nextLvl.xpRequired) + " XP" : fmtNum(lvl.xpRequired) + " XP";
 return '' +
 '' +
-getAggressiveCrestHTML(lvl, 60) +
+getAggressiveCrestHTML(lvl, 58) +
 '' + lvl.name + '' +
 '' +
 '' +
 '' +
-'' + (nextLvl ? 'VERSO ' + nextLvl.name : 'GRADO MASSIMO') + '' +
-'' + targetText + '' +
+'' + rowTitle + '' +
+'' + rowXp + '' +
 '' +
 '' +
 '' +
@@ -389,7 +392,7 @@ refreshAllProfileAndRankUI();
 if (rankUpCelebration) {
 if (celebrationShieldSlot) celebrationShieldSlot.innerHTML = getAggressiveCrestHTML(currentTier, 108);
 if (celebrationRankName) celebrationRankName.textContent = currentTier.name;
-if (celebrationTitleUnlocked) celebrationTitleUnlocked.textContent = "NEW TITLE: " + currentTier.title;
+if (celebrationTitleUnlocked) celebrationTitleUnlocked.textContent = "NEW RANK: " + currentTier.name;
 rankUpCelebration.style.display = "flex";
 playSynthEffect("newrecord");
 speakEnglish("New rank unlocked! " + currentTier.name, 1.05, 1.15);
@@ -1243,6 +1246,7 @@ while (activeButtons.length > 0) {
 const firstBtn = activeButtons.shift();
 if (firstBtn && firstBtn.parentNode) firstBtn.remove();
 }
+const xpBeforeRun = calculateTotalXP();
 gamesPlayed++;
 totalScoreAccumulated += score;
 localStorage.setItem("gamesPlayed", gamesPlayed);
@@ -1250,6 +1254,15 @@ localStorage.setItem("totalScoreAccumulated", totalScoreAccumulated);
 if (maxComboRun > bestCombo) {
 bestCombo = maxComboRun;
 localStorage.setItem("bestCombo", bestCombo);
+}
+const recordAfterRun = Math.max(record, score);
+const xpFromGamesAfter = Math.floor(Math.pow(gamesPlayed, 0.92) * 7.8);
+const xpFromRecordAfter = Math.floor(Math.pow(recordAfterRun, 0.78) * 1.15);
+const xpFromTotalScoreAfter = Math.floor(Math.sqrt(totalScoreAccumulated) * 4.2);
+const xpAfterRun = Math.min(100000, xpFromGamesAfter + xpFromRecordAfter + xpFromTotalScoreAfter);
+const earnedXP = Math.max(0, xpAfterRun - xpBeforeRun);
+if (xpEarnedBadge) {
+xpEarnedBadge.textContent = "+" + fmtNum(earnedXP) + " XP";
 }
 gameOverScreen.style.display = "flex";
 finalScore.textContent = fmtNum(score);
@@ -1285,7 +1298,7 @@ checkAndTriggerRankUpCelebration();
 }
 function runStartupSequence() {
 if (onboardingShieldPreview) {
-onboardingShieldPreview.innerHTML = getAggressiveCrestHTML(LEVELS_CONFIG, 86);
+onboardingShieldPreview.innerHTML = getAggressiveCrestHTML(LEVELS_CONFIG[0], 86);
 }
 if (!playerUsername) {
 if (onboardingScreen) onboardingScreen.style.display = "flex";

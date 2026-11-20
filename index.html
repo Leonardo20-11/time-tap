@@ -11,6 +11,7 @@
 </head>
 <body>
 
+    <!-- TESSERE DECORATIVE SFONDO -->
     <div class="bg-blocks">
         <div class="b-tile t1"></div>
         <div class="b-tile t2"></div>
@@ -20,7 +21,7 @@
         <div class="b-tile t6"></div>
     </div>
 
-    <!-- 1. SCHERMATA DI CARICAMENTO INIZIALE -->
+    <!-- 1. SPLASH SCREEN (LOADING) -->
     <div id="splashScreen" class="fullscreen-screen">
         <div class="logo-wrapper splash-logo">
             <div class="logo-row row-top">
@@ -43,31 +44,31 @@
         </div>
     </div>
 
-    <!-- 2. CREAZIONE PROFILO (UNA SOLA VOLTA, USERNAME DEFINITIVO) -->
+    <!-- 2. ONBOARDING (CREAZIONE PROFILO) -->
     <div id="onboardingScreen" class="fullscreen-screen" style="display: none;">
         <div class="modal-card onboarding-card">
-            <div id="onboardingShieldPreview" class="onboarding-shield"></div>
+            <div id="onboardingShieldPreview"></div>
             <h2 class="onboarding-title">CREATE PROFILE</h2>
             <p class="onboarding-sub">Choose your permanent username. Once confirmed, it cannot be changed and all your progress will be saved!</p>
-            <input type="text" id="usernameInput" class="profile-input" maxlength="14" placeholder="ENTER USERNAME..." autocomplete="off">
-            <button type="button" id="saveProfileBtn" class="action-green-btn full-width-btn">CONFIRM USERNAME</button>
+            <input type="text" id="usernameInput" class="profile-input" placeholder="ENTER NAME..." maxlength="14" autocomplete="off">
+            <button id="saveProfileBtn" class="action-green-btn full-width-btn">CONFIRM USERNAME</button>
         </div>
     </div>
 
-    <!-- 3. MENU HOME PRINCIPALE -->
+    <!-- 3. MENU PRINCIPALE -->
     <div id="menu" style="display: none;">
-        <button type="button" id="profileCornerBtn" class="profile-corner-btn" title="Profile & Badges">
-            <div id="homeProfileShield" class="home-profile-shield"></div>
+        <button id="profileCornerBtn" class="profile-corner-btn">
+            <div id="homeProfileShield"></div>
             <span id="homeProfileName" class="home-profile-name">PLAYER</span>
             <span id="homeProfileTitle" class="home-profile-title">FRESH TAPPER</span>
         </button>
 
         <div class="right-top-stack">
-            <button type="button" id="settingsBtn" class="top-icon-btn" title="Settings">
+            <button id="settingsBtn" class="top-icon-btn" aria-label="Settings">
                 <span class="gear-css-icon"></span>
             </button>
-            <button type="button" id="levelBtn" class="top-icon-btn rank-trigger" title="Ranked Road">
-                <span class="trophy-css-icon"></span>
+            <button id="levelBtn" class="top-icon-btn rank-trigger" aria-label="Ranked Road">
+                <span class="crown-css-icon"></span>
             </button>
         </div>
 
@@ -87,7 +88,7 @@
 
         <div class="home-stats-centered">
             <div class="stat-pill gold-pill">
-                <span class="crown-css-icon"></span>
+                <span class="trophy-css-icon"></span>
                 <span id="record">0</span>
             </div>
             <div class="stat-pill fire-pill">
@@ -96,41 +97,39 @@
             </div>
         </div>
 
-        <button type="button" id="playBtn">PLAY</button>
+        <button id="playBtn">PLAY</button>
     </div>
 
-    <!-- SCHERMATA FULLSCREEN: PERCORSO CLASSIFICATA (RANKED ROAD) -->
+    <!-- 4. MODALE RANKED ROAD -->
     <div id="levelModal" class="fullscreen-modal">
         <div class="fullscreen-header">
             <div class="header-title-group">
                 <div id="rankedHeaderShield"></div>
-                <div>
-                    <h2>RANKED ROAD</h2>
-                    <div id="levelXpText" class="xp-counter-text">0 / 100.000 XP</div>
-                </div>
+                <h2>RANKED ROAD</h2>
             </div>
-            <button type="button" id="closeLevelBtn" class="close-fullscreen-btn">X</button>
+            <button id="closeLevelBtn" class="close-fullscreen-btn">X</button>
         </div>
-
         <div class="ranked-status-strip">
-            <div id="levelCurrentName" class="rank-badge-title">ROOKIE</div>
-            <div id="nextRankHint" class="next-rank-hint">NEXT: CHALLENGER (800 XP)</div>
+            <div>
+                <div id="levelCurrentName" class="rank-badge-title">ROOKIE</div>
+                <div id="levelXpText" class="xp-counter-text">0 / 100.000 XP</div>
+            </div>
+            <div id="nextRankHint" class="next-rank-hint">NEXT: CHALLENGER (1.200 XP)</div>
         </div>
-
-        <div id="rankedRoadViewport" class="ranked-road-viewport">
-            <div id="rankedRoadTrack" class="ranked-road-track">
+        <div class="ranked-road-viewport">
+            <div class="ranked-road-track">
                 <div class="road-base-line"></div>
                 <div id="roadYellowFill" class="road-yellow-fill"></div>
                 <div id="roadPlayerPin" class="road-player-pin">
-                    <span class="pin-label">YOU</span>
                     <div class="pin-dot"></div>
+                    <span class="pin-label">YOU</span>
                 </div>
                 <div id="levelNodesContainer" class="ranked-nodes-wrapper"></div>
             </div>
         </div>
     </div>
 
-    <!-- SCHERMATA FULLSCREEN: PROFILO, STEMMI E TITOLI (USERNAME BLOCCATO) -->
+    <!-- 5. MODALE BADGES & TITLES -->
     <div id="badgesModal" class="fullscreen-modal">
         <div class="fullscreen-header">
             <div class="header-title-group">
@@ -140,44 +139,42 @@
                     <div id="profileModalStats" class="xp-counter-text">GAMES: 0 | XP: 0</div>
                 </div>
             </div>
-            <button type="button" id="closeBadgesBtn" class="close-fullscreen-btn">X</button>
+            <button id="closeBadgesBtn" class="close-fullscreen-btn">X</button>
         </div>
-
         <div class="ranked-status-strip">
-            <div class="rank-badge-title" style="font-size: 18px;">BADGES &amp; TITLES</div>
+            <div class="rank-badge-title">BADGES & TITLES</div>
             <div id="equippedTitleLabel" class="next-rank-hint">EQUIPPED: FRESH TAPPER</div>
         </div>
-
         <div id="badgesGridContainer" class="badges-fullscreen-grid"></div>
     </div>
 
-    <!-- CELEBRAZIONE NUOVO GRADO RAGGIUNTO CON FUOCHI D'ARTIFICIO -->
+    <!-- 6. CELEBRAZIONE NUOVO GRADO -->
     <div id="rankUpCelebration" class="fullscreen-modal celebration-overlay">
         <div id="fireworksContainer" class="fireworks-container"></div>
         <div class="celebration-card">
             <div class="celebration-tag">NEW RANK UNLOCKED!</div>
             <div id="celebrationShieldSlot" class="celebration-shield-slot"></div>
-            <h2 id="celebrationRankName" class="celebration-rank-name">CHALLENGER</h2>
+            <div id="celebrationRankName" class="celebration-rank-name">CHALLENGER</div>
             <div id="celebrationTitleUnlocked" class="celebration-title-unlocked">TITLE: FAST FINGERS</div>
-            <button type="button" id="claimRankBtn" class="action-green-btn full-width-btn">AWESOME!</button>
+            <button id="claimRankBtn" class="action-green-btn full-width-btn">AWESOME!</button>
         </div>
     </div>
 
-    <!-- MODALE IMPOSTAZIONI -->
+    <!-- 7. MODALE IMPOSTAZIONI -->
     <div id="settingsModal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
                 <h3>SETTINGS</h3>
-                <button type="button" id="closeSettingsBtn" class="close-modal-btn">X</button>
+                <button id="closeSettingsBtn" class="close-modal-btn">X</button>
             </div>
             <div class="setting-row">
                 <span>Sound Effects</span>
-                <button type="button" id="audioToggleBtn" class="toggle-pill-btn">ON</button>
+                <button id="audioToggleBtn" class="toggle-pill-btn">ON</button>
             </div>
         </div>
     </div>
 
-    <!-- MODALE PARTITA SALVATA ALL'AVVIO -->
+    <!-- 8. MODALE PARTITA SALVATA -->
     <div id="savedRunModal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -185,46 +182,55 @@
             </div>
             <p class="resume-desc">You have a saved game in progress!</p>
             <div class="resume-actions">
-                <button type="button" id="resumeSavedRunBtn" class="action-green-btn">RESUME</button>
-                <button type="button" id="newSavedRunBtn" class="action-red-btn">NEW</button>
+                <button id="resumeSavedRunBtn" class="action-green-btn">RESUME</button>
+                <button id="newSavedRunBtn" class="action-red-btn">NEW</button>
             </div>
         </div>
     </div>
 
+    <!-- 9. COUNTDOWN -->
     <div id="countdown">3</div>
 
+    <!-- 10. AREA DI GIOCO -->
     <div id="game">
         <div class="hud-top">
             <div id="score">SCORE: 0</div>
             <div id="combo">COMBO 0</div>
         </div>
-
-        <button type="button" id="pauseBtn" class="pause-btn" title="Pause">
-            <span id="pauseCooldownText" class="pause-cd" style="display: none;">6s</span>
-        </button>
-
+        <button id="pauseBtn" class="pause-btn">II<span id="pauseCooldownText" style="display:none;">6s</span></button>
         <div id="timerCircle">2.5</div>
     </div>
 
+    <!-- 11. OVERLAY PAUSA -->
     <div id="pauseOverlay" class="pause-overlay">
         <div class="gameover-panel pause-panel">
             <h2>PAUSED</h2>
             <p class="pause-info">Progress saved automatically.<br>You can close and resume later.</p>
             <div class="gameover-buttons">
-                <button type="button" id="resumeBtn">RESUME</button>
-                <button type="button" id="quitToHomeBtn">HOME</button>
+                <button id="resumeBtn">RESUME</button>
+                <button id="quitToHomeBtn">HOME</button>
             </div>
         </div>
     </div>
 
+    <!-- 12. GAME OVER -->
     <div id="gameOverScreen">
         <div class="gameover-panel">
             <h2>GAME OVER</h2>
             <div id="newRecordMessage">NEW BEST!</div>
             <div class="score-showcase">
-                <div class="showcase-title">SCORE</div>
-                <div id="finalScore" class="showcase-big">0</div>
+                <span class="showcase-title">SCORE</span>
+                <span id="finalScore" class="showcase-big">0</span>
             </div>
             <div class="mini-stats-row">
                 <div class="mini-card gold-card">
-                    <div class="mini-label">BEST</div>
+                    <span class="mini-label">BEST</span>
+                    <span id="finalRecord" class="mini-value">0</span>
+                </div>
+                <div class="mini-card fire-card">
+                    <span class="mini-label">MAX COMBO</span>
+                    <span id="finalCombo" class="mini-value">0</span>
+                </div>
+            </div>
+            <div class="gameover-buttons">
+                <button id="playAgainBtn">AGAIN</button>

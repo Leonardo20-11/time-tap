@@ -1,8 +1,4 @@
-
 function initTimeTapGame() {
-    const splashScreen = document.getElementById("splashScreen");
-    const splashLoaderFill = document.getElementById("splashLoaderFill");
-    const splashLoaderText = document.getElementById("splashLoaderText");
     const onboardingScreen = document.getElementById("onboardingScreen");
     const onboardingShieldPreview = document.getElementById("onboardingShieldPreview");
     const usernameInput = document.getElementById("usernameInput");
@@ -126,7 +122,7 @@ function initTimeTapGame() {
     }
 
     function getAggressiveCrestHTML(lvlObj, sizePx = 56) {
-        const tier = (lvlObj && typeof lvlObj.level === "number") ? lvlObj : LEVELS_CONFIG[0];
+        const tier = (lvlObj && typeof lvlObj.level === "number") ? lvlObj : LEVELS_CONFIG.at(0);
         const lv = tier.level || 1;
         const wingsClass = lv >= 6 ? "tier-high" : (lv >= 4 ? "tier-mid" : "");
         const wingsHtml = lv >= 2 ? '<div class="emblem-wings ' + wingsClass + '"></div>' : "";
@@ -153,13 +149,13 @@ function initTimeTapGame() {
     }
 
     function getCurrentAndNextTier(currentXP) {
-        let currentTier = LEVELS_CONFIG[0];
-        let nextTier = LEVELS_CONFIG[1] || null;
+        let currentTier = LEVELS_CONFIG.at(0);
+        let nextTier = LEVELS_CONFIG.at(1) || null;
         for (let i = 0; i < LEVELS_CONFIG.length; i++) {
-            const item = LEVELS_CONFIG[i];
+            const item = LEVELS_CONFIG.at(i);
             if (currentXP >= item.xpRequired) {
                 currentTier = item;
-                nextTier = LEVELS_CONFIG[i + 1] || null;
+                nextTier = LEVELS_CONFIG.at(i + 1) || null;
             }
         }
         return { currentTier, nextTier };
@@ -167,12 +163,12 @@ function initTimeTapGame() {
 
     function computeRoadProgressPercent(currentXP) {
         const totalSegments = LEVELS_CONFIG.length - 1;
-        const maxTier = LEVELS_CONFIG[totalSegments];
+        const maxTier = LEVELS_CONFIG.at(totalSegments);
         if (currentXP >= maxTier.xpRequired) return 100;
 
         for (let i = 0; i < totalSegments; i++) {
-            const startXP = LEVELS_CONFIG[i].xpRequired;
-            const endXP = LEVELS_CONFIG[i + 1].xpRequired;
+            const startXP = LEVELS_CONFIG.at(i).xpRequired;
+            const endXP = LEVELS_CONFIG.at(i + 1).xpRequired;
             if (currentXP >= startXP && currentXP < endXP) {
                 const segFraction = (currentXP - startXP) / (endXP - startXP);
                 return ((i + segFraction) / totalSegments) * 100;
@@ -196,11 +192,12 @@ function initTimeTapGame() {
         if (homeProfileShield) homeProfileShield.innerHTML = getAggressiveCrestHTML(activeBadge, 50);
         if (homeProfileName) homeProfileName.textContent = displayName;
         if (homeProfileTitle) homeProfileTitle.textContent = activeBadge.title;
-const recordEl = document.getElementById("record");
-const bestComboEl = document.getElementById("bestComboHome");
-if (recordEl) recordEl.textContent = fmtNum(record);
-if (bestComboEl) bestComboEl.textContent = fmtNum(bestCombo);
-if (rankedHeaderShield) rankedHeaderShield.innerHTML = getAggressiveCrestHTML(currentTier, 54);
+
+        const recordEl = document.getElementById("record");
+        const bestComboEl = document.getElementById("bestComboHome");
+        if (recordEl) recordEl.textContent = fmtNum(record);
+        if (bestComboEl) bestComboEl.textContent = fmtNum(bestCombo);
+        if (rankedHeaderShield) rankedHeaderShield.innerHTML = getAggressiveCrestHTML(currentTier, 54);
 if (levelCurrentName) levelCurrentName.textContent = currentTier.name;
 if (levelXpText) levelXpText.textContent = fmtNum(currentXP) + " / 100.000 XP";
 if (nextRankHint) {
@@ -283,7 +280,7 @@ playSynthEffect("milestone");
 for (let p = 0; p < 26; p++) {
 const dot = document.createElement("span");
 dot.className = "fw-particle";
-const col = colors[Math.floor(Math.random() * colors.length)];
+const col = colors.at(Math.floor(Math.random() * colors.length));
 const sz = (6 + Math.random() * 6).toFixed(0) + "px";
 dot.style.width = sz;
 dot.style.height = sz;
@@ -796,7 +793,7 @@ gameOver();
 return;
 }
 for (let i = activeButtons.length - 1; i >= 0; i--) {
-const btn = activeButtons[i];
+const btn = activeButtons.at(i);
 const rem = Number(btn.dataset.remainingMs) - TICK_MS * speedFactor;
 btn.dataset.remainingMs = rem;
 if (rem <= 0) {
@@ -879,8 +876,8 @@ type = "bomb";
 }
 const freeArrows = arrows.filter(a => !activeButtons.some(b => b.dataset.key === a));
 key = freeArrows.length > 0
-? freeArrows[Math.floor(Math.random() * freeArrows.length)]
-: arrows[Math.floor(Math.random() * arrows.length)];
+? freeArrows.at(Math.floor(Math.random() * freeArrows.length))
+: arrows.at(Math.floor(Math.random() * arrows.length));
 }
 const btn = document.createElement("button");
 btn.classList.add("button-circle");
@@ -888,13 +885,13 @@ let valueText = "";
 if (type === "green") {
 btn.classList.add("green");
 const greenOptions = isDesktop ? [0.400, 0.500, 0.550] : [0.300, 0.350, 0.400];
-const value = forcedConfig ? Number(valueStr) : greenOptions[Math.floor(Math.random() * greenOptions.length)];
+const value = forcedConfig ? Number(valueStr) : greenOptions.at(Math.floor(Math.random() * greenOptions.length));
 btn.dataset.value = value;
 valueText = "+" + value.toFixed(3);
 } else if (type === "red") {
 btn.classList.add("red");
 const redOptions = [0.4, 0.5, 0.6, 0.7];
-const value = forcedConfig ? Number(valueStr) : redOptions[Math.floor(Math.random() * redOptions.length)];
+const value = forcedConfig ? Number(valueStr) : redOptions.at(Math.floor(Math.random() * redOptions.length));
 btn.dataset.value = value;
 valueText = "-" + value.toFixed(1);
 } else if (type === "ice") {
@@ -978,7 +975,7 @@ for (let i = 0; i < count; i++) {
 const spark = document.createElement("span");
 spark.className = "fx-spark" + (isDiamond ? " diamond" : "");
 const size = (6 + Math.random() * 7).toFixed(0) + "px";
-const color = colors[Math.floor(Math.random() * colors.length)];
+const color = colors.at(Math.floor(Math.random() * colors.length));
 spark.style.width = size;
 spark.style.height = size;
 spark.style.background = color;
@@ -1230,7 +1227,6 @@ const target = activeButtons.find(b => b.dataset.key === event.key);
 if (target) activateButton(target);
 });
 function enterHomeScreen() {
-if (splashScreen) splashScreen.style.display = "none";
 refreshAllProfileAndRankUI();
 if (menu) menu.style.display = "flex";
 checkAndRestorePausedGame();
@@ -1238,38 +1234,13 @@ checkAndTriggerRankUpCelebration();
 }
 function runStartupSequence() {
 if (onboardingShieldPreview) {
-onboardingShieldPreview.innerHTML = getAggressiveCrestHTML(LEVELS_CONFIG[0], 86);
+onboardingShieldPreview.innerHTML = getAggressiveCrestHTML(LEVELS_CONFIG.at(0), 86);
 }
-let progress = 0;
-let completed = false;
-function finishLoading() {
-if (completed) return;
-completed = true;
-if (splashLoaderFill) splashLoaderFill.style.width = "100%";
-if (splashLoaderText) splashLoaderText.textContent = "READY!";
-setTimeout(() => {
-if (splashScreen) splashScreen.style.display = "none";
 if (!playerUsername) {
 if (onboardingScreen) onboardingScreen.style.display = "flex";
 } else {
 enterHomeScreen();
 }
-}, 120);
-}
-const loadTimer = setInterval(() => {
-progress += 25;
-if (splashLoaderFill) {
-splashLoaderFill.style.width = Math.min(100, progress) + "%";
-}
-if (progress >= 100) {
-clearInterval(loadTimer);
-finishLoading();
-}
-}, 65);
-setTimeout(() => {
-clearInterval(loadTimer);
-finishLoading();
-}, 600);
 }
 if (saveProfileBtn && usernameInput) {
 saveProfileBtn.addEventListener("click", () => {

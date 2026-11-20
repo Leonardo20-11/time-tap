@@ -4,14 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TIME TAP</title>
-    <link rel="preconnect" href="https://googleapis.com">
-    <link rel="preconnect" href="https://gstatic.com" crossorigin>
-    <link href="https://googleapis.com/css2?family=Fredoka:wght@600;700&family=Lilita+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- TESSERE DECORATIVE SFONDO -->
     <div class="bg-blocks">
         <div class="b-tile t1"></div>
         <div class="b-tile t2"></div>
@@ -21,55 +17,28 @@
         <div class="b-tile t6"></div>
     </div>
 
-    <!-- 1. SPLASH SCREEN (LOADING) -->
-    <div id="splashScreen" class="fullscreen-screen">
-        <div class="logo-wrapper splash-logo">
-            <div class="logo-row row-top">
-                <div class="block-letter c-red">T</div>
-                <div class="block-letter c-orange">I</div>
-                <div class="block-letter c-yellow">M</div>
-                <div class="block-letter c-green">E</div>
-            </div>
-            <div class="logo-row row-bottom">
-                <div class="block-letter c-cyan">T</div>
-                <div class="block-letter c-purple">A</div>
-                <div class="block-letter c-pink">P</div>
-            </div>
-        </div>
-        <div class="splash-loader-box">
-            <div class="splash-loader-track">
-                <div id="splashLoaderFill" class="splash-loader-fill"></div>
-            </div>
-            <div id="splashLoaderText" class="splash-loader-text">LOADING ARENA...</div>
-        </div>
-    </div>
-
-    <!-- 2. ONBOARDING (CREAZIONE PROFILO) -->
+    <!-- CREAZIONE PROFILO -->
     <div id="onboardingScreen" class="fullscreen-screen" style="display: none;">
         <div class="modal-card onboarding-card">
             <div id="onboardingShieldPreview"></div>
             <h2 class="onboarding-title">CREATE PROFILE</h2>
             <p class="onboarding-sub">Choose your permanent username. Once confirmed, it cannot be changed and all your progress will be saved!</p>
-            <input type="text" id="usernameInput" class="profile-input" placeholder="ENTER NAME..." maxlength="14" autocomplete="off">
+            <input type="text" id="usernameInput" class="profile-input" placeholder="YOUR NAME" maxlength="14">
             <button id="saveProfileBtn" class="action-green-btn full-width-btn">CONFIRM USERNAME</button>
         </div>
     </div>
 
-    <!-- 3. MENU PRINCIPALE -->
+    <!-- MENU PRINCIPALE -->
     <div id="menu" style="display: none;">
         <button id="profileCornerBtn" class="profile-corner-btn">
             <div id="homeProfileShield"></div>
-            <span id="homeProfileName" class="home-profile-name">PLAYER</span>
-            <span id="homeProfileTitle" class="home-profile-title">FRESH TAPPER</span>
+            <div id="homeProfileName" class="home-profile-name">PLAYER</div>
+            <div id="homeProfileTitle" class="home-profile-title">FRESH TAPPER</div>
         </button>
 
         <div class="right-top-stack">
-            <button id="settingsBtn" class="top-icon-btn" aria-label="Settings">
-                <span class="gear-css-icon"></span>
-            </button>
-            <button id="levelBtn" class="top-icon-btn rank-trigger" aria-label="Ranked Road">
-                <span class="crown-css-icon"></span>
-            </button>
+            <button id="settingsBtn" class="top-icon-btn"><span class="gear-css-icon"></span></button>
+            <button id="levelBtn" class="top-icon-btn rank-trigger"><span class="crown-css-icon"></span></button>
         </div>
 
         <div class="logo-wrapper">
@@ -87,20 +56,14 @@
         </div>
 
         <div class="home-stats-centered">
-            <div class="stat-pill gold-pill">
-                <span class="trophy-css-icon"></span>
-                <span id="record">0</span>
-            </div>
-            <div class="stat-pill fire-pill">
-                <span class="bolt-css-icon"></span>
-                <span id="bestComboHome">0</span>
-            </div>
+            <div class="stat-pill gold-pill"><span class="trophy-css-icon"></span> <span id="record">0</span></div>
+            <div class="stat-pill fire-pill"><span class="bolt-css-icon"></span> <span id="bestComboHome">0</span></div>
         </div>
 
         <button id="playBtn">PLAY</button>
     </div>
 
-    <!-- 4. MODALE RANKED ROAD -->
+    <!-- PERCORSO CLASSIFICATA -->
     <div id="levelModal" class="fullscreen-modal">
         <div class="fullscreen-header">
             <div class="header-title-group">
@@ -122,14 +85,14 @@
                 <div id="roadYellowFill" class="road-yellow-fill"></div>
                 <div id="roadPlayerPin" class="road-player-pin">
                     <div class="pin-dot"></div>
-                    <span class="pin-label">YOU</span>
+                    <div class="pin-label">YOU</div>
                 </div>
                 <div id="levelNodesContainer" class="ranked-nodes-wrapper"></div>
             </div>
         </div>
     </div>
 
-    <!-- 5. MODALE BADGES & TITLES -->
+    <!-- PROFILO E STEMMI -->
     <div id="badgesModal" class="fullscreen-modal">
         <div class="fullscreen-header">
             <div class="header-title-group">
@@ -148,8 +111,8 @@
         <div id="badgesGridContainer" class="badges-fullscreen-grid"></div>
     </div>
 
-    <!-- 6. CELEBRAZIONE NUOVO GRADO -->
-    <div id="rankUpCelebration" class="fullscreen-modal celebration-overlay">
+    <!-- CELEBRAZIONE NUOVO GRADO -->
+    <div id="rankUpCelebration" class="modal-overlay celebration-overlay">
         <div id="fireworksContainer" class="fireworks-container"></div>
         <div class="celebration-card">
             <div class="celebration-tag">NEW RANK UNLOCKED!</div>
@@ -160,7 +123,7 @@
         </div>
     </div>
 
-    <!-- 7. MODALE IMPOSTAZIONI -->
+    <!-- IMPOSTAZIONI -->
     <div id="settingsModal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -174,7 +137,7 @@
         </div>
     </div>
 
-    <!-- 8. MODALE PARTITA SALVATA -->
+    <!-- PARTITA SALVATA -->
     <div id="savedRunModal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -188,10 +151,9 @@
         </div>
     </div>
 
-    <!-- 9. COUNTDOWN -->
+    <!-- CONTO ALLA ROVESCIA E AREA DI GIOCO -->
     <div id="countdown">3</div>
 
-    <!-- 10. AREA DI GIOCO -->
     <div id="game">
         <div class="hud-top">
             <div id="score">SCORE: 0</div>
@@ -201,7 +163,7 @@
         <div id="timerCircle">2.5</div>
     </div>
 
-    <!-- 11. OVERLAY PAUSA -->
+    <!-- PAUSA -->
     <div id="pauseOverlay" class="pause-overlay">
         <div class="gameover-panel pause-panel">
             <h2>PAUSED</h2>
@@ -213,7 +175,7 @@
         </div>
     </div>
 
-    <!-- 12. GAME OVER -->
+    <!-- GAME OVER -->
     <div id="gameOverScreen">
         <div class="gameover-panel">
             <h2>GAME OVER</h2>
@@ -233,4 +195,12 @@
                 </div>
             </div>
             <div class="gameover-buttons">
-                <button id="playAgainBtn">AGAIN</button>
+                <button id="playAgainBtn">PLAY</button>
+                <button id="homeBtn">HOME</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

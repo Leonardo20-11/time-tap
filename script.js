@@ -64,8 +64,7 @@ function initTimeTapGame() {
     const profileModalAvatar = document.getElementById("profileModalAvatar");
     const profileModalUsername = document.getElementById("profileModalUsername");
     const profileModalStats = document.getElementById("profileModalStats");
-    const editUsernameInput = document.getElementById("editUsernameInput");
-    const updateUsernameBtn = document.getElementById("updateUsernameBtn");
+    const equippedTitleLabel = document.getElementById("equippedTitleLabel");
     const badgesGridContainer = document.getElementById("badgesGridContainer");
 
     /* --- CELEBRAZIONE NUOVO LIVELLO --- */
@@ -76,7 +75,7 @@ function initTimeTapGame() {
     const celebrationTitleUnlocked = document.getElementById("celebrationTitleUnlocked");
     const claimRankBtn = document.getElementById("claimRankBtn");
 
-    /* --- CREAZIONE DINAMICA MESSAGGIO SPECIALE --- */
+    /* --- MESSAGGIO SPECIALE IN PARTITA --- */
     let specialMessage = document.getElementById("specialMessage");
     if (!specialMessage) {
         specialMessage = document.createElement("div");
@@ -110,16 +109,7 @@ function initTimeTapGame() {
     let messageTimeout = null;
     let panicTickCounter = 0;
 
-    /* --- ICONE VETTORIALI UI (ZERO EMOJI) --- */
-    const UI_SVGS = {
-        lock: '<svg viewBox="0 0 24 24" width="14" height="14"><rect x="4" y="11" width="16" height="10" rx="2.5" fill="#94a3b8" stroke="#0f172a" stroke-width="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4" fill="none" stroke="#cbd5e1" stroke-width="2.2" stroke-linecap="round"/></svg>',
-        check: '<svg viewBox="0 0 24 24" width="15" height="15"><circle cx="12" cy="12" r="10" fill="#22c55e" stroke="#ffffff" stroke-width="1.5"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-        soundOn: '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#ffffff"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round"/></svg>',
-        soundOff: '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#cbd5e1"/><path d="M16 9l5 6M21 9l-5 6" stroke="#f87171" stroke-width="2.4" stroke-linecap="round"/></svg>',
-        pause: '<svg viewBox="0 0 24 24" width="22" height="22"><rect x="6" y="5" width="4.5" height="14" rx="1.5" fill="#ffffff"/><rect x="13.5" y="5" width="4.5" height="14" rx="1.5" fill="#ffffff"/></svg>'
-    };
-
-    /* --- PROFILO, STATISTICHE E 7 LIVELLI ESPONENZIALI --- */
+    /* --- PROFILO PERMANENTE, STATISTICHE E 7 GRADI ESPONENZIALI --- */
     let playerUsername = localStorage.getItem("timeTapUsername") || "";
     let record = Number(localStorage.getItem("record")) || 0;
     let bestCombo = Number(localStorage.getItem("bestCombo")) || 0;
@@ -129,115 +119,85 @@ function initTimeTapGame() {
     let highestCelebratedLevel = Number(localStorage.getItem("highestCelebratedLevel")) || 1;
 
     const LEVELS_CONFIG = [
-        { level: 1, name: "ROOKIE", title: "FRESH TAPPER", xpRequired: 0, primary: "#cd7f32", secondary: "#7c2d12", accent: "#fdba74" },
-        { level: 2, name: "CHALLENGER", title: "FAST FINGERS", xpRequired: 800, primary: "#e2e8f0", secondary: "#475569", accent: "#38bdf8" },
-        { level: 3, name: "SKILLED", title: "GOLDEN REFLEX", xpRequired: 3200, primary: "#facc15", secondary: "#a16207", accent: "#fef08a" },
-        { level: 4, name: "EXPERT", title: "CHRONO KNIGHT", xpRequired: 10500, primary: "#38bdf8", secondary: "#0369a1", accent: "#e0f2fe" },
-        { level: 5, name: "MASTER", title: "TIME WARLORD", xpRequired: 28000, primary: "#c084fc", secondary: "#581c87", accent: "#f5d0fe" },
-        { level: 6, name: "GRANDMASTER", title: "UNSTOPPABLE", xpRequired: 60000, primary: "#f43f5e", secondary: "#881337", accent: "#fde047" },
-        { level: 7, name: "IMMORTAL", title: "GOD OF TIME", xpRequired: 100000, primary: "#10b981", secondary: "#064e3b", accent: "#facc15" }
+        { level: 1, name: "ROOKIE", title: "FRESH TAPPER", xpRequired: 0, gemColor: "#fde047" },
+        { level: 2, name: "CHALLENGER", title: "FAST FINGERS", xpRequired: 1200, gemColor: "#38bdf8" },
+        { level: 3, name: "SKILLED", title: "GOLDEN REFLEX", xpRequired: 4500, gemColor: "#ffffff" },
+        { level: 4, name: "EXPERT", title: "CHRONO KNIGHT", xpRequired: 14000, gemColor: "#7dd3fc" },
+        { level: 5, name: "MASTER", title: "TIME WARLORD", xpRequired: 32000, gemColor: "#f5d0fe" },
+        { level: 6, name: "GRANDMASTER", title: "UNSTOPPABLE", xpRequired: 62000, gemColor: "#fde047" },
+        { level: 7, name: "IMMORTAL", title: "GOD OF TIME", xpRequired: 100000, gemColor: "#ef4444" }
     ];
 
-    /* --- STEMMI VETTORIALI SEMPRE PIÙ AGGRESSIVI E RICCHI --- */
-    function getAggressiveShieldSVG(lvlObj, size = 56) {
-        const lv = lvlObj.level;
-        let wings = "";
-        let crownOrHorns = "";
-        let coreEmblem = "";
+    /* --- GENERATORE STEMMI 3D IN PURO HTML/CSS (SEMPRE VISIBILI, ZERO TESTI "LV") --- */
+    function getAggressiveCrestHTML(lvlObj, sizePx = 56) {
+        const tier = lvlObj || LEVELS_CONFIG[0];
+        const lv = tier.level || 1;
+        const wingsClass = lv >= 6 ? "tier-high" : (lv >= 4 ? "tier-mid" : "");
+        const wingsHtml = lv >= 2 ? '<div class="emblem-wings ' + wingsClass + '"></div>' : "";
+        const crownHtml = lv >= 3 ? '<div class="emblem-crown"></div>' : "";
+        const shieldClass = lv >= 5 ? "emblem-shield aggressive" : "emblem-shield";
+        const gemClass = lv >= 6 ? "emblem-gem star-cut" : "emblem-gem";
 
-        if (lv >= 2) {
-            wings += '<polygon points="14,22 2,16 8,30 15,32" fill="' + lvlObj.primary + '" stroke="#ffffff" stroke-width="1.5"/>';
-            wings += '<polygon points="50,22 62,16 56,30 49,32" fill="' + lvlObj.primary + '" stroke="#ffffff" stroke-width="1.5"/>';
+        return '<div class="rank-emblem lv-' + lv + '" style="--sz:' + sizePx + 'px; --gem:' + tier.gemColor + ';">' +
+            wingsHtml +
+            crownHtml +
+            '<div class="' + shieldClass + '">' +
+                '<div class="emblem-core">' +
+                    '<div class="' + gemClass + '"></div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }
+
+    /* --- CURVA ESPONENZIALE REALISTICA (PARTITE + RECORD + PUNTI TOTALI) --- */
+    function calculateTotalXP() {
+        const xpFromGames = Math.floor(Math.pow(gamesPlayed, 0.92) * 7.8);
+        const xpFromRecord = Math.floor(Math.pow(record, 0.78) * 1.15);
+        const xpFromTotalScore = Math.floor(Math.sqrt(totalScoreAccumulated) * 4.2);
+        return Math.min(100000, xpFromGames + xpFromRecord + xpFromTotalScore);
+    }
+
+    function getCurrentAndNextTier(currentXP) {
+        let currentTier = LEVELS_CONFIG[0];
+        let nextTier = LEVELS_CONFIG[1] || null;
+        for (let i = 0; i < LEVELS_CONFIG.length; i++) {
+            if (currentXP >= LEVELS_CONFIG[i].xpRequired) {
+                currentTier = LEVELS_CONFIG[i];
+                nextTier = LEVELS_CONFIG[i + 1] || null;
+            }
         }
-        if (lv >= 4) {
-            wings += '<polygon points="15,34 1,35 9,46 18,44" fill="' + lvlObj.secondary + '" stroke="' + lvlObj.accent + '" stroke-width="1.5"/>';
-            wings += '<polygon points="49,34 63,35 55,46 46,44" fill="' + lvlObj.secondary + '" stroke="' + lvlObj.accent + '" stroke-width="1.5"/>';
+        return { currentTier, nextTier };
+    }
+
+    function computeRoadProgressPercent(currentXP) {
+        const totalSegments = LEVELS_CONFIG.length - 1;
+        if (currentXP >= LEVELS_CONFIG[totalSegments].xpRequired) return 100;
+
+        for (let i = 0; i < totalSegments; i++) {
+            const startXP = LEVELS_CONFIG[i].xpRequired;
+            const endXP = LEVELS_CONFIG[i + 1].xpRequired;
+            if (currentXP >= startXP && currentXP < endXP) {
+                const segFraction = (currentXP - startXP) / (endXP - startXP);
+                return ((i + segFraction) / totalSegments) * 100;
+            }
         }
-        if (lv >= 6) {
-            wings += '<polygon points="16,14 2,4 12,20" fill="' + lvlObj.accent + '"/>';
-            wings += '<polygon points="48,14 62,4 52,20" fill="' + lvlObj.accent + '"/>';
+        return 0;
+    }
+
+    /* --- AGGIORNAMENTO INTERFACCIA PROFILO, CLASSIFICATA E STEMMI --- */
+    function refreshAllProfileAndRankUI() {
+        const currentXP = calculateTotalXP();
+        const { currentTier, nextTier } = getCurrentAndNextTier(currentXP);
+
+        if (equippedBadgeLevel > currentTier.level) {
+            equippedBadgeLevel = currentTier.level;
+            localStorage.setItem("equippedBadgeLevel", equippedBadgeLevel);
         }
 
-        if (lv === 3 || lv === 4) {
-            crownOrHorns = '<polygon points="22,12 26,4 32,10 38,4 42,12" fill="#facc15" stroke="#ffffff" stroke-width="1.3"/>';
-        } else if (lv === 5) {
-            crownOrHorns = '<path d="M20 14 L14 3 L26 11 L32 2 L38 11 L50 3 L44 14 Z" fill="' + lvlObj.accent + '" stroke="#ffffff" stroke-width="1.3"/>';
+        const activeBadge = LEVELS_CONFIG.find(l => l.level === equippedBadgeLevel) || currentTier;
+        const displayName = playerUsername || "PLAYER";
 
-} else if (lv >= 6) {
-crownOrHorns = '';
-}
-if (lv === 1) {
-coreEmblem = '';
-} else if (lv === 2) {
-coreEmblem = '';
-} else if (lv === 3) {
-coreEmblem = '';
-} else if (lv === 4) {
-coreEmblem = '';
-} else if (lv === 5) {
-coreEmblem = '';
-} else if (lv === 6) {
-coreEmblem = '';
-} else {
-coreEmblem = '';
-}
-const shieldPoints = lv >= 5
-? "12,14 32,6 52,14 48,44 32,62 16,44"
-: "14,15 32,8 50,15 47,42 32,59 17,42";
-const innerPoints = lv >= 5
-? "16,17 32,10 48,17 44,41 32,56 20,41"
-: "18,18 32,12 46,18 43,39 32,53 21,39";
-return '' +
-wings +
-crownOrHorns +
-'' +
-'' +
-'' +
-coreEmblem +
-'LV.' + lv + '' +
-'';
-}
-function calculateTotalXP() {
-const xpFromGames = gamesPlayed * 120;
-const xpFromRecord = Math.floor(record * 0.85);
-const xpFromTotal = Math.floor(totalScoreAccumulated * 0.15);
-return Math.min(100000, xpFromGames + xpFromRecord + xpFromTotal);
-}
-function getCurrentAndNextTier(currentXP) {
-let currentTier = LEVELS_CONFIG;
-let nextTier = LEVELS_CONFIG;
-for (let i = 0; i < LEVELS_CONFIG.length; i++) {
-if (currentXP >= LEVELS_CONFIG[i].xpRequired) {
-currentTier = LEVELS_CONFIG[i];
-nextTier = LEVELS_CONFIG[i + 1] || null;
-}
-}
-return { currentTier, nextTier };
-}
-function computeRoadProgressPercent(currentXP) {
-const totalSegments = LEVELS_CONFIG.length - 1;
-if (currentXP >= LEVELS_CONFIG[totalSegments].xpRequired) return 100;
-for (let i = 0; i < totalSegments; i++) {
-const startXP = LEVELS_CONFIG[i].xpRequired;
-const endXP = LEVELS_CONFIG[i + 1].xpRequired;
-if (currentXP >= startXP && currentXP < endXP) {
-const segFraction = (currentXP - startXP) / (endXP - startXP);
-return ((i + segFraction) / totalSegments) * 100;
-}
-}
-return 0;
-}
-/* --- AGGIORNAMENTO UI PROFILO, CLASSIFICATA E STEMMI --- */
-function refreshAllProfileAndRankUI() {
-const currentXP = calculateTotalXP();
-const { currentTier, nextTier } = getCurrentAndNextTier(currentXP);
-if (equippedBadgeLevel > currentTier.level) {
-equippedBadgeLevel = currentTier.level;
-localStorage.setItem("equippedBadgeLevel", equippedBadgeLevel);
-}
-const activeBadge = LEVELS_CONFIG.find(l => l.level === equippedBadgeLevel) || currentTier;
-const displayName = playerUsername || "PLAYER";
-if (homeProfileShield) homeProfileShield.innerHTML = getAggressiveShieldSVG(activeBadge, 46);
+if (homeProfileShield) homeProfileShield.innerHTML = getAggressiveCrestHTML(activeBadge, 50);
 if (homeProfileName) homeProfileName.textContent = displayName;
 if (homeProfileTitle) homeProfileTitle.textContent = activeBadge.title;
 const recordEl = document.getElementById("record");
@@ -245,8 +205,8 @@ const bestComboEl = document.getElementById("bestComboHome");
 if (recordEl) recordEl.textContent = record.toLocaleString("it-IT");
 if (bestComboEl) bestComboEl.textContent = bestCombo.toLocaleString("it-IT");
 /* Aggiorna schermata Fullscreen Classificata */
-if (rankedHeaderShield) rankedHeaderShield.innerHTML = getAggressiveShieldSVG(currentTier, 52);
-if (levelCurrentName) levelCurrentName.textContent = currentTier.level + ". " + currentTier.name;
+if (rankedHeaderShield) rankedHeaderShield.innerHTML = getAggressiveCrestHTML(currentTier, 54);
+if (levelCurrentName) levelCurrentName.textContent = currentTier.name;
 if (levelXpText) levelXpText.textContent = currentXP.toLocaleString("it-IT") + " / 100.000 XP";
 if (nextRankHint) {
 nextRankHint.textContent = nextTier
@@ -257,49 +217,54 @@ const pct = computeRoadProgressPercent(currentXP);
 const desktopNow = window.innerWidth >= 768;
 if (roadYellowFill && roadPlayerPin) {
 if (desktopNow) {
-roadYellowFill.style.height = "10px";
-roadYellowFill.style.width = "calc((100% - 144px) * " + (pct / 100) + ")";
-roadPlayerPin.style.top = "102px";
-roadPlayerPin.style.left = "calc(72px + (100% - 144px) * " + (pct / 100) + ")";
+roadYellowFill.style.height = "12px";
+roadYellowFill.style.width = "calc((100% - 196px) * " + (pct / 100) + ")";
+roadPlayerPin.style.top = "112px";
+roadPlayerPin.style.left = "calc(98px + (100% - 196px) * " + (pct / 100) + ")";
 } else {
-roadYellowFill.style.width = "8px";
-roadYellowFill.style.height = "calc((100% - 72px) * " + (pct / 100) + ")";
-roadPlayerPin.style.left = "26px";
-roadPlayerPin.style.top = "calc(36px + (100% - 72px) * " + (pct / 100) + ")";
+roadYellowFill.style.width = "10px";
+roadYellowFill.style.height = "calc((100% - 88px) * " + (pct / 100) + ")";
+roadPlayerPin.style.left = "28px";
+roadPlayerPin.style.top = "calc(44px + (100% - 88px) * " + (pct / 100) + ")";
 }
 }
 if (levelNodesContainer) {
 levelNodesContainer.innerHTML = LEVELS_CONFIG.map(lvl => {
 const unlocked = currentXP >= lvl.xpRequired;
+const statusBadge = unlocked ? "UNLOCKED" : "LOCKED";
 return '<div class="road-node-card ' + (unlocked ? "unlocked" : "locked") + '">' +
-'' + getAggressiveShieldSVG(lvl, 62) + '' +
+'' + getAggressiveCrestHTML(lvl, 62) + '' +
 '' +
-'' + lvl.level + '. ' + lvl.name + '' +
+'' + statusBadge + '' +
+'' + lvl.name + '' +
 '' + lvl.xpRequired.toLocaleString("it-IT") + ' XP' +
 'TITLE: ' + lvl.title + '' +
 '' +
 '';
 }).join("");
 }
-/* Aggiorna schermata Fullscreen Stemmi & Profilo */
-if (profileModalAvatar) profileModalAvatar.innerHTML = getAggressiveShieldSVG(activeBadge, 56);
+/* Aggiorna schermata Fullscreen Stemmi & Profilo (Username bloccato) */
+if (profileModalAvatar) profileModalAvatar.innerHTML = getAggressiveCrestHTML(activeBadge, 58);
 if (profileModalUsername) profileModalUsername.textContent = displayName;
 if (profileModalStats) {
-profileModalStats.textContent = "GAMES: " + gamesPlayed + " | XP: " + currentXP.toLocaleString("it-IT");
+profileModalStats.textContent = "GAMES: " + gamesPlayed.toLocaleString("it-IT") + " | XP: " + currentXP.toLocaleString("it-IT");
+}
+if (equippedTitleLabel) {
+equippedTitleLabel.textContent = "EQUIPPED: " + activeBadge.title;
 }
 if (badgesGridContainer) {
 badgesGridContainer.innerHTML = LEVELS_CONFIG.map(lvl => {
 const unlocked = currentXP >= lvl.xpRequired;
 const isEquipped = unlocked && lvl.level === equippedBadgeLevel;
 const cls = "badge-card " + (unlocked ? "unlocked" : "locked") + (isEquipped ? " equipped" : "");
-const statusHtml = !unlocked
-? UI_SVGS.lock + '' + lvl.xpRequired.toLocaleString("it-IT") + ' XP'
-: (isEquipped ? UI_SVGS.check + 'EQUIPPED' : 'TAP TO EQUIP');
+const statusText = !unlocked
+? "LOCKED (" + lvl.xpRequired.toLocaleString("it-IT") + " XP)"
+: (isEquipped ? "EQUIPPED" : "TAP TO EQUIP");
 return '' +
-getAggressiveShieldSVG(lvl, 68) +
-'' + lvl.level + '. ' + lvl.name + '' +
+getAggressiveCrestHTML(lvl, 68) +
+'' + lvl.name + '' +
 '' + lvl.title + '' +
-'' + statusHtml + '' +
+'' + statusText + '' +
 '';
 }).join("");
 badgesGridContainer.querySelectorAll(".badge-card.unlocked").forEach(card => {
@@ -353,8 +318,8 @@ equippedBadgeLevel = currentTier.level;
 localStorage.setItem("equippedBadgeLevel", equippedBadgeLevel);
 refreshAllProfileAndRankUI();
 if (rankUpCelebration) {
-if (celebrationShieldSlot) celebrationShieldSlot.innerHTML = getAggressiveShieldSVG(currentTier, 118);
-if (celebrationRankName) celebrationRankName.textContent = currentTier.level + ". " + currentTier.name;
+if (celebrationShieldSlot) celebrationShieldSlot.innerHTML = getAggressiveCrestHTML(currentTier, 108);
+if (celebrationRankName) celebrationRankName.textContent = currentTier.name;
 if (celebrationTitleUnlocked) celebrationTitleUnlocked.textContent = "NEW TITLE: " + currentTier.title;
 rankUpCelebration.style.display = "flex";
 playSynthEffect("newrecord");
@@ -369,237 +334,205 @@ playSynthEffect("click");
 rankUpCelebration.style.display = "none";
 });
 }
+/* --- GESTIONE APERTURA/CHIUSURA SCHERMATE FULLSCREEN --- */
 if (profileCornerBtn && badgesModal) {
-        profileCornerBtn.addEventListener("click", () => {
-            playSynthEffect("click");
-            refreshAllProfileAndRankUI();
-            if (editUsernameInput) editUsernameInput.value = playerUsername;
-            badgesModal.style.display = "flex";
-        });
-    }
-
-    if (closeBadgesBtn && badgesModal) {
-        closeBadgesBtn.addEventListener("click", () => {
-            playSynthEffect("click");
-            badgesModal.style.display = "none";
-        });
-    }
-
-    if (updateUsernameBtn && editUsernameInput) {
-        updateUsernameBtn.addEventListener("click", () => {
-            const cleaned = editUsernameInput.value.trim().toUpperCase();
-            if (cleaned.length >= 2) {
-                playerUsername = cleaned;
-                localStorage.setItem("timeTapUsername", playerUsername);
-                playSynthEffect("gold");
-                refreshAllProfileAndRankUI();
-            }
-        });
-    }
-
-    if (levelBtn && levelModal) {
-        levelBtn.addEventListener("click", () => {
-            playSynthEffect("click");
-            levelModal.style.display = "flex";
-            refreshAllProfileAndRankUI();
-        });
-    }
-
-    if (closeLevelBtn && levelModal) {
-        closeLevelBtn.addEventListener("click", () => {
-            playSynthEffect("click");
-            levelModal.style.display = "none";
-        });
-    }
-
-    window.addEventListener("resize", () => {
-        if (levelModal && levelModal.style.display === "flex") {
-            refreshAllProfileAndRankUI();
-        }
-    });
-
-    /* --- ICONE SVG REALISTICHE PER POTERI --- */
-    const SPECIAL_SVGS = {
-        bomb: '<svg class="special-svg-icon" viewBox="0 0 64 64">' +
-            '<defs>' +
-                '<radialGradient id="bombGrad" cx="35%" cy="35%" r="65%">' +
-                    '<stop offset="0%" stop-color="#94a3b8"/>' +
-                    '<stop offset="45%" stop-color="#1e293b"/>' +
-                    '<stop offset="100%" stop-color="#020617"/>' +
-                '</radialGradient>' +
-            '</defs>' +
-            '<path d="M40 16 C45 10, 52 10, 56 14" stroke="#f59e0b" stroke-width="4" fill="none" stroke-linecap="round"/>' +
-            '<circle cx="57" cy="14" r="4.5" fill="#fbbf24"/>' +
-            '<circle cx="57" cy="14" r="2.2" fill="#ffffff"/>' +
-            '<rect x="33" y="14" width="10" height="7" rx="2" transform="rotate(35 38 17)" fill="#475569"/>' +
-            '<circle cx="30" cy="36" r="21" fill="url(#bombGrad)" stroke="#334155" stroke-width="1.5"/>' +
-            '<ellipse cx="22" cy="27" rx="6" ry="3.5" transform="rotate(-35 22 27)" fill="rgba(255,255,255,0.4)"/>' +
-        '</svg>',
-        ice: '<svg class="special-svg-icon" viewBox="0 0 64 64">' +
-            '<defs>' +
-                '<linearGradient id="iceGrad" x1="0%" y1="0%" x2="100%" y2="100%">' +
-                    '<stop offset="0%" stop-color="#ffffff"/>' +
-                    '<stop offset="50%" stop-color="#7dd3fc"/>' +
-                    '<stop offset="100%" stop-color="#0284c7"/>' +
-                '</linearGradient>' +
-            '</defs>' +
-            '<polygon points="32,4 42,20 58,20 48,34 56,50 38,46 32,60 26,46 8,50 16,34 6,20 22,20" fill="url(#iceGrad)" stroke="#e0f2fe" stroke-width="2" stroke-linejoin="round"/>' +
-            '<polygon points="32,14 38,26 50,26 41,34 45,45 32,39 19,45 23,34 14,26 26,26" fill="rgba(255,255,255,0.5)"/>' +
-        '</svg>',
-        clock: '<svg class="special-svg-icon" viewBox="0 0 64 64">' +
-            '<defs>' +
-                '<radialGradient id="clockFace" cx="40%" cy="35%" r="65%">' +
-                    '<stop offset="0%" stop-color="#ffffff"/>' +
-                    '<stop offset="70%" stop-color="#f3e8ff"/>' +
-                    '<stop offset="100%" stop-color="#d8b4fe"/>' +
-                '</radialGradient>' +
-            '</defs>' +
-            '<circle cx="32" cy="34" r="23" fill="#581c87"/>' +
-            '<circle cx="32" cy="34" r="19.5" fill="url(#clockFace)" stroke="#f5d0fe" stroke-width="1.5"/>' +
-            '<rect x="29" y="6" width="6" height="5" rx="1.5" fill="#a855f7"/>' +
-            '<line x1="32" y1="34" x2="32" y2="21" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>' +
-            '<line x1="32" y1="34" x2="42" y2="34" stroke="#9333ea" stroke-width="2.5" stroke-linecap="round"/>' +
-            '<circle cx="32" cy="34" r="2.5" fill="#0f172a"/>' +
-        '</svg>'
-    };
-
-    /* --- GESTIONE AUDIO E IMPOSTAZIONI --- */
-    let soundEnabled = localStorage.getItem("soundEnabled") !== "false";
-
-    function updateAudioButton() {
-        if (!audioToggleBtn) return;
-        audioToggleBtn.innerHTML = soundEnabled
-            ? UI_SVGS.soundOn + ' <span>ON</span>'
-            : UI_SVGS.soundOff + ' <span>OFF</span>';
-        audioToggleBtn.classList.toggle("muted", !soundEnabled);
-    }
-    updateAudioButton();
-
-    if (audioToggleBtn) {
-        audioToggleBtn.addEventListener("click", () => {
-            soundEnabled = !soundEnabled;
-            localStorage.setItem("soundEnabled", soundEnabled);
-            updateAudioButton();
-            if (soundEnabled) {
-                playSynthEffect("click");
-            } else if ("speechSynthesis" in window) {
-                window.speechSynthesis.cancel();
-            }
-        });
-    }
-
-    if (settingsBtn && settingsModal) {
-        settingsBtn.addEventListener("click", () => {
-            playSynthEffect("click");
-            settingsModal.style.display = "flex";
-        });
-    }
-
-    if (closeSettingsBtn && settingsModal) {
-        closeSettingsBtn.addEventListener("click", () => {
-            playSynthEffect("click");
-            settingsModal.style.display = "none";
-        });
-    }
-
-    const activeButtons = [];
-    const arrows = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
-    const symbols = {
-        ArrowUp: "↑",
-        ArrowDown: "↓",
-        ArrowLeft: "←",
-        ArrowRight: "→"
-    };
-
-    let baseButtonDuration = isDesktop ? 1850 : 1350;
-    let baseSpawnDelay = isDesktop ? 210 : 220;
-
-    let audioCtx = null;
-
-    function initAudio() {
-        if (!soundEnabled) return;
-        try {
-            const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            if (!AudioCtx) return;
-            if (!audioCtx) audioCtx = new AudioCtx();
-            if (audioCtx.state === "suspended") audioCtx.resume();
-            const buffer = audioCtx.createBuffer(1, 1, 22050);
-            const source = audioCtx.createBufferSource();
-            source.buffer = buffer;
-            source.connect(audioCtx.destination);
-            source.start(0);
-        } catch (e) {}
-    }
-
-    document.addEventListener("touchstart", initAudio, { once: true });
-    document.addEventListener("pointerdown", initAudio, { once: true });
-
-    function playTone(freq, endFreq, type, startTime, duration, vol) {
-        if (!audioCtx || !soundEnabled) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, startTime);
-        if (endFreq !== null) {
-            osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + duration);
-        }
-        gain.gain.setValueAtTime(vol, startTime);
-        gain.gain.exponentialRampToValueAtTime(0.008, startTime + duration);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(startTime);
-        osc.stop(startTime + duration);
-    }
-
-    function playSynthEffect(type) {
-        if (!soundEnabled) return;
-        initAudio();
-        if (!audioCtx) return;
-        const now = audioCtx.currentTime;
-
-        if (type === "green") {
-            const step = Math.min(comboCount * 10, 160);
-            playTone(260 + step, 440 + step, "sine", now, 0.11, 0.55);
-            playTone(150 + step * 0.4, 90, "triangle", now, 0.08, 0.35);
-        } else if (type === "red") {
-            playTone(190, 75, "sawtooth", now, 0.22, 0.45);
-        } else if (type === "gold") {
-            [440, 554.37, 659.25, 880].forEach((f, i) => {
-                playTone(f, null, "sine", now + i * 0.045, 0.16, 0.42);
-            });
-        } else if (type === "ice") {
-            [880, 1174.66, 1318.51, 1760].forEach((f, i) => {
-                playTone(f, null, "sine", now + i * 0.04, 0.22, 0.35);
-            });
-        } else if (type === "clock") {
-            playTone(720, 260, "sine", now, 0.45, 0.4);
-            playTone(540, 195, "triangle", now + 0.06, 0.45, 0.35);
-        } else if (type === "bomb") {
-            playTone(140, 35, "sawtooth", now, 0.45, 0.65);
-            playTone(100, 28, "square", now, 0.45, 0.55);
-        } else if (type === "epic") {
-            [392, 493.88, 587.33, 783.99].forEach((f) => {
-                playTone(f, null, "triangle", now, 0.3, 0.32);
-            });
-        } else if (type === "milestone") {
-            [440, 587.33, 783.99].forEach((f, i) => {
-                playTone(f, null, "sine", now + i * 0.055, 0.18, 0.28);
-            });
-        } else if (type === "newrecord") {
-            [440, 554.37, 659.25, 880, 659.25, 880].forEach((f, i) => {
-                playTone(f, null, "triangle", now + i * 0.085, 0.22, 0.38);
-            });
-        } else if (type === "tick") {
-            playTone(620, null, "sine", now, 0.045, 0.2);
-        } else if (type === "click") {
-            playTone(420, 640, "sine", now, 0.075, 0.32);
-        } else if (type === "beep") {
-            playTone(392, null, "sine", now, 0.11, 0.32);
-        } else if (type === "go") {
-            playTone(659.25, null, "sine", now, 0.22, 0.42);
-        } else if (type === "gameover") {
-            playTone(293.66, null, "sawtooth", now, 0.24, 0.28);
-            playTone(277.18, null, "sawtooth", now + 0.26, 0.24, 0.28);
+profileCornerBtn.addEventListener("click", () => {
+playSynthEffect("click");
+refreshAllProfileAndRankUI();
+badgesModal.style.display = "flex";
+});
+}
+if (closeBadgesBtn && badgesModal) {
+closeBadgesBtn.addEventListener("click", () => {
+playSynthEffect("click");
+badgesModal.style.display = "none";
+});
+}
+if (levelBtn && levelModal) {
+levelBtn.addEventListener("click", () => {
+playSynthEffect("click");
+levelModal.style.display = "flex";
+refreshAllProfileAndRankUI();
+});
+}
+if (closeLevelBtn && levelModal) {
+closeLevelBtn.addEventListener("click", () => {
+playSynthEffect("click");
+levelModal.style.display = "none";
+});
+}
+window.addEventListener("resize", () => {
+if (levelModal && levelModal.style.display === "flex") {
+refreshAllProfileAndRankUI();
+}
+});
+/* --- ICONE SVG REALISTICHE PER POTERI --- */
+const SPECIAL_SVGS = {
+bomb: '' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'',
+ice: '' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'',
+clock: '' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+'' +
+''
+};
+/* --- GESTIONE AUDIO E IMPOSTAZIONI --- */
+let soundEnabled = localStorage.getItem("soundEnabled") !== "false";
+function updateAudioButton() {
+if (!audioToggleBtn) return;
+audioToggleBtn.textContent = soundEnabled ? "ON" : "OFF";
+audioToggleBtn.classList.toggle("muted", !soundEnabled);
+}
+updateAudioButton();
+if (audioToggleBtn) {
+audioToggleBtn.addEventListener("click", () => {
+soundEnabled = !soundEnabled;
+localStorage.setItem("soundEnabled", soundEnabled);
+updateAudioButton();
+if (soundEnabled) {
+playSynthEffect("click");
+} else if ("speechSynthesis" in window) {
+window.speechSynthesis.cancel();
+}
+});
+}
+if (settingsBtn && settingsModal) {
+settingsBtn.addEventListener("click", () => {
+playSynthEffect("click");
+settingsModal.style.display = "flex";
+});
+}
+if (closeSettingsBtn && settingsModal) {
+closeSettingsBtn.addEventListener("click", () => {
+playSynthEffect("click");
+settingsModal.style.display = "none";
+});
+}
+const activeButtons = [];
+const arrows = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+const symbols = {
+ArrowUp: "↑",
+ArrowDown: "↓",
+ArrowLeft: "←",
+ArrowRight: "→"
+};
+let baseButtonDuration = isDesktop ? 1850 : 1350;
+let baseSpawnDelay = isDesktop ? 210 : 220;
+let audioCtx = null;
+function initAudio() {
+if (!soundEnabled) return;
+try {
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+if (!AudioCtx) return;
+if (!audioCtx) audioCtx = new AudioCtx();
+if (audioCtx.state === "suspended") audioCtx.resume();
+const buffer = audioCtx.createBuffer(1, 1, 22050);
+const source = audioCtx.createBufferSource();
+source.buffer = buffer;
+source.connect(audioCtx.destination);
+source.start(0);
+} catch (e) {}
+}
+document.addEventListener("touchstart", initAudio, { once: true });
+document.addEventListener("pointerdown", initAudio, { once: true });
+function playTone(freq, endFreq, type, startTime, duration, vol) {
+if (!audioCtx || !soundEnabled) return;
+const osc = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+osc.type = type;
+osc.frequency.setValueAtTime(freq, startTime);
+if (endFreq !== null) {
+osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + duration);
+}
+gain.gain.setValueAtTime(vol, startTime);
+gain.gain.exponentialRampToValueAtTime(0.008, startTime + duration);
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+osc.start(startTime);
+osc.stop(startTime + duration);
+}
+function playSynthEffect(type) {
+if (!soundEnabled) return;
+initAudio();
+if (!audioCtx) return;
+const now = audioCtx.currentTime;
+if (type === "green") {
+const step = Math.min(comboCount * 10, 160);
+playTone(260 + step, 440 + step, "sine", now, 0.11, 0.55);
+playTone(150 + step * 0.4, 90, "triangle", now, 0.08, 0.35);
+} else if (type === "red") {
+playTone(190, 75, "sawtooth", now, 0.22, 0.45);
+} else if (type === "gold") {
+[440, 554.37, 659.25, 880].forEach((f, i) => {
+playTone(f, null, "sine", now + i * 0.045, 0.16, 0.42);
+});
+} else if (type === "ice") {
+[880, 1174.66, 1318.51, 1760].forEach((f, i) => {
+playTone(f, null, "sine", now + i * 0.04, 0.22, 0.35);
+});
+} else if (type === "clock") {
+playTone(720, 260, "sine", now, 0.45, 0.4);
+playTone(540, 195, "triangle", now + 0.06, 0.45, 0.35);
+} else if (type === "bomb") {
+playTone(140, 35, "sawtooth", now, 0.45, 0.65);
+playTone(100, 28, "square", now, 0.45, 0.55);
+} else if (type === "epic") {
+[392, 493.88, 587.33, 783.99].forEach((f) => {
+playTone(f, null, "triangle", now, 0.3, 0.32);
+});
+} else if (type === "milestone") {
+[440, 587.33, 783.99].forEach((f, i) => {
+playTone(f, null, "sine", now + i * 0.055, 0.18, 0.28);
+});
+} else if (type === "newrecord") {
+[440, 554.37, 659.25, 880, 659.25, 880].forEach((f, i) => {
+playTone(f, null, "triangle", now + i * 0.085, 0.22, 0.38);
+});
+} else if (type === "tick") {
+playTone(620, null, "sine", now, 0.045, 0.2);
+} else if (type === "click") {
+playTone(420, 640, "sine", now, 0.075, 0.32);
+} else if (type === "beep") {
+playTone(392, null, "sine", now, 0.11, 0.32);
+} else if (type === "go") {
+playTone(659.25, null, "sine", now, 0.22, 0.42);
+} else if (type === "gameover") {
+playTone(293.66, null, "sawtooth", now, 0.24, 0.28);
+playTone(277.18, null, "sawtooth", now + 0.26, 0.24, 0.28);
 playTone(261.63, null, "sawtooth", now + 0.52, 0.24, 0.28);
 playTone(246.94, 190, "sawtooth", now + 0.78, 0.7, 0.28);
 }
@@ -658,16 +591,15 @@ if (pauseCooldownText) {
 pauseCooldownText.textContent = secLeft + "s";
 pauseCooldownText.style.display = "inline";
 } else {
-pauseBtn.innerHTML = '' + secLeft + 's';
+pauseBtn.textContent = secLeft + "s";
 }
 } else {
 pauseBtn.disabled = false;
 pauseBtn.classList.remove("on-cooldown");
 if (pauseCooldownText) {
 pauseCooldownText.style.display = "none";
-} else {
-pauseBtn.innerHTML = UI_SVGS.pause;
 }
+pauseBtn.textContent = "II";
 }
 }
 function pauseGame() {
@@ -948,7 +880,7 @@ btn.innerHTML = '' + arrowSymbol + '' + contentHtml + '';
 btn.innerHTML = '' + contentHtml + '';
 }
 }
-/* --- SPAWN BILANCIATO: SEMPRE MISTI VERDI E ROSSI (MAX 4 VERDI, MAX 2 ROSSI) --- */
+/* --- SPAWN BILANCIATO: SEMPRE MISTI VERDI E ROSSI --- */
 function createButton(forcedConfig = null) {
 let type = "green";
 let key = "";
@@ -968,7 +900,6 @@ if (greenSlotsCount >= 4 && redSlotsCount >= 2) return;
 const hasSpecialOnScreen = activeButtons.some(b =>
 ["gold", "ice", "bomb", "clock"].includes(b.dataset.action)
 );
-/* Garantisce sempre il mix: non permette mai che siano tutti verdi o tutti rossi */
 if (greenSlotsCount >= 4) {
 type = "red";
 } else if (redSlotsCount >= 2) {
@@ -980,20 +911,19 @@ type = "green";
 } else {
 type = Math.random() < 0.65 ? "green" : "red";
 }
-/* Poteri speciali: Orologio, Freeze e x2 prendono il posto di un VERDE; Bomba di un ROSSO */
 if (!hasSpecialOnScreen) {
 const rand = Math.random();
 if (type === "green") {
 if (rand < 0.025 && !isSlowMo) {
-type = "clock"; // Orologio (1.5s slow-mo)
+type = "clock";
 } else if (rand < 0.055 && !isFrozen) {
-type = "ice"; // Freeze (1.0s)
+type = "ice";
 } else if (rand < 0.095 && !doubleBonus) {
-type = "gold"; // x2 (raddoppia i decimi verdi per 1.5s)
+type = "gold";
 }
 } else if (type === "red") {
 if (rand < 0.035) {
-type = "bomb"; // Bomba rara
+type = "bomb";
 }
 }
 }
@@ -1186,7 +1116,7 @@ return;
 } else if (action === "gold") {
 playSynthEffect("gold");
 doubleBonus = true;
-doubleBonusRemainingMs = 1500; // Raddoppia i decimi verdi per 1,5 secondi
+doubleBonusRemainingMs = 1500;
 spawnStars(centerX, centerY, "gold");
 spawnFloatingText(centerX, centerY, "2X TIME 1.5s!", "#facc15");
 showMessage("DOUBLE TIME!", "Double time!");
@@ -1315,7 +1245,8 @@ saved.buttons.forEach(bData => createButton(bData));
 }
 startGame(true);
 isPaused = true;
-if (pauseOverlay) pauseOverlay.style.display = "flex";
+if
+(pauseOverlay) pauseOverlay.style.display = "flex";
 }
 function checkAndRestorePausedGame() {
 const raw = localStorage.getItem(PAUSE_STATE_KEY);
@@ -1349,7 +1280,7 @@ if (!running || isPaused) return;
 const target = activeButtons.find(b => b.dataset.key === event.key);
 if (target) activateButton(target);
 });
-/* --- FLUSSO DI AVVIO: SPLASH -> PROFILO (SE NUOVO) -> HOME --- */
+/* --- FLUSSO DI AVVIO RAPIDO: SPLASH -> PROFILO (SOLO 1a VOLTA) -> HOME --- */
 function enterHomeScreen() {
 refreshAllProfileAndRankUI();
 if (menu) menu.style.display = "flex";
@@ -1358,11 +1289,11 @@ checkAndTriggerRankUpCelebration();
 }
 function runStartupSequence() {
 if (onboardingShieldPreview) {
-onboardingShieldPreview.innerHTML = getAggressiveShieldSVG(LEVELS_CONFIG[0], 88);
+onboardingShieldPreview.innerHTML = getAggressiveCrestHTML(LEVELS_CONFIG[0], 86);
 }
 let progress = 0;
 const loadTimer = setInterval(() => {
-progress += 8;
+progress += 25;
 if (splashLoaderFill) {
 splashLoaderFill.style.width = Math.min(100, progress) + "%";
 }
@@ -1376,14 +1307,19 @@ if (onboardingScreen) onboardingScreen.style.display = "flex";
 } else {
 enterHomeScreen();
 }
-}, 260);
+}, 120);
 }
-}, 75);
+}, 65);
 }
 if (saveProfileBtn && usernameInput) {
 saveProfileBtn.addEventListener("click", () => {
+if (playerUsername) return;
 const chosen = usernameInput.value.trim().toUpperCase();
-playerUsername = chosen.length >= 2 ? chosen : "PLAYER 1";
+if (chosen.length < 2) {
+usernameInput.focus();
+return;
+}
+playerUsername = chosen;
 localStorage.setItem("timeTapUsername", playerUsername);
 initAudio();
 playSynthEffect("newrecord");

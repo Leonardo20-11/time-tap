@@ -11,7 +11,6 @@
 </head>
 <body>
 
-    <!-- SFONDO CON TESSERE 3D -->
     <div class="bg-blocks">
         <div class="b-tile t1"></div>
         <div class="b-tile t2"></div>
@@ -21,7 +20,7 @@
         <div class="b-tile t6"></div>
     </div>
 
-    <!-- 1. SCHERMATA DI CARICAMENTO INIZIALE (SPLASH) -->
+    <!-- 1. SCHERMATA DI CARICAMENTO INIZIALE -->
     <div id="splashScreen" class="fullscreen-screen">
         <div class="logo-wrapper splash-logo">
             <div class="logo-row row-top">
@@ -44,42 +43,34 @@
         </div>
     </div>
 
-    <!-- 2. SCHERMATA CREAZIONE PROFILO (SOLO AL PRIMO ACCESSO) -->
+    <!-- 2. CREAZIONE PROFILO (UNA SOLA VOLTA, USERNAME DEFINITIVO) -->
     <div id="onboardingScreen" class="fullscreen-screen" style="display: none;">
         <div class="modal-card onboarding-card">
             <div id="onboardingShieldPreview" class="onboarding-shield"></div>
             <h2 class="onboarding-title">CREATE PROFILE</h2>
-            <p class="onboarding-sub">Choose your player name to save ranks, badges and records.</p>
+            <p class="onboarding-sub">Choose your permanent username. Once confirmed, it cannot be changed and all your progress will be saved!</p>
             <input type="text" id="usernameInput" class="profile-input" maxlength="14" placeholder="ENTER USERNAME..." autocomplete="off">
-            <button type="button" id="saveProfileBtn" class="action-green-btn full-width-btn">START ADVENTURE</button>
+            <button type="button" id="saveProfileBtn" class="action-green-btn full-width-btn">CONFIRM USERNAME</button>
         </div>
     </div>
 
     <!-- 3. MENU HOME PRINCIPALE -->
     <div id="menu" style="display: none;">
-        <!-- PROFILO & STEMMI IN ALTO A SINISTRA -->
         <button type="button" id="profileCornerBtn" class="profile-corner-btn" title="Profile & Badges">
             <div id="homeProfileShield" class="home-profile-shield"></div>
             <span id="homeProfileName" class="home-profile-name">PLAYER</span>
             <span id="homeProfileTitle" class="home-profile-title">FRESH TAPPER</span>
         </button>
 
-        <!-- IMPOSTAZIONI E CLASSIFICATA IN ALTO A DESTRA -->
         <div class="right-top-stack">
             <button type="button" id="settingsBtn" class="top-icon-btn" title="Settings">
-                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"></circle>
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                </svg>
+                <span class="gear-css-icon"></span>
             </button>
             <button type="button" id="levelBtn" class="top-icon-btn rank-trigger" title="Ranked Road">
-                <svg viewBox="0 0 24 24" width="26" height="26" fill="#ffffff">
-                    <path d="M18 2H6v7a6 6 0 0 0 5 5.91V19H8v3h8v-3h-3v-4.09A6 6 0 0 0 18 9V2zm-14 2H2v3a4 4 0 0 0 3 3.87V8.7A2 2 0 0 1 4 7V4zm18 0h-2v3a2 2 0 0 1-1 1.7v2.17A4 4 0 0 0 22 7V4z"/>
-                </svg>
+                <span class="trophy-css-icon"></span>
             </button>
         </div>
 
-        <!-- LOGO CENTRALE -->
         <div class="logo-wrapper">
             <div class="logo-row row-top">
                 <div class="block-letter c-red">T</div>
@@ -94,25 +85,21 @@
             </div>
         </div>
 
-        <!-- RECORD E BEST COMBO -->
         <div class="home-stats-centered">
             <div class="stat-pill gold-pill">
-                <span class="pill-icon">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="#ffffff"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>
-                </span>
+                <span class="crown-css-icon"></span>
                 <span id="record">0</span>
             </div>
             <div class="stat-pill fire-pill">
-                <span class="pill-icon">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="#ffffff"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>
-                </span>
+                <span class="bolt-css-icon"></span>
                 <span id="bestComboHome">0</span>
             </div>
         </div>
 
-        <!-- PULSANTE PLAY -->
         <button type="button" id="playBtn">PLAY</button>
     </div>
+
+    <!-- SCHERMATA FULLSCREEN: PERCORSO CLASSIFICATA (RANKED ROAD) -->
     <div id="levelModal" class="fullscreen-modal">
         <div class="fullscreen-header">
             <div class="header-title-group">
@@ -126,11 +113,10 @@
         </div>
 
         <div class="ranked-status-strip">
-            <div id="levelCurrentName" class="rank-badge-title">1. ROOKIE</div>
-            <div id="nextRankHint" class="next-rank-hint">Next: CHALLENGER (800 XP)</div>
+            <div id="levelCurrentName" class="rank-badge-title">ROOKIE</div>
+            <div id="nextRankHint" class="next-rank-hint">NEXT: CHALLENGER (800 XP)</div>
         </div>
 
-        <!-- CONTENITORE PERCORSO RESPONSIVE (ORIZZONTALE SU PC, VERTICALE SU TELEFONO) -->
         <div id="rankedRoadViewport" class="ranked-road-viewport">
             <div id="rankedRoadTrack" class="ranked-road-track">
                 <div class="road-base-line"></div>
@@ -144,7 +130,7 @@
         </div>
     </div>
 
-    <!-- SCHERMATA FULLSCREEN: PROFILO, STEMMI E TITOLI -->
+    <!-- SCHERMATA FULLSCREEN: PROFILO, STEMMI E TITOLI (USERNAME BLOCCATO) -->
     <div id="badgesModal" class="fullscreen-modal">
         <div class="fullscreen-header">
             <div class="header-title-group">
@@ -157,9 +143,9 @@
             <button type="button" id="closeBadgesBtn" class="close-fullscreen-btn">X</button>
         </div>
 
-        <div class="profile-edit-bar">
-            <input type="text" id="editUsernameInput" class="profile-input small-input" maxlength="14" placeholder="NEW USERNAME">
-            <button type="button" id="updateUsernameBtn" class="action-green-btn compact-btn">SAVE NAME</button>
+        <div class="ranked-status-strip">
+            <div class="rank-badge-title" style="font-size: 18px;">BADGES &amp; TITLES</div>
+            <div id="equippedTitleLabel" class="next-rank-hint">EQUIPPED: FRESH TAPPER</div>
         </div>
 
         <div id="badgesGridContainer" class="badges-fullscreen-grid"></div>
@@ -242,20 +228,3 @@
             <div class="mini-stats-row">
                 <div class="mini-card gold-card">
                     <div class="mini-label">BEST</div>
-                    <div id="finalRecord" class="mini-value">0</div>
-                </div>
-                <div class="mini-card fire-card">
-                    <div class="mini-label">COMBO</div>
-                    <div id="finalCombo" class="mini-value">0</div>
-                </div>
-            </div>
-            <div class="gameover-buttons">
-                <button type="button" id="playAgainBtn">PLAY</button>
-                <button type="button" id="homeBtn">HOME</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>

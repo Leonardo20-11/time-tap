@@ -6,8 +6,8 @@
     <title>TIME TAP</title>
     <link rel="preconnect" href="https://googleapis.com">
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
-    <link href="https://googleapis.com/css2?family=Fredoka:wght@700&family=Lilita+One&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=3">
+    <link href="https://googleapis.com/css2?family=Fredoka:wght@600;700&family=Lilita+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -20,21 +20,17 @@
         <div class="b-tile t6"></div>
     </div>
 
-    <!-- MENU HOME -->
     <div id="menu">
-        <button id="audioToggleBtn" class="audio-btn" title="Audio">🔊</button>
+        <!-- Pulsante sinistro in alto (predisposto per future funzioni) -->
+        <button id="leftTopBtn" class="top-icon-btn left-pos" aria-label="Extra">✨</button>
 
-        <div class="home-stats">
-            <div class="stat-pill gold-pill">
-                <span class="pill-icon">👑</span>
-                <span id="record">0</span>
-            </div>
-            <div class="stat-pill fire-pill">
-                <span class="pill-icon">🔥</span>
-                <span id="bestComboHome">0</span>
-            </div>
+        <!-- Pulsanti destri in alto: Impostazioni + Livello sotto -->
+        <div class="right-top-stack">
+            <button id="settingsBtn" class="top-icon-btn" aria-label="Impostazioni">⚙️</button>
+            <button id="rankBtn" class="top-icon-btn rank-trigger" aria-label="Livelli">🏆</button>
         </div>
 
+        <!-- Logo 3D -->
         <div class="logo-wrapper">
             <div class="logo-row row-top">
                 <div class="block-letter c-red">T</div>
@@ -49,34 +45,108 @@
             </div>
         </div>
 
+        <!-- Record e Combo centrati sopra PLAY -->
+        <div class="home-stats-centered">
+            <div class="stat-pill gold-pill">
+                <span class="pill-icon">👑</span>
+                <span id="record">0</span>
+            </div>
+            <div class="stat-pill fire-pill">
+                <span class="pill-icon">🔥</span>
+                <span id="bestComboHome">0</span>
+            </div>
+        </div>
+
         <button id="playBtn">PLAY</button>
     </div>
 
-    <!-- COUNTDOWN -->
+    <!-- MODALE IMPOSTAZIONI -->
+    <div id="settingsModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>SETTINGS</h3>
+                <button id="closeSettingsBtn" class="close-modal-btn">✕</button>
+            </div>
+            <div class="setting-row">
+                <span>Sound Effects</span>
+                <button id="audioToggleBtn" class="toggle-pill-btn">🔊 ON</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE 7 LIVELLI ESPONENZIALI -->
+    <div id="rankModal" class="modal-overlay">
+        <div class="modal-card rank-card-modal">
+            <div class="modal-header">
+                <h3>PLAYER RANK</h3>
+                <button id="closeRankBtn" class="close-modal-btn">✕</button>
+            </div>
+            <div class="current-rank-banner">
+                <div id="currentRankBadge" class="rank-badge-title">1. ROOKIE</div>
+                <div id="currentXpLabel" class="xp-counter-text">0 / 100.000 XP</div>
+            </div>
+            <div class="progress-track-wrapper">
+                <div class="progress-track">
+                    <div id="xpProgressFill" class="progress-fill"></div>
+                </div>
+                <div id="nextRankHint" class="next-rank-hint">Next: Challenger</div>
+            </div>
+            <div id="rankStepsList" class="rank-steps-list"></div>
+        </div>
+    </div>
+
+    <!-- MODALE RIPRENDI PARTITA SALVATA -->
+    <div id="resumeModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>PAUSED RUN</h3>
+            </div>
+            <p class="resume-desc">You have a saved game in progress!</p>
+            <div class="resume-actions">
+                <button id="resumeSavedBtn" class="action-green-btn">RESUME</button>
+                <button id="discardSavedBtn" class="action-red-btn">NEW</button>
+            </div>
+        </div>
+    </div>
+
     <div id="countdown">3</div>
 
-    <!-- AREA DI GIOCO -->
     <div id="game">
         <div class="hud-top">
             <div id="score">SCORE: 0</div>
             <div id="combo">COMBO 0</div>
         </div>
 
+        <!-- Pulsante STOP / PAUSA in alto a destra con cooldown -->
+        <button id="pauseBtn" class="pause-btn" aria-label="Pausa">
+            <span id="pauseIcon">⏸</span>
+            <span id="pauseCooldownText" class="pause-cd"></span>
+        </button>
+
         <div id="specialMessage"></div>
         <div id="timerCircle">2.5</div>
+
+        <!-- OVERLAY PAUSA IN CORSO -->
+        <div id="pauseOverlay" class="pause-overlay">
+            <div class="gameover-panel pause-panel">
+                <h2>PAUSED</h2>
+                <p class="pause-info">Progress saved automatically.<br>You can close and resume later.</p>
+                <div class="gameover-buttons">
+                    <button id="resumeBtn">RESUME</button>
+                    <button id="quitToHomeBtn">HOME</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- SCHERMATA GAME OVER -->
     <div id="gameOverScreen">
         <div class="gameover-panel">
             <h2>GAME OVER</h2>
             <div id="newRecordMessage">👑 NEW BEST! 👑</div>
-
             <div class="score-showcase">
                 <div class="showcase-title">SCORE</div>
                 <div id="finalScore" class="showcase-big">0</div>
             </div>
-
             <div class="mini-stats-row">
                 <div class="mini-card gold-card">
                     <div class="mini-label">👑 BEST</div>
@@ -87,7 +157,6 @@
                     <div id="finalCombo" class="mini-value">0</div>
                 </div>
             </div>
-
             <div class="gameover-buttons">
                 <button id="playAgainBtn">PLAY</button>
                 <button id="homeBtn">HOME</button>
@@ -95,6 +164,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=3"></script>
+    <script src="script.js"></script>
 </body>
 </html>

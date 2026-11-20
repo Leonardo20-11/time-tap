@@ -244,43 +244,55 @@ nextRankHint.textContent = nextTier
 : "MAX RANK ACHIEVED!";
 }
 if (levelNodesContainer) {
-let rowsHtml = "";
-for (let i = 0; i < LEVELS_CONFIG.length - 1; i++) {
-const startLvl = LEVELS_CONFIG[i];
-const endLvl = LEVELS_CONFIG[i + 1];
-const segSpan = endLvl.xpRequired - startLvl.xpRequired;
+levelNodesContainer.innerHTML = LEVELS_CONFIG.map((lvl, i) => {
+const nextLvl = LEVELS_CONFIG[i + 1] || null;
+const unlocked = currentXP >= lvl.xpRequired;
 let fillPct = 0;
 let hasPin = false;
-if (currentXP >= endLvl.xpRequired) {
+if (nextLvl) {
+const span = nextLvl.xpRequired - lvl.xpRequired;
+if (currentXP >= nextLvl.xpRequired) {
 fillPct = 100;
-} else if (currentXP > startLvl.xpRequired) {
-fillPct = ((currentXP - startLvl.xpRequired) / segSpan) * 100;
-hasPin = true;
-} else if (currentXP === startLvl.xpRequired) {
-fillPct = 0;
+} else if (currentXP >= lvl.xpRequired) {
+fillPct = ((currentXP - lvl.xpRequired) / span) * 100;
 hasPin = true;
 }
-const isCompleted = currentXP >= endLvl.xpRequired;
-const statusText = isCompleted ? "COMPLETED" : (hasPin ? "IN PROGRESS" : "LOCKED");
+} else {
+fillPct = unlocked ? 100 : 0;
+hasPin = unlocked;
+}
+const stateClass = (nextLvl && currentXP >= nextLvl.xpRequired) || (!nextLvl && unlocked)
+? "completed"
+: (hasPin ? "active" : "locked");
+const rightEndHtml = nextLvl
+? getAggressiveCrestHTML(nextLvl, 34)
+: '';
 const pinHtml = hasPin
 ? 'YOU'
 : "";
-rowsHtml += '<div class="road-step-row ' + (isCompleted ? "completed" : (hasPin ? "active" : "locked")) + '">' +
+const targetText = nextLvl
+? fmtNum(lvl.xpRequired) + " → " + fmtNum(nextLvl.xpRequired) + " XP"
+: fmtNum(lvl.xpRequired) + " XP • MAX";
+return '' +
 '' +
-'' + startLvl.name + ' → ' + endLvl.name + '' +
-'' + fmtNum(endLvl.xpRequired) + ' XP • ' + statusText + '' +
+getAggressiveCrestHTML(lvl, 60) +
+'' + lvl.name + '' +
 '' +
 '' +
-'' + getAggressiveCrestHTML(startLvl, 38) + '' +
+'' +
+'' + (nextLvl ? 'VERSO ' + nextLvl.name : 'GRADO MASSIMO') + '' +
+'' + targetText + '' +
+'' +
+'' +
 '' +
 '' +
 pinHtml +
 '' +
-'' + getAggressiveCrestHTML(endLvl, 44) + '' +
+'' + rightEndHtml + '' +
+'' +
 '' +
 '';
-}
-levelNodesContainer.innerHTML = rowsHtml;
+}).join("");
 }
 updateHomePlayButtonState();
 }

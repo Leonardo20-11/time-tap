@@ -9,7 +9,26 @@ function initTimeTapGame() {
     const homeProfileName = document.getElementById("homeProfileName");
     const homeProfileTitle = document.getElementById("homeProfileTitle");
 
+    const profileModal = document.getElementById("profileModal");
+    const closeProfileBtn = document.getElementById("closeProfileBtn");
+    const profileEquipSlotBtn = document.getElementById("profileEquipSlotBtn");
+    const goToBadgesFromProfileBtn = document.getElementById("goToBadgesFromProfileBtn");
+    const profileModalAvatar = document.getElementById("profileModalAvatar");
+    const profileModalUsername = document.getElementById("profileModalUsername");
+    const profileModalStats = document.getElementById("profileModalStats");
+    const equippedTitleLabel = document.getElementById("equippedTitleLabel");
+    const profileBestScore = document.getElementById("profileBestScore");
+    const profileBestCombo = document.getElementById("profileBestCombo");
+    const profileCurrentRank = document.getElementById("profileCurrentRank");
+
+    const openBadgesBtn = document.getElementById("openBadgesBtn");
+    const badgesModal = document.getElementById("badgesModal");
+    const closeBadgesBtn = document.getElementById("closeBadgesBtn");
+    const badgesEquippedBanner = document.getElementById("badgesEquippedBanner");
+    const badgesGridContainer = document.getElementById("badgesGridContainer");
+
     const playBtn = document.getElementById("playBtn");
+    const discardSavedBtn = document.getElementById("discardSavedBtn");
     const menu = document.getElementById("menu");
     const game = document.getElementById("game");
     const timerCircle = document.getElementById("timerCircle");
@@ -28,11 +47,6 @@ function initTimeTapGame() {
     const pauseOverlay = document.getElementById("pauseOverlay");
     const resumeBtn = document.getElementById("resumeBtn");
     const quitToHomeBtn = document.getElementById("quitToHomeBtn");
-    const pauseCooldownText = document.getElementById("pauseCooldownText");
-
-    const savedRunModal = document.getElementById("savedRunModal");
-    const resumeSavedRunBtn = document.getElementById("resumeSavedRunBtn");
-    const newSavedRunBtn = document.getElementById("newSavedRunBtn");
 
     const settingsBtn = document.getElementById("settingsBtn");
     const settingsModal = document.getElementById("settingsModal");
@@ -46,17 +60,7 @@ function initTimeTapGame() {
     const levelCurrentName = document.getElementById("levelCurrentName");
     const levelXpText = document.getElementById("levelXpText");
     const nextRankHint = document.getElementById("nextRankHint");
-    const roadYellowFill = document.getElementById("roadYellowFill");
-    const roadPlayerPin = document.getElementById("roadPlayerPin");
     const levelNodesContainer = document.getElementById("levelNodesContainer");
-
-    const badgesModal = document.getElementById("badgesModal");
-    const closeBadgesBtn = document.getElementById("closeBadgesBtn");
-    const profileModalAvatar = document.getElementById("profileModalAvatar");
-    const profileModalUsername = document.getElementById("profileModalUsername");
-    const profileModalStats = document.getElementById("profileModalStats");
-    const equippedTitleLabel = document.getElementById("equippedTitleLabel");
-    const badgesGridContainer = document.getElementById("badgesGridContainer");
 
     const rankUpCelebration = document.getElementById("rankUpCelebration");
     const fireworksContainer = document.getElementById("fireworksContainer");
@@ -73,6 +77,7 @@ function initTimeTapGame() {
     }
 
     const LOCALE = "it-IT";
+    const PAUSE_STATE_KEY = "timeTapSavedPausedState";
     const isDesktop = window.innerWidth >= 768;
     const baseTime = isDesktop ? 3.0 : 2.5;
     let time = baseTime;
@@ -89,6 +94,7 @@ function initTimeTapGame() {
     let isFrozen = false;
     let isSlowMo = false;
     let isAnimatingRecord = false;
+    let normalSpawnsSinceLastSpecial = 6;
 
     let freezeRemainingMs = 0;
     let slowMoRemainingMs = 0;
@@ -122,23 +128,17 @@ function initTimeTapGame() {
     }
 
     function getAggressiveCrestHTML(lvlObj, sizePx = 56) {
-        const tier = (lvlObj && typeof lvlObj.level === "number") ? lvlObj : LEVELS_CONFIG.at(0);
+        const tier = (lvlObj && typeof lvlObj.level === "number") ? lvlObj : LEVELS_CONFIG;
         const lv = tier.level || 1;
+        const auraHtml = lv >= 4 ? '<div class="emblem-aura"></div>' : "";
         const wingsClass = lv >= 6 ? "tier-high" : (lv >= 4 ? "tier-mid" : "");
         const wingsHtml = lv >= 2 ? '<div class="emblem-wings ' + wingsClass + '"></div>' : "";
+        const hornsHtml = lv >= 5 ? '<div class="emblem-horns"></div>' : "";
         const crownHtml = lv >= 3 ? '<div class="emblem-crown"></div>' : "";
         const shieldClass = lv >= 5 ? "emblem-shield aggressive" : "emblem-shield";
         const gemClass = lv >= 6 ? "emblem-gem star-cut" : "emblem-gem";
 
-        return '<div class="rank-emblem lv-' + lv + '" style="--sz:' + sizePx + 'px; --gem:' + tier.gemColor + ';">' +
-            wingsHtml +
-            crownHtml +
-            '<div class="' + shieldClass + '">' +
-                '<div class="emblem-core">' +
-                    '<div class="' + gemClass + '"></div>' +
-                '</div>' +
-            '</div>' +
-        '</div>';
+        return '<div class="rank-emblem lv-' + lv + '" style="--sz:' + sizePx + 'px; --gem:' + tier.gemColor + ';">' + auraHtml + wingsHtml + hornsHtml + crownHtml + '<div class="' + shieldClass + '"><div class="emblem-core"><div class="' + gemClass + '"></div></div></div></div>';
     }
 
     function calculateTotalXP() {
@@ -149,32 +149,40 @@ function initTimeTapGame() {
     }
 
     function getCurrentAndNextTier(currentXP) {
-        let currentTier = LEVELS_CONFIG.at(0);
-        let nextTier = LEVELS_CONFIG.at(1) || null;
+        let currentTier = LEVELS_CONFIG;
+        let nextTier = LEVELS_CONFIG || null;
         for (let i = 0; i < LEVELS_CONFIG.length; i++) {
-            const item = LEVELS_CONFIG.at(i);
+            const item = LEVELS_CONFIG[i];
             if (currentXP >= item.xpRequired) {
                 currentTier = item;
-                nextTier = LEVELS_CONFIG.at(i + 1) || null;
+                nextTier = LEVELS_CONFIG[i + 1] || null;
             }
         }
         return { currentTier, nextTier };
     }
 
-    function computeRoadProgressPercent(currentXP) {
-        const totalSegments = LEVELS_CONFIG.length - 1;
-        const maxTier = LEVELS_CONFIG.at(totalSegments);
-        if (currentXP >= maxTier.xpRequired) return 100;
-
-        for (let i = 0; i < totalSegments; i++) {
-            const startXP = LEVELS_CONFIG.at(i).xpRequired;
-            const endXP = LEVELS_CONFIG.at(i + 1).xpRequired;
-            if (currentXP >= startXP && currentXP < endXP) {
-                const segFraction = (currentXP - startXP) / (endXP - startXP);
-                return ((i + segFraction) / totalSegments) * 100;
-            }
+    function hasSavedRun() {
+        const raw = localStorage.getItem(PAUSE_STATE_KEY);
+        if (!raw) return false;
+        try {
+            const saved = JSON.parse(raw);
+            return Boolean(saved && typeof saved.time === "number" && saved.time > 0);
+        } catch (e) {
+            return false;
         }
-        return 0;
+    }
+
+    function updateHomePlayButtonState() {
+        if (!playBtn) return;
+        if (hasSavedRun()) {
+            playBtn.textContent = "CONTINUE";
+            playBtn.classList.add("continue-mode");
+            if (discardSavedBtn) discardSavedBtn.style.display = "inline-block";
+        } else {
+            playBtn.textContent = "PLAY";
+            playBtn.classList.remove("continue-mode");
+            if (discardSavedBtn) discardSavedBtn.style.display = "none";
+        }
     }
 
     function refreshAllProfileAndRankUI() {
@@ -189,53 +197,14 @@ function initTimeTapGame() {
         const activeBadge = LEVELS_CONFIG.find(l => l.level === equippedBadgeLevel) || currentTier;
         const displayName = playerUsername || "PLAYER";
 
-        if (homeProfileShield) homeProfileShield.innerHTML = getAggressiveCrestHTML(activeBadge, 50);
-        if (homeProfileName) homeProfileName.textContent = displayName;
-        if (homeProfileTitle) homeProfileTitle.textContent = activeBadge.title;
-
-        const recordEl = document.getElementById("record");
-        const bestComboEl = document.getElementById("bestComboHome");
-        if (recordEl) recordEl.textContent = fmtNum(record);
-        if (bestComboEl) bestComboEl.textContent = fmtNum(bestCombo);
-        if (rankedHeaderShield) rankedHeaderShield.innerHTML = getAggressiveCrestHTML(currentTier, 54);
-if (levelCurrentName) levelCurrentName.textContent = currentTier.name;
-if (levelXpText) levelXpText.textContent = fmtNum(currentXP) + " / 100.000 XP";
-if (nextRankHint) {
-nextRankHint.textContent = nextTier
-? "NEXT: " + nextTier.name + " (" + fmtNum(nextTier.xpRequired) + " XP)"
-: "MAX RANK ACHIEVED!";
-}
-const pct = computeRoadProgressPercent(currentXP);
-const desktopNow = window.innerWidth >= 768;
-if (roadYellowFill && roadPlayerPin) {
-if (desktopNow) {
-roadYellowFill.style.height = "12px";
-roadYellowFill.style.width = "calc((100% - 196px) * " + (pct / 100) + ")";
-roadPlayerPin.style.top = "112px";
-roadPlayerPin.style.left = "calc(98px + (100% - 196px) * " + (pct / 100) + ")";
-} else {
-roadYellowFill.style.width = "10px";
-roadYellowFill.style.height = "calc((100% - 88px) * " + (pct / 100) + ")";
-roadPlayerPin.style.left = "28px";
-roadPlayerPin.style.top = "calc(44px + (100% - 88px) * " + (pct / 100) + ")";
-}
-}
-if (levelNodesContainer) {
-levelNodesContainer.innerHTML = LEVELS_CONFIG.map(lvl => {
-const unlocked = currentXP >= lvl.xpRequired;
-const statusBadge = unlocked ? "UNLOCKED" : "LOCKED";
-return '<div class="road-node-card ' + (unlocked ? "unlocked" : "locked") + '">' +
-'' + getAggressiveCrestHTML(lvl, 62) + '' +
-'' +
-'' + statusBadge + '' +
-'' + lvl.name + '' +
-'' + fmtNum(lvl.xpRequired) + ' XP' +
-'TITLE: ' + lvl.title + '' +
-'' +
-'';
-}).join("");
-}
-if (profileModalAvatar) profileModalAvatar.innerHTML = getAggressiveCrestHTML(activeBadge, 58);
+if (homeProfileShield) homeProfileShield.innerHTML = getAggressiveCrestHTML(activeBadge, 46);
+if (homeProfileName) homeProfileName.textContent = displayName;
+if (homeProfileTitle) homeProfileTitle.textContent = activeBadge.title;
+const recordEl = document.getElementById("record");
+const bestComboEl = document.getElementById("bestComboHome");
+if (recordEl) recordEl.textContent = fmtNum(record);
+if (bestComboEl) bestComboEl.textContent = fmtNum(bestCombo);
+if (profileModalAvatar) profileModalAvatar.innerHTML = getAggressiveCrestHTML(activeBadge, 74);
 if (profileModalUsername) profileModalUsername.textContent = displayName;
 if (profileModalStats) {
 profileModalStats.textContent = "GAMES: " + fmtNum(gamesPlayed) + " | XP: " + fmtNum(currentXP);
@@ -243,20 +212,19 @@ profileModalStats.textContent = "GAMES: " + fmtNum(gamesPlayed) + " | XP: " + fm
 if (equippedTitleLabel) {
 equippedTitleLabel.textContent = "EQUIPPED: " + activeBadge.title;
 }
+if (profileBestScore) profileBestScore.textContent = fmtNum(record);
+if (profileBestCombo) profileBestCombo.textContent = fmtNum(bestCombo);
+if (profileCurrentRank) profileCurrentRank.textContent = currentTier.name;
+if (badgesEquippedBanner) badgesEquippedBanner.textContent = "EQUIPPED: " + activeBadge.title;
 if (badgesGridContainer) {
 badgesGridContainer.innerHTML = LEVELS_CONFIG.map(lvl => {
 const unlocked = currentXP >= lvl.xpRequired;
 const isEquipped = unlocked && lvl.level === equippedBadgeLevel;
-const cls = "badge-card " + (unlocked ? "unlocked" : "locked") + (isEquipped ? " equipped" : "");
+const cls = "badge-card tier-" + lvl.level + " " + (unlocked ? "unlocked" : "locked") + (isEquipped ? " equipped" : "");
 const statusText = !unlocked
-? "LOCKED (" + fmtNum(lvl.xpRequired) + " XP)"
+? "LOCKED • " + fmtNum(lvl.xpRequired) + " XP"
 : (isEquipped ? "EQUIPPED" : "TAP TO EQUIP");
-return '' +
-getAggressiveCrestHTML(lvl, 68) +
-'' + lvl.name + '' +
-'' + lvl.title + '' +
-'' + statusText + '' +
-'';
+return '' + getAggressiveCrestHTML(lvl, 74) + '' + lvl.name + '' + lvl.title + '' + statusText + '';
 }).join("");
 badgesGridContainer.querySelectorAll(".badge-card.unlocked").forEach(card => {
 card.addEventListener("click", () => {
@@ -267,6 +235,105 @@ refreshAllProfileAndRankUI();
 });
 });
 }
+if (rankedHeaderShield) rankedHeaderShield.innerHTML = getAggressiveCrestHTML(currentTier, 52);
+if (levelCurrentName) levelCurrentName.textContent = currentTier.name;
+if (levelXpText) levelXpText.textContent = fmtNum(currentXP) + " / 100.000 XP";
+if (nextRankHint) {
+nextRankHint.textContent = nextTier
+? "NEXT: " + nextTier.name + " (" + fmtNum(nextTier.xpRequired) + " XP)"
+: "MAX RANK ACHIEVED!";
+}
+if (levelNodesContainer) {
+let rowsHtml = "";
+for (let i = 0; i < LEVELS_CONFIG.length - 1; i++) {
+const startLvl = LEVELS_CONFIG[i];
+const endLvl = LEVELS_CONFIG[i + 1];
+const segSpan = endLvl.xpRequired - startLvl.xpRequired;
+let fillPct = 0;
+let hasPin = false;
+if (currentXP >= endLvl.xpRequired) {
+fillPct = 100;
+} else if (currentXP > startLvl.xpRequired) {
+fillPct = ((currentXP - startLvl.xpRequired) / segSpan) * 100;
+hasPin = true;
+} else if (currentXP === startLvl.xpRequired) {
+fillPct = 0;
+hasPin = true;
+}
+const isCompleted = currentXP >= endLvl.xpRequired;
+const statusText = isCompleted ? "COMPLETED" : (hasPin ? "IN PROGRESS" : "LOCKED");
+const pinHtml = hasPin
+? 'YOU'
+: "";
+rowsHtml += '<div class="road-step-row ' + (isCompleted ? "completed" : (hasPin ? "active" : "locked")) + '">' +
+'' +
+'' + startLvl.name + ' → ' + endLvl.name + '' +
+'' + fmtNum(endLvl.xpRequired) + ' XP • ' + statusText + '' +
+'' +
+'' +
+'' + getAggressiveCrestHTML(startLvl, 38) + '' +
+'' +
+'' +
+pinHtml +
+'' +
+'' + getAggressiveCrestHTML(endLvl, 44) + '' +
+'' +
+'';
+}
+levelNodesContainer.innerHTML = rowsHtml;
+}
+updateHomePlayButtonState();
+}
+if (profileCornerBtn && profileModal) {
+profileCornerBtn.addEventListener("click", () => {
+playSynthEffect("click");
+refreshAllProfileAndRankUI();
+profileModal.style.display = "flex";
+});
+}
+if (closeProfileBtn && profileModal) {
+closeProfileBtn.addEventListener("click", () => {
+playSynthEffect("click");
+profileModal.style.display = "none";
+});
+}
+function openBadgesFromProfile() {
+playSynthEffect("click");
+if (profileModal) profileModal.style.display = "none";
+refreshAllProfileAndRankUI();
+if (badgesModal) badgesModal.style.display = "flex";
+}
+if (profileEquipSlotBtn) {
+profileEquipSlotBtn.addEventListener("click", openBadgesFromProfile);
+}
+if (goToBadgesFromProfileBtn) {
+goToBadgesFromProfileBtn.addEventListener("click", openBadgesFromProfile);
+}
+if (openBadgesBtn && badgesModal) {
+openBadgesBtn.addEventListener("click", () => {
+playSynthEffect("click");
+refreshAllProfileAndRankUI();
+badgesModal.style.display = "flex";
+});
+}
+if (closeBadgesBtn && badgesModal) {
+closeBadgesBtn.addEventListener("click", () => {
+playSynthEffect("click");
+badgesModal.style.display = "none";
+});
+}
+if (levelBtn && levelModal) {
+levelBtn.addEventListener("click", () => {
+playSynthEffect("click");
+levelModal.style.display = "flex";
+refreshAllProfileAndRankUI();
+});
+}
+if (closeLevelBtn && levelModal) {
+closeLevelBtn.addEventListener("click", () => {
+playSynthEffect("click");
+levelModal.style.display = "none";
+});
 }
 function launchFireworksShow() {
 if (!fireworksContainer) return;
@@ -280,7 +347,7 @@ playSynthEffect("milestone");
 for (let p = 0; p < 26; p++) {
 const dot = document.createElement("span");
 dot.className = "fw-particle";
-const col = colors.at(Math.floor(Math.random() * colors.length));
+const col = colors[Math.floor(Math.random() * colors.length)];
 const sz = (6 + Math.random() * 6).toFixed(0) + "px";
 dot.style.width = sz;
 dot.style.height = sz;
@@ -324,37 +391,6 @@ playSynthEffect("click");
 rankUpCelebration.style.display = "none";
 });
 }
-if (profileCornerBtn && badgesModal) {
-profileCornerBtn.addEventListener("click", () => {
-playSynthEffect("click");
-refreshAllProfileAndRankUI();
-badgesModal.style.display = "flex";
-});
-}
-if (closeBadgesBtn && badgesModal) {
-closeBadgesBtn.addEventListener("click", () => {
-playSynthEffect("click");
-badgesModal.style.display = "none";
-});
-}
-if (levelBtn && levelModal) {
-levelBtn.addEventListener("click", () => {
-playSynthEffect("click");
-levelModal.style.display = "flex";
-refreshAllProfileAndRankUI();
-});
-}
-if (closeLevelBtn && levelModal) {
-closeLevelBtn.addEventListener("click", () => {
-playSynthEffect("click");
-levelModal.style.display = "none";
-});
-}
-window.addEventListener("resize", () => {
-if (levelModal && levelModal.style.display === "flex") {
-refreshAllProfileAndRankUI();
-}
-});
 const SPECIAL_SVGS = {
 bomb: '',
 ice: '',
@@ -501,7 +537,6 @@ game.classList.remove("screen-shake");
 void game.offsetWidth;
 game.classList.add("screen-shake");
 }
-const PAUSE_STATE_KEY = "timeTapSavedPausedState";
 function savePausedGameState() {
 const savedButtons = activeButtons.map(btn => ({
 action: btn.dataset.action,
@@ -528,6 +563,7 @@ localStorage.setItem(PAUSE_STATE_KEY, JSON.stringify(payload));
 }
 function clearSavedPausedState() {
 localStorage.removeItem(PAUSE_STATE_KEY);
+updateHomePlayButtonState();
 }
 function updatePauseButtonUI() {
 if (!pauseBtn) return;
@@ -535,18 +571,10 @@ if (pauseCooldownRemainingMs > 0) {
 const secLeft = Math.ceil(pauseCooldownRemainingMs / 1000);
 pauseBtn.disabled = true;
 pauseBtn.classList.add("on-cooldown");
-if (pauseCooldownText) {
-pauseCooldownText.textContent = secLeft + "s";
-pauseCooldownText.style.display = "inline";
-} else {
 pauseBtn.textContent = secLeft + "s";
-}
 } else {
 pauseBtn.disabled = false;
 pauseBtn.classList.remove("on-cooldown");
-if (pauseCooldownText) {
-pauseCooldownText.style.display = "none";
-}
 pauseBtn.textContent = "II";
 }
 }
@@ -564,14 +592,18 @@ if (pauseOverlay) pauseOverlay.style.display = "none";
 pauseCooldownRemainingMs = 6000;
 updatePauseButtonUI();
 }
-function returnDirectlyToHome() {
+function returnToHome(keepPausedRun = false) {
+if (keepPausedRun) {
+savePausedGameState();
+} else {
+clearSavedPausedState();
+}
 running = false;
 isPaused = false;
 isFrozen = false;
 isSlowMo = false;
 doubleBonus = false;
 clearInterval(gameLoopInterval);
-clearSavedPausedState();
 while (activeButtons.length > 0) {
 const b = activeButtons.shift();
 if (b && b.parentNode) b.remove();
@@ -585,6 +617,7 @@ time = baseTime;
 score = 0;
 comboCount = 0;
 maxComboRun = 0;
+normalSpawnsSinceLastSpecial = 6;
 if (timerCircle) {
 timerCircle.textContent = time.toFixed(1);
 timerCircle.classList.remove("timer-panic", "timer-frozen", "timer-slowmo");
@@ -609,7 +642,7 @@ resumeGame();
 if (quitToHomeBtn) {
 quitToHomeBtn.addEventListener("click", () => {
 playSynthEffect("click");
-returnDirectlyToHome();
+returnToHome(true);
 });
 }
 window.addEventListener("beforeunload", () => {
@@ -617,10 +650,61 @@ if (running && isPaused) {
 savePausedGameState();
 }
 });
+function resumeSavedRunFromHome() {
+const raw = localStorage.getItem(PAUSE_STATE_KEY);
+if (!raw) {
+startCountdown();
+return;
+}
+try {
+const saved = JSON.parse(raw);
+if (!saved || typeof saved.time !== "number" || saved.time <= 0) {
+clearSavedPausedState();
+startCountdown();
+return;
+}
+time = saved.time;
+score = saved.score || 0;
+comboCount = saved.comboCount || 0;
+maxComboRun = saved.maxComboRun || 0;
+doubleBonus = Boolean(saved.doubleBonus);
+doubleBonusRemainingMs = saved.doubleBonusRemainingMs || 0;
+isFrozen = Boolean(saved.isFrozen);
+freezeRemainingMs = saved.freezeRemainingMs || 0;
+isSlowMo = Boolean(saved.isSlowMo);
+slowMoRemainingMs = saved.slowMoRemainingMs || 0;
+if (menu) menu.style.display = "none";
+if (countdown) countdown.style.display = "none";
+if (game) game.style.display = "block";
+timerCircle.textContent = time.toFixed(1);
+scoreText.textContent = "SCORE: " + fmtNum(score);
+comboText.textContent = "COMBO " + comboCount;
+if (Array.isArray(saved.buttons)) {
+saved.buttons.forEach(bData => createButton(bData));
+}
+clearSavedPausedState();
+startGame(true);
+pauseCooldownRemainingMs = 6000;
+updatePauseButtonUI();
+} catch (e) {
+clearSavedPausedState();
+startCountdown();
+}
+}
 if (playBtn) {
 playBtn.addEventListener("click", () => {
-clearSavedPausedState();
 playSynthEffect("click");
+if (hasSavedRun()) {
+resumeSavedRunFromHome();
+} else {
+startCountdown();
+}
+});
+}
+if (discardSavedBtn) {
+discardSavedBtn.addEventListener("click", () => {
+playSynthEffect("click");
+clearSavedPausedState();
 startCountdown();
 });
 }
@@ -635,6 +719,7 @@ time = baseTime;
 score = 0;
 comboCount = 0;
 maxComboRun = 0;
+normalSpawnsSinceLastSpecial = 6;
 if (timerCircle) timerCircle.textContent = time.toFixed(1);
 if (scoreText) scoreText.textContent = "SCORE: 0";
 if (comboText) comboText.textContent = "COMBO 0";
@@ -646,7 +731,7 @@ if (homeBtn) {
 homeBtn.addEventListener("click", () => {
 if (!isAnimatingRecord) {
 playSynthEffect("click");
-returnDirectlyToHome();
+returnToHome(false);
 }
 });
 }
@@ -739,6 +824,7 @@ running = true;
 updatePauseButtonUI();
 updateTimerVisuals();
 if (!isRestored) {
+normalSpawnsSinceLastSpecial = 6;
 createButton();
 createButton();
 }
@@ -793,7 +879,7 @@ gameOver();
 return;
 }
 for (let i = activeButtons.length - 1; i >= 0; i--) {
-const btn = activeButtons.at(i);
+const btn = activeButtons[i];
 const rem = Number(btn.dataset.remainingMs) - TICK_MS * speedFactor;
 btn.dataset.remainingMs = rem;
 if (rem <= 0) {
@@ -858,26 +944,32 @@ type = "green";
 } else {
 type = Math.random() < 0.65 ? "green" : "red";
 }
-if (!hasSpecialOnScreen) {
+const canSpawnSpecial = !hasSpecialOnScreen && normalSpawnsSinceLastSpecial >= 6;
+if (canSpawnSpecial) {
 const rand = Math.random();
 if (type === "green") {
-if (rand < 0.025 && !isSlowMo) {
+if (rand < 0.010 && !isSlowMo) {
 type = "clock";
-} else if (rand < 0.055 && !isFrozen) {
+} else if (rand < 0.022 && !isFrozen) {
 type = "ice";
-} else if (rand < 0.095 && !doubleBonus) {
+} else if (rand < 0.036 && !doubleBonus) {
 type = "gold";
 }
 } else if (type === "red") {
-if (rand < 0.035) {
+if (rand < 0.014) {
 type = "bomb";
 }
 }
 }
+if (["gold", "ice", "bomb", "clock"].includes(type)) {
+normalSpawnsSinceLastSpecial = 0;
+} else {
+normalSpawnsSinceLastSpecial++;
+}
 const freeArrows = arrows.filter(a => !activeButtons.some(b => b.dataset.key === a));
 key = freeArrows.length > 0
-? freeArrows.at(Math.floor(Math.random() * freeArrows.length))
-: arrows.at(Math.floor(Math.random() * arrows.length));
+? freeArrows[Math.floor(Math.random() * freeArrows.length)]
+: arrows[Math.floor(Math.random() * arrows.length)];
 }
 const btn = document.createElement("button");
 btn.classList.add("button-circle");
@@ -885,13 +977,13 @@ let valueText = "";
 if (type === "green") {
 btn.classList.add("green");
 const greenOptions = isDesktop ? [0.400, 0.500, 0.550] : [0.300, 0.350, 0.400];
-const value = forcedConfig ? Number(valueStr) : greenOptions.at(Math.floor(Math.random() * greenOptions.length));
+const value = forcedConfig ? Number(valueStr) : greenOptions[Math.floor(Math.random() * greenOptions.length)];
 btn.dataset.value = value;
 valueText = "+" + value.toFixed(3);
 } else if (type === "red") {
 btn.classList.add("red");
 const redOptions = [0.4, 0.5, 0.6, 0.7];
-const value = forcedConfig ? Number(valueStr) : redOptions.at(Math.floor(Math.random() * redOptions.length));
+const value = forcedConfig ? Number(valueStr) : redOptions[Math.floor(Math.random() * redOptions.length)];
 btn.dataset.value = value;
 valueText = "-" + value.toFixed(1);
 } else if (type === "ice") {
@@ -975,7 +1067,7 @@ for (let i = 0; i < count; i++) {
 const spark = document.createElement("span");
 spark.className = "fx-spark" + (isDiamond ? " diamond" : "");
 const size = (6 + Math.random() * 7).toFixed(0) + "px";
-const color = colors.at(Math.floor(Math.random() * colors.length));
+const color = colors[Math.floor(Math.random() * colors.length)];
 spark.style.width = size;
 spark.style.height = size;
 spark.style.background = color;
@@ -1169,58 +1261,6 @@ finalRecord.textContent = fmtNum(record);
 }
 refreshAllProfileAndRankUI();
 }
-function launchRestoredRun(saved) {
-time = saved.time;
-score = saved.score || 0;
-comboCount = saved.comboCount || 0;
-maxComboRun = saved.maxComboRun || 0;
-doubleBonus = Boolean(saved.doubleBonus);
-doubleBonusRemainingMs = saved.doubleBonusRemainingMs || 0;
-isFrozen = Boolean(saved.isFrozen);
-freezeRemainingMs = saved.freezeRemainingMs || 0;
-isSlowMo = Boolean(saved.isSlowMo);
-slowMoRemainingMs = saved.slowMoRemainingMs || 0;
-if (savedRunModal) savedRunModal.style.display = "none";
-if (menu) menu.style.display = "none";
-if (countdown) countdown.style.display = "none";
-if (game) game.style.display = "block";
-timerCircle.textContent = time.toFixed(1);
-scoreText.textContent = "SCORE: " + fmtNum(score);
-comboText.textContent = "COMBO " + comboCount;
-if (Array.isArray(saved.buttons)) {
-saved.buttons.forEach(bData => createButton(bData));
-}
-startGame(true);
-isPaused = true;
-if (pauseOverlay) pauseOverlay.style.display = "flex";
-}
-function checkAndRestorePausedGame() {
-const raw = localStorage.getItem(PAUSE_STATE_KEY);
-if (!raw) return;
-try {
-const saved = JSON.parse(raw);
-if (!saved || typeof saved.time !== "number" || saved.time <= 0) {
-clearSavedPausedState();
-return;
-}
-if (savedRunModal && resumeSavedRunBtn && newSavedRunBtn) {
-savedRunModal.style.display = "flex";
-resumeSavedRunBtn.onclick = () => {
-playSynthEffect("click");
-launchRestoredRun(saved);
-};
-newSavedRunBtn.onclick = () => {
-playSynthEffect("click");
-clearSavedPausedState();
-savedRunModal.style.display = "none";
-};
-} else {
-launchRestoredRun(saved);
-}
-} catch (e) {
-clearSavedPausedState();
-}
-}
 document.addEventListener("keydown", (event) => {
 if (!running || isPaused) return;
 const target = activeButtons.find(b => b.dataset.key === event.key);
@@ -1229,12 +1269,11 @@ if (target) activateButton(target);
 function enterHomeScreen() {
 refreshAllProfileAndRankUI();
 if (menu) menu.style.display = "flex";
-checkAndRestorePausedGame();
 checkAndTriggerRankUpCelebration();
 }
 function runStartupSequence() {
 if (onboardingShieldPreview) {
-onboardingShieldPreview.innerHTML = getAggressiveCrestHTML(LEVELS_CONFIG.at(0), 86);
+onboardingShieldPreview.innerHTML = getAggressiveCrestHTML(LEVELS_CONFIG, 86);
 }
 if (!playerUsername) {
 if (onboardingScreen) onboardingScreen.style.display = "flex";

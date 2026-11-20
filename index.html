@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TIME TAP</title>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Fredoka:wght@600;700&family=Lilita+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="bg-blocks">
+    <div class="bg-blocks" aria-hidden="true">
         <div class="b-tile t1"></div>
         <div class="b-tile t2"></div>
         <div class="b-tile t3"></div>
@@ -17,28 +20,38 @@
         <div class="b-tile t6"></div>
     </div>
 
-    <!-- CREAZIONE PROFILO -->
     <div id="onboardingScreen" class="fullscreen-screen" style="display: none;">
         <div class="modal-card onboarding-card">
             <div id="onboardingShieldPreview"></div>
             <h2 class="onboarding-title">CREATE PROFILE</h2>
             <p class="onboarding-sub">Choose your permanent username. Once confirmed, it cannot be changed and all your progress will be saved!</p>
-            <input type="text" id="usernameInput" class="profile-input" placeholder="YOUR NAME" maxlength="14">
+            <input type="text" id="usernameInput" class="profile-input" maxlength="14" placeholder="ENTER USERNAME" autocomplete="off">
             <button id="saveProfileBtn" class="action-green-btn full-width-btn">CONFIRM USERNAME</button>
         </div>
     </div>
 
-    <!-- MENU PRINCIPALE -->
-    <div id="menu" style="display: none;">
-        <button id="profileCornerBtn" class="profile-corner-btn">
-            <div id="homeProfileShield"></div>
-            <div id="homeProfileName" class="home-profile-name">PLAYER</div>
-            <div id="homeProfileTitle" class="home-profile-title">FRESH TAPPER</div>
-        </button>
+    <div id="menu">
+        <div class="top-left-cluster">
+            <button id="profileCornerBtn" class="profile-corner-btn" title="Open Profile">
+                <div id="homeProfileShield" class="profile-crest-slot"></div>
+                <div class="profile-text-group">
+                    <span id="homeProfileName" class="home-profile-name">PLAYER</span>
+                    <span id="homeProfileTitle" class="home-profile-title">FRESH TAPPER</span>
+                </div>
+            </button>
+
+            <button id="openBadgesBtn" class="top-icon-btn badges-trigger" title="Badges &amp; Titles">
+                <span class="shield-css-icon"></span>
+            </button>
+        </div>
 
         <div class="right-top-stack">
-            <button id="settingsBtn" class="top-icon-btn"><span class="gear-css-icon"></span></button>
-            <button id="levelBtn" class="top-icon-btn rank-trigger"><span class="crown-css-icon"></span></button>
+            <button id="levelBtn" class="top-icon-btn rank-trigger" title="Ranked Road">
+                <span class="crown-css-icon"></span>
+            </button>
+            <button id="settingsBtn" class="top-icon-btn" title="Settings">
+                <span class="gear-css-icon"></span>
+            </button>
         </div>
 
         <div class="logo-wrapper">
@@ -56,74 +69,46 @@
         </div>
 
         <div class="home-stats-centered">
-            <div class="stat-pill gold-pill"><span class="trophy-css-icon"></span> <span id="record">0</span></div>
-            <div class="stat-pill fire-pill"><span class="bolt-css-icon"></span> <span id="bestComboHome">0</span></div>
+            <div class="stat-pill gold-pill">
+                <span class="trophy-css-icon"></span>
+                <span id="record">0</span>
+            </div>
+            <div class="stat-pill fire-pill">
+                <span class="bolt-css-icon"></span>
+                <span id="bestComboHome">0</span>
+            </div>
         </div>
 
-        <button id="playBtn">PLAY</button>
-    </div>
-
-    <!-- PERCORSO CLASSIFICATA -->
-    <div id="levelModal" class="fullscreen-modal">
-        <div class="fullscreen-header">
-            <div class="header-title-group">
-                <div id="rankedHeaderShield"></div>
-                <h2>RANKED ROAD</h2>
-            </div>
-            <button id="closeLevelBtn" class="close-fullscreen-btn">X</button>
-        </div>
-        <div class="ranked-status-strip">
-            <div>
-                <div id="levelCurrentName" class="rank-badge-title">ROOKIE</div>
-                <div id="levelXpText" class="xp-counter-text">0 / 100.000 XP</div>
-            </div>
-            <div id="nextRankHint" class="next-rank-hint">NEXT: CHALLENGER (1.200 XP)</div>
-        </div>
-        <div class="ranked-road-viewport">
-            <div class="ranked-road-track">
-                <div class="road-base-line"></div>
-                <div id="roadYellowFill" class="road-yellow-fill"></div>
-                <div id="roadPlayerPin" class="road-player-pin">
-                    <div class="pin-dot"></div>
-                    <div class="pin-label">YOU</div>
-                </div>
-                <div id="levelNodesContainer" class="ranked-nodes-wrapper"></div>
-            </div>
+        <div class="home-play-area">
+            <button id="playBtn">PLAY</button>
+            <button id="discardSavedBtn" class="discard-saved-btn" style="display: none;">NEW RUN</button>
         </div>
     </div>
 
-    <!-- PROFILO E STEMMI -->
-    <div id="badgesModal" class="fullscreen-modal">
-        <div class="fullscreen-header">
-            <div class="header-title-group">
-                <div id="profileModalAvatar"></div>
-                <div>
-                    <h2 id="profileModalUsername">PLAYER</h2>
-                    <div id="profileModalStats" class="xp-counter-text">GAMES: 0 | XP: 0</div>
-                </div>
+    <div id="countdown">3</div>
+
+    <div id="game">
+        <div class="hud-top">
+            <div id="score">SCORE: 0</div>
+            <div id="combo">COMBO 0</div>
+        </div>
+
+        <button id="pauseBtn" class="pause-btn" title="Pause">II</button>
+        <div id="specialMessage"></div>
+        <div id="timerCircle">2.5</div>
+    </div>
+
+    <div id="pauseOverlay" class="pause-overlay">
+        <div class="modal-card pause-panel">
+            <h2>PAUSED</h2>
+            <p class="pause-info">Progress saved automatically.<br>Tap HOME to continue later.</p>
+            <div class="resume-actions">
+                <button id="resumeBtn">RESUME</button>
+                <button id="quitToHomeBtn">HOME</button>
             </div>
-            <button id="closeBadgesBtn" class="close-fullscreen-btn">X</button>
-        </div>
-        <div class="ranked-status-strip">
-            <div class="rank-badge-title">BADGES & TITLES</div>
-            <div id="equippedTitleLabel" class="next-rank-hint">EQUIPPED: FRESH TAPPER</div>
-        </div>
-        <div id="badgesGridContainer" class="badges-fullscreen-grid"></div>
-    </div>
-
-    <!-- CELEBRAZIONE NUOVO GRADO -->
-    <div id="rankUpCelebration" class="modal-overlay celebration-overlay">
-        <div id="fireworksContainer" class="fireworks-container"></div>
-        <div class="celebration-card">
-            <div class="celebration-tag">NEW RANK UNLOCKED!</div>
-            <div id="celebrationShieldSlot" class="celebration-shield-slot"></div>
-            <div id="celebrationRankName" class="celebration-rank-name">CHALLENGER</div>
-            <div id="celebrationTitleUnlocked" class="celebration-title-unlocked">TITLE: FAST FINGERS</div>
-            <button id="claimRankBtn" class="action-green-btn full-width-btn">AWESOME!</button>
         </div>
     </div>
 
-    <!-- IMPOSTAZIONI -->
     <div id="settingsModal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -137,45 +122,96 @@
         </div>
     </div>
 
-    <!-- PARTITA SALVATA -->
-    <div id="savedRunModal" class="modal-overlay">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3>PAUSED RUN</h3>
+    <div id="profileModal" class="fullscreen-modal">
+        <div class="fullscreen-header">
+            <div class="header-title-group">
+                <h2>PLAYER PROFILE</h2>
             </div>
-            <p class="resume-desc">You have a saved game in progress!</p>
-            <div class="resume-actions">
-                <button id="resumeSavedRunBtn" class="action-green-btn">RESUME</button>
-                <button id="newSavedRunBtn" class="action-red-btn">NEW</button>
+            <button id="closeProfileBtn" class="close-fullscreen-btn">X</button>
+        </div>
+
+        <div class="profile-detail-body">
+            <div class="profile-hero-card">
+                <button type="button" id="profileEquipSlotBtn" class="profile-equip-box" title="Tap to change equipped badge">
+                    <div id="profileModalAvatar"></div>
+                    <span class="equip-box-hint">CHANGE BADGE</span>
+                </button>
+
+                <h3 id="profileModalUsername" class="profile-hero-name">PLAYER</h3>
+                <div id="equippedTitleLabel" class="profile-hero-badge-tag">EQUIPPED: FRESH TAPPER</div>
+                <p id="profileModalStats" class="profile-hero-stats">GAMES: 0 | XP: 0</p>
+            </div>
+
+            <div class="profile-summary-grid">
+                <div class="profile-stat-box gold-box">
+                    <span class="p-stat-label">BEST SCORE</span>
+                    <span id="profileBestScore" class="p-stat-val">0</span>
+                </div>
+                <div class="profile-stat-box fire-box">
+                    <span class="p-stat-label">MAX COMBO</span>
+                    <span id="profileBestCombo" class="p-stat-val">0</span>
+                </div>
+                <div class="profile-stat-box blue-box">
+                    <span class="p-stat-label">CURRENT RANK</span>
+                    <span id="profileCurrentRank" class="p-stat-val">ROOKIE</span>
+                </div>
+            </div>
+
+            <button type="button" id="goToBadgesFromProfileBtn" class="action-green-btn profile-badges-cta">OPEN BADGES GALLERY</button>
+        </div>
+    </div>
+
+    <div id="badgesModal" class="fullscreen-modal">
+        <div class="fullscreen-header">
+            <div class="header-title-group">
+                <h2>BADGES &amp; TITLES</h2>
+            </div>
+            <button id="closeBadgesBtn" class="close-fullscreen-btn">X</button>
+        </div>
+
+        <div class="ranked-status-strip">
+            <span id="badgesEquippedBanner" class="rank-badge-title">EQUIPPED: FRESH TAPPER</span>
+            <span class="xp-counter-text">TAP AN UNLOCKED BADGE TO EQUIP</span>
+        </div>
+
+        <div id="badgesGridContainer" class="badges-fullscreen-grid"></div>
+    </div>
+
+    <div id="levelModal" class="fullscreen-modal">
+        <div class="fullscreen-header">
+            <div class="header-title-group">
+                <div id="rankedHeaderShield"></div>
+                <div>
+                    <h2>RANKED ROAD</h2>
+                    <div id="levelCurrentName" class="rank-badge-title">ROOKIE</div>
+                </div>
+            </div>
+            <button id="closeLevelBtn" class="close-fullscreen-btn">X</button>
+        </div>
+
+        <div class="ranked-status-strip">
+            <span id="levelXpText" class="xp-counter-text">0 / 100.000 XP</span>
+            <span id="nextRankHint" class="next-rank-hint">NEXT: CHALLENGER (1.200 XP)</span>
+        </div>
+
+        <div class="ranked-road-viewport" id="rankedRoadViewport">
+            <div class="ranked-road-track" id="rankedRoadTrack">
+                <div class="ranked-nodes-wrapper" id="levelNodesContainer"></div>
             </div>
         </div>
     </div>
 
-    <!-- CONTO ALLA ROVESCIA E AREA DI GIOCO -->
-    <div id="countdown">3</div>
-
-    <div id="game">
-        <div class="hud-top">
-            <div id="score">SCORE: 0</div>
-            <div id="combo">COMBO 0</div>
-        </div>
-        <button id="pauseBtn" class="pause-btn">II<span id="pauseCooldownText" style="display:none;">6s</span></button>
-        <div id="timerCircle">2.5</div>
-    </div>
-
-    <!-- PAUSA -->
-    <div id="pauseOverlay" class="pause-overlay">
-        <div class="gameover-panel pause-panel">
-            <h2>PAUSED</h2>
-            <p class="pause-info">Progress saved automatically.<br>You can close and resume later.</p>
-            <div class="gameover-buttons">
-                <button id="resumeBtn">RESUME</button>
-                <button id="quitToHomeBtn">HOME</button>
-            </div>
+    <div id="rankUpCelebration" class="modal-overlay celebration-overlay">
+        <div id="fireworksContainer" class="fireworks-container"></div>
+        <div class="celebration-card">
+            <div class="celebration-tag">NEW RANK UNLOCKED!</div>
+            <div id="celebrationShieldSlot" class="celebration-shield-slot"></div>
+            <div id="celebrationRankName" class="celebration-rank-name">CHALLENGER</div>
+            <div id="celebrationTitleUnlocked" class="celebration-title-unlocked">TITLE: FAST FINGERS</div>
+            <button id="claimRankBtn" class="action-green-btn full-width-btn">AWESOME!</button>
         </div>
     </div>
 
-    <!-- GAME OVER -->
     <div id="gameOverScreen">
         <div class="gameover-panel">
             <h2>GAME OVER</h2>

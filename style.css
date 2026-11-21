@@ -640,14 +640,18 @@ transform: translateY(8px);
 }
 .discard-saved-btn {
 font-family: 'Lilita One', sans-serif;
-padding: 8px 20px;
+padding: 9px 22px;
 border-radius: 18px;
-border: 2px solid rgba(255, 255, 255, 0.65);
-background: rgba(15, 23, 42, 0.82);
+border: 2.5px solid rgba(255, 255, 255, 0.7);
+background: linear-gradient(180deg, #334155 0%, #0f172a 100%);
 color: #f8fafc;
 font-size: 16px;
 letter-spacing: 1px;
 cursor: pointer;
+box-shadow: 0 4px 0 #020617;
+}
+.discard-saved-btn:active {
+transform: translateY(3px);
 }
 @keyframes playBounce {
 0%, 100% { transform: scale(1); }
@@ -740,7 +744,7 @@ color: #fef08a;
 -webkit-text-stroke: 1.2px #0f172a;
 paint-order: stroke fill;
 }
-/* --- SCHERMATA PROFILO CARTOON LUMINOSA --- */
+/* --- SCHERMATA PROFILO CARTOON + CAMBIO USERNAME --- */
 .profile-detail-body {
 flex: 1;
 overflow-y: auto;
@@ -768,7 +772,7 @@ box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.28), 0 10px 0 #020617, 0 18px 34
 }
 .profile-equip-box {
 position: relative;
-z-index: 20;
+z-index: 25;
 pointer-events: auto;
 width: 148px;
 height: 148px;
@@ -799,12 +803,54 @@ padding: 3px 12px;
 border-radius: 10px;
 border: 2px solid #ffffff;
 }
+.username-display-row {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
+flex-wrap: wrap;
+}
 .profile-hero-name {
 font-size: 36px;
 color: #ffffff;
 -webkit-text-stroke: 2.5px #0f172a;
 paint-order: stroke fill;
 text-shadow: 0 4px 0 #0f172a;
+}
+.edit-name-btn {
+font-family: 'Lilita One', sans-serif;
+padding: 6px 14px;
+border-radius: 14px;
+border: 2.5px solid #ffffff;
+background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+color: #ffffff;
+font-size: 14px;
+cursor: pointer;
+box-shadow: 0 4px 0 #075985;
+}
+.edit-name-btn:active {
+transform: translateY(3px);
+}
+.edit-username-box {
+width: 100%;
+max-width: 300px;
+display: flex;
+flex-direction: column;
+gap: 8px;
+margin: 4px 0;
+}
+.small-profile-input {
+font-size: 18px;
+padding: 10px 12px;
+}
+.edit-username-actions {
+display: flex;
+gap: 8px;
+}
+.mini-action-btn {
+padding: 8px 12px;
+font-size: 16px;
+border-radius: 14px;
 }
 .profile-hero-badge-tag {
 font-size: 18px;
@@ -880,6 +926,9 @@ gap: 18px;
 }
 }
 .badge-card {
+position: relative;
+z-index: 15;
+pointer-events: auto;
 background: linear-gradient(180deg, #1d4ed8 0%, #0f172a 100%);
 border: 4px solid #60a5fa;
 border-radius: 26px;
@@ -1014,6 +1063,7 @@ display: flex;
 align-items: center;
 gap: 10px;
 width: 100%;
+min-height: 28px;
 }
 .step-bar-bg {
 position: relative;
@@ -1022,7 +1072,8 @@ height: 14px;
 background: #ffffff;
 border-radius: 12px;
 border: 2.5px solid #0f172a;
-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
+box-shadow: 0 3px 6px rgba(0, 0, 0, 0.65);
+overflow: visible;
 }
 .step-bar-fill {
 height: 100%;
@@ -1039,7 +1090,7 @@ transform: translate(-50%, -50%);
 display: flex;
 flex-direction: column;
 align-items: center;
-z-index: 12;
+z-index: 25;
 pointer-events: none;
 }
 .step-player-pin .pin-dot {
@@ -1306,7 +1357,7 @@ animation: popMessage 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 75% { transform: translateX(-50%) scale(1.15) rotate(4deg); opacity: 1; }
 100% { transform: translateX(-50%) scale(1) rotate(0deg); opacity: 1; }
 }
-/* --- AREA DI GIOCO & OVERDRIVE COMBO 30 (SCHERMO ILLUMINATO) --- */
+/* --- AREA DI GIOCO & OVERDRIVE COMBO 80 (SCHERMO ILLUMINATO) --- */
 #game {
 display: none;
 width: 100vw;
@@ -1316,13 +1367,13 @@ z-index: 10;
 transition: box-shadow 0.3s ease, background 0.3s ease;
 }
 #game.overdrive-active {
-background: radial-gradient(circle at 50% 50%, rgba(253, 224, 71, 0.38) 0%, rgba(249, 115, 22, 0.25) 55%, rgba(15, 23, 42, 0.1) 100%);
-box-shadow: inset 0 0 85px rgba(253, 224, 71, 0.9), inset 0 0 140px rgba(249, 115, 22, 0.7);
-animation: overdrivePulse 0.45s ease-in-out infinite alternate;
+background: radial-gradient(circle at 50% 50%, rgba(253, 224, 71, 0.42) 0%, rgba(249, 115, 22, 0.28) 55%, rgba(15, 23, 42, 0.1) 100%);
+box-shadow: inset 0 0 90px rgba(253, 224, 71, 0.95), inset 0 0 150px rgba(249, 115, 22, 0.75);
+animation: overdrivePulse 0.4s ease-in-out infinite alternate;
 }
 @keyframes overdrivePulse {
-0% { filter: brightness(1.05); }
-100% { filter: brightness(1.22); }
+0% { filter: brightness(1.06); }
+100% { filter: brightness(1.24); }
 }
 .hud-top {
 position: absolute;

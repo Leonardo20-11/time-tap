@@ -49,11 +49,8 @@
             </button>
         </div>
 
-        <!-- Angolo in alto a destra: Livelli + Impostazioni -->
+        <!-- Angolo in alto a destra: Impostazioni -->
         <div class="right-top-stack">
-            <button id="levelBtn" class="top-icon-btn rank-trigger" title="Ranked Road">
-                <span class="crown-css-icon"></span>
-            </button>
             <button id="settingsBtn" class="top-icon-btn" title="Settings">
                 <span class="gear-css-icon"></span>
             </button>
@@ -86,8 +83,8 @@
             </div>
         </div>
 
-        <!-- Barra Livello XP animata nella Home -->
-        <div class="home-xp-widget">
+        <!-- Barra Livello XP cliccabile nella Home (apre la linea completa dei livelli) -->
+        <button id="homeXpWidget" type="button" class="home-xp-widget" title="View Ranked Road">
             <div class="home-xp-top">
                 <span id="homeXpRank" class="home-xp-rank">ROOKIE</span>
                 <span id="homeXpNums" class="home-xp-nums">0 / 50.000 XP</span>
@@ -95,7 +92,7 @@
             <div class="home-xp-track">
                 <div id="homeXpFill" class="home-xp-fill"></div>
             </div>
-        </div>
+        </button>
 
         <!-- Pulsante PLAY / CONTINUE + NEW RUN -->
         <div class="home-play-area">
@@ -178,19 +175,16 @@
 
         <div class="profile-detail-body">
             <div class="profile-hero-card">
-                <!-- Riquadro cliccabile per cambiare lo stemma equipaggiato -->
                 <button id="profileEquipSlotBtn" type="button" class="profile-equip-box" title="Tap to change equipped badge">
                     <div id="profileModalAvatar"></div>
                     <span class="equip-box-hint">CHANGE BADGE</span>
                 </button>
 
-                <!-- Nome utente + pulsante modifica -->
                 <div class="username-display-row">
                     <h3 id="profileModalUsername" class="profile-hero-name">PLAYER</h3>
                     <button id="editUsernameBtn" type="button" class="edit-name-btn" title="Change Username">EDIT</button>
                 </div>
 
-                <!-- Box modifica username (nascosto finché non premi EDIT) -->
                 <div id="editUsernameBox" class="edit-username-box" style="display: none;">
                     <input type="text" id="newUsernameInput" class="profile-input small-profile-input" maxlength="14" placeholder="NEW USERNAME" autocomplete="off">
                     <div class="edit-username-actions">

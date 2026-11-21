@@ -1,3 +1,4 @@
+
 function initTimeTapGame() {
     const onboardingScreen = document.getElementById("onboardingScreen");
     const onboardingShieldPreview = document.getElementById("onboardingShieldPreview");
@@ -9,6 +10,7 @@ function initTimeTapGame() {
     const homeProfileName = document.getElementById("homeProfileName");
     const homeProfileTitle = document.getElementById("homeProfileTitle");
 
+    const homeXpWidget = document.getElementById("homeXpWidget");
     const homeXpRank = document.getElementById("homeXpRank");
     const homeXpNums = document.getElementById("homeXpNums");
     const homeXpFill = document.getElementById("homeXpFill");
@@ -75,6 +77,9 @@ function initTimeTapGame() {
     const audioToggleBtn = document.getElementById("audioToggleBtn");
 
     const levelBtn = document.getElementById("levelBtn");
+    if (levelBtn) {
+        levelBtn.style.display = "none";
+    }
     const levelModal = document.getElementById("levelModal");
     const closeLevelBtn = document.getElementById("closeLevelBtn");
     const rankedHeaderShield = document.getElementById("rankedHeaderShield");
@@ -162,7 +167,7 @@ function initTimeTapGame() {
     }
 
     function getAggressiveCrestHTML(lvlObj, sizePx = 58) {
-        const tier = (lvlObj && typeof lvlObj.level === "number") ? lvlObj : LEVELS_CONFIG[0];
+        const tier = (lvlObj && typeof lvlObj.level === "number") ? lvlObj : LEVELS_CONFIG;
         const lv = tier.level || 1;
         const auraHtml = lv >= 5 ? '<div class="emblem-aura"></div>' : "";
         const haloHtml = lv >= 9 ? '<div class="emblem-halo"></div>' : "";
@@ -176,7 +181,7 @@ function initTimeTapGame() {
         const gemClass = lv >= 7 ? "emblem-gem star-cut" : "emblem-gem";
 
         return '<div class="rank-emblem lv-' + lv + '" style="--sz:' + sizePx + 'px; --gem:' + tier.gemColor + ';">' +
-            auraHtml + haloHtml + wingsHtml + bladesHtml + hornsHtml + crownHtml + sideGemsHtml +
+auraHtml + haloHtml + wingsHtml + bladesHtml + hornsHtml + crownHtml + sideGemsHtml +
 '' +
 '' +
 '' +
@@ -187,14 +192,14 @@ function initTimeTapGame() {
 '';
 }
 function calculateTotalXP() {
-const xpFromGames = gamesPlayed * 1000;
-const xpFromRecord = Math.floor(record * 0.02);
-const xpFromScore = Math.floor(totalScoreAccumulated * 0.008);
+const xpFromGames = gamesPlayed * 2000;
+const xpFromRecord = Math.floor(record * 0.1);
+const xpFromScore = Math.floor(totalScoreAccumulated * 0.04);
 return Math.min(100000000, xpFromGames + xpFromRecord + xpFromScore + storedBonusXP);
 }
 function getCurrentAndNextTier(currentXP) {
-let currentTier = LEVELS_CONFIG[0];
-let nextTier = LEVELS_CONFIG[1] || null;
+let currentTier = LEVELS_CONFIG;
+let nextTier = LEVELS_CONFIG || null;
 for (let i = 0; i < LEVELS_CONFIG.length; i++) {
 const item = LEVELS_CONFIG[i];
 if (currentXP >= item.xpRequired) {
@@ -294,7 +299,7 @@ badgesGridContainer.innerHTML = unlockedLevels.map(lvl => {
 const isEquipped = lvl.level === equippedBadgeLevel;
 const cls = "badge-card tier-" + lvl.level + (isEquipped ? " equipped" : "");
 return '' +
-getAggressiveCrestHTML(lvl, 78) +
+getAggressiveCrestHTML(lvl, 68) +
 '' + lvl.name + '' +
 '';
 }).join("");
@@ -316,7 +321,7 @@ triggerEquipFlash(homeProfileShield);
 });
 });
 }
-if (rankedHeaderShield) rankedHeaderShield.innerHTML = getAggressiveCrestHTML(currentTier, 54);
+if (rankedHeaderShield) rankedHeaderShield.innerHTML = getAggressiveCrestHTML(currentTier, 52);
 if (levelCurrentName) levelCurrentName.textContent = currentTier.name;
 if (levelXpText) levelXpText.textContent = fmtNum(currentXP) + " / 100.000.000 XP";
 if (nextRankHint) {
@@ -325,6 +330,7 @@ nextRankHint.textContent = nextTier
 : "MAX RANK";
 }
 if (levelNodesContainer) {
+levelNodesContainer.classList.add("ranked-nodes-wrapper");
 levelNodesContainer.innerHTML = LEVELS_CONFIG.map((lvl, i) => {
 const nextLvl = LEVELS_CONFIG[i + 1] || null;
 const unlocked = currentXP >= lvl.xpRequired;
@@ -345,38 +351,44 @@ hasPin = unlocked;
 const stateClass = (nextLvl && currentXP >= nextLvl.xpRequired) || (!nextLvl && unlocked)
 ? "completed"
 : (hasPin ? "active" : "locked");
-const rightEndHtml = nextLvl
-? getAggressiveCrestHTML(nextLvl, 34)
-: '';
 const pinHtml = hasPin
-? '' + fmtNum(currentXP) + ' XP'
+? '' +
+'' +
+'' + fmtNum(currentXP) + '' +
+''
 : "";
-const rowTitle = nextLvl ? nextLvl.name : lvl.name;
-const rowXp = nextLvl ? fmtNum(nextLvl.xpRequired) + " XP" : fmtNum(lvl.xpRequired) + " XP";
-return '' +
-'' +
-getAggressiveCrestHTML(lvl, 60) +
-'' + lvl.name + '' +
-'' + fmtNum(lvl.xpRequired) + ' XP' +
-'' +
-'' +
-'' +
-'' + rowTitle + '' +
-'' + rowXp + '' +
-'' +
-'' +
-'' +
+const connectorHtml = nextLvl
+? '' +
 '' +
 pinHtml +
+''
+: "";
+return '' +
 '' +
-'' + rightEndHtml + '' +
+getAggressiveCrestHTML(lvl, 58) +
+'' + fmtNum(lvl.xpRequired) + ' XP' +
 '' +
-'' +
+connectorHtml +
 '';
 }).join("");
 }
 lastKnownXP = currentXP;
 updateHomePlayButtonState();
+}
+if (homeXpWidget && levelModal) {
+homeXpWidget.addEventListener("click", (e) => {
+e.stopPropagation();
+playSynthEffect("click");
+refreshAllProfileAndRankUI();
+levelModal.style.display = "flex";
+});
+}
+if (closeLevelBtn && levelModal) {
+closeLevelBtn.addEventListener("click", (e) => {
+e.stopPropagation();
+playSynthEffect("click");
+levelModal.style.display = "none";
+});
 }
 if (profileCornerBtn && profileModal) {
 profileCornerBtn.addEventListener("click", () => {
@@ -387,7 +399,8 @@ profileModal.style.display = "flex";
 });
 }
 if (closeProfileBtn && profileModal) {
-closeProfileBtn.addEventListener("click", () => {
+closeProfileBtn.addEventListener("click", (e) => {
+e.stopPropagation();
 playSynthEffect("click");
 if (editUsernameBox) editUsernameBox.style.display = "none";
 profileModal.style.display = "none";
@@ -422,7 +435,8 @@ if (editUsernameBox) editUsernameBox.style.display = "none";
 refreshAllProfileAndRankUI();
 });
 }
-function openBadgesFromProfile() {
+function openBadgesFromProfile(e) {
+if (e) e.stopPropagation();
 playSynthEffect("click");
 if (profileModal) profileModal.style.display = "none";
 refreshAllProfileAndRankUI();
@@ -430,6 +444,10 @@ if (badgesModal) badgesModal.style.display = "flex";
 }
 if (profileEquipSlotBtn) {
 profileEquipSlotBtn.addEventListener("click", openBadgesFromProfile);
+}
+if (profileModalAvatar) {
+profileModalAvatar.style.cursor = "pointer";
+profileModalAvatar.addEventListener("click", openBadgesFromProfile);
 }
 if (goToBadgesFromProfileBtn) {
 goToBadgesFromProfileBtn.addEventListener("click", openBadgesFromProfile);
@@ -442,22 +460,10 @@ badgesModal.style.display = "flex";
 });
 }
 if (closeBadgesBtn && badgesModal) {
-closeBadgesBtn.addEventListener("click", () => {
+closeBadgesBtn.addEventListener("click", (e) => {
+e.stopPropagation();
 playSynthEffect("click");
 badgesModal.style.display = "none";
-});
-}
-if (levelBtn && levelModal) {
-levelBtn.addEventListener("click", () => {
-playSynthEffect("click");
-levelModal.style.display = "flex";
-refreshAllProfileAndRankUI();
-});
-}
-if (closeLevelBtn && levelModal) {
-closeLevelBtn.addEventListener("click", () => {
-playSynthEffect("click");
-levelModal.style.display = "none";
 });
 }
 function launchFireworksShow() {
@@ -500,7 +506,7 @@ equippedBadgeLevel = currentTier.level;
 localStorage.setItem("equippedBadgeLevel", equippedBadgeLevel);
 refreshAllProfileAndRankUI();
 if (rankUpCelebration) {
-if (celebrationShieldSlot) celebrationShieldSlot.innerHTML = getAggressiveCrestHTML(currentTier, 112);
+if (celebrationShieldSlot) celebrationShieldSlot.innerHTML = getAggressiveCrestHTML(currentTier, 108);
 if (celebrationRankName) celebrationRankName.textContent = currentTier.name;
 if (celebrationTitleUnlocked) celebrationTitleUnlocked.textContent = "RANK " + currentTier.level + " / 11";
 rankUpCelebration.style.display = "flex";
@@ -524,16 +530,12 @@ bomb: '' +
 '' +
 '' +
 '' +
-'' +
 '',
 ice: '' +
 '' +
 '' +
-'' +
 '',
 clock: '' +
-'' +
-'' +
 '' +
 '' +
 '' +
@@ -575,12 +577,6 @@ settingsModal.style.display = "none";
 }
 const activeButtons = [];
 const arrows = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
-const symbols = {
-ArrowUp: "↑",
-ArrowDown: "↓",
-ArrowLeft: "←",
-ArrowRight: "→"
-};
 let baseButtonDuration = isDesktop ? 1850 : 1350;
 let baseSpawnDelay = isDesktop ? 210 : 220;
 let audioCtx = null;
@@ -621,11 +617,12 @@ if (!soundEnabled) return;
 initAudio();
 if (!audioCtx) return;
 const now = audioCtx.currentTime;
-const rushNotes = [523.25, 659.25, 783.99, 1046.5, 783.99, 659.25, 880, 1174.66];
-const freq = rushNotes[feverNoteStep % rushNotes.length];
+const leadMelody = [440, 523.25, 659.25, 880, 783.99, 659.25, 587.33, 659.25];
+const bassLine = [110, 110, 130.81, 130.81, 146.83, 146.83, 164.81, 164.81];
+const idx = feverNoteStep % leadMelody.length;
 feverNoteStep++;
-playTone(freq, freq * 1.04, "square", now, 0.08, 0.18);
-playTone(freq * 0.5, null, "triangle", now, 0.08, 0.22);
+playTone(leadMelody[idx], leadMelody[idx] * 1.02, "triangle", now, 0.14, 0.24);
+playTone(bassLine[idx], null, "sine", now, 0.15, 0.28);
 }
 function playSynthEffect(type) {
 if (!soundEnabled) return;
@@ -773,14 +770,26 @@ updatePauseButtonUI();
 function finalizeRunStatsAndShowSummary() {
 const xpBeforeRun = calculateTotalXP();
 const isNewBest = score > record && score > 0;
+const pcMultiplier = isDesktop ? 1.25 : 1.0;
+let comboBonusPct = 0;
+if (maxComboRun > 200) {
+comboBonusPct = 20;
+} else if (maxComboRun > 100) {
+comboBonusPct = 10;
+}
 gamesPlayed++;
 totalScoreAccumulated += score;
 if (isNewBest) {
 record = score;
 localStorage.setItem("record", record);
 }
-const runBonusXP = Math.floor(score * 0.012) + (maxComboRun * 15) + (isNewBest ? 500 : 0);
-storedBonusXP += runBonusXP;
+const baseRunXP = 2000 + Math.floor(score * 0.1) + (isNewBest ? 1500 : 0);
+const withPcXP = Math.floor(baseRunXP * pcMultiplier);
+const comboBonusXP = Math.floor(withPcXP * (comboBonusPct / 100));
+const finalRunXP = withPcXP + comboBonusXP;
+const naturalFormulaDiff = (2000 + Math.floor(score * 0.04) + (isNewBest ? Math.floor((score - record) * 0.1) : 0));
+const extraToStore = Math.max(0, finalRunXP - Math.max(0, naturalFormulaDiff));
+storedBonusXP += extraToStore;
 localStorage.setItem("gamesPlayed", gamesPlayed);
 localStorage.setItem("totalScoreAccumulated", totalScoreAccumulated);
 localStorage.setItem("storedBonusXP", storedBonusXP);
@@ -791,7 +800,9 @@ localStorage.setItem("bestCombo", bestCombo);
 const xpAfterRun = calculateTotalXP();
 const earnedXP = Math.max(0, xpAfterRun - xpBeforeRun);
 if (xpEarnedBadge) {
-xpEarnedBadge.textContent = "+" + fmtNum(earnedXP) + " XP";
+const comboLabel = comboBonusPct > 0 ? " + " + comboBonusPct + "% COMBO" : "";
+const pcLabel = isDesktop ? " +25% PC" : "";
+xpEarnedBadge.textContent = "+" + fmtNum(earnedXP) + " XP" + comboLabel + pcLabel;
 }
 const { currentTier: tierAfter, nextTier: nextAfter } = getCurrentAndNextTier(xpAfterRun);
 if (goRankFrom) goRankFrom.textContent = tierAfter.name;
@@ -1133,7 +1144,7 @@ updatePauseButtonUI();
 if (overdriveRemainingMs > 0) {
 overdriveRemainingMs = Math.max(0, overdriveRemainingMs - TICK_MS);
 feverMusicTimer += TICK_MS;
-if (feverMusicTimer >= 150) {
+if (feverMusicTimer >= 165) {
 feverMusicTimer = 0;
 playFeverRushBeat();
 }
@@ -1203,7 +1214,7 @@ createButton();
 }
 }, TICK_MS);
 }
-function renderButtonInner(btn, type, key, valueText) {
+function renderButtonInner(btn, type, valueText) {
 let contentHtml = "";
 if (type === "bomb") {
 contentHtml = SPECIAL_SVGS.bomb + 'BOMB';
@@ -1217,13 +1228,7 @@ contentHtml = SPECIAL_SVGS.gold + '2X TIME';
 contentHtml = valueText;
 }
 const ringSvg = '';
-const desktopNow = window.innerWidth >= 768;
-if (desktopNow) {
-const arrowSymbol = symbols[key] || "";
-btn.innerHTML = ringSvg + '' + arrowSymbol + '' + contentHtml + '';
-} else {
 btn.innerHTML = ringSvg + '' + contentHtml + '';
-}
 }
 function createButton(forcedConfig = null) {
 let type = "green";
@@ -1314,7 +1319,7 @@ btn.dataset.key = key;
 btn.dataset.action = type;
 btn.dataset.totalMs = forcedConfig ? (forcedConfig.totalMs || durationMs) : durationMs;
 btn.dataset.remainingMs = forcedConfig ? forcedConfig.remainingMs : durationMs;
-renderButtonInner(btn, type, key, valueText);
+renderButtonInner(btn, type, valueText);
 let x = 0;
 let y = 0;
 if (forcedConfig) {
@@ -1431,7 +1436,13 @@ centerY,
 (doubleBonus ? "2X +" : "+") + earnedPoints,
 doubleBonus ? "#facc15" : "#4ade80"
 );
-if (comboCount > 0 && comboCount % 80 === 0) {
+if (comboCount === 101) {
+playSynthEffect("newrecord");
+showMessage("+10% XP BONUS!", "Ten percent X P bonus!");
+} else if (comboCount === 201) {
+playSynthEffect("newrecord");
+showMessage("+20% XP BONUS!", "Twenty percent X P bonus!");
+} else if (comboCount > 0 && comboCount % 80 === 0) {
 overdriveRemainingMs = 6000;
 feverNoteStep = 0;
 playFeverRushBeat();
@@ -1575,9 +1586,18 @@ if (firstBtn && firstBtn.parentNode) firstBtn.remove();
 finalizeRunStatsAndShowSummary();
 }
 document.addEventListener("keydown", (event) => {
-if (!running || isPaused) return;
-const target = activeButtons.find(b => b.dataset.key === event.key);
-if (target) activateButton(target);
+if (!running) return;
+const k = event.key.toLowerCase();
+if (k === "d") {
+event.preventDefault();
+if (isPaused) {
+playSynthEffect("click");
+resumeGame();
+} else if (pauseCooldownRemainingMs <= 0) {
+playSynthEffect("click");
+pauseGame();
+}
+}
 });
 function enterHomeScreen() {
 refreshAllProfileAndRankUI();
@@ -1586,7 +1606,7 @@ checkAndTriggerRankUpCelebration();
 }
 function runStartupSequence() {
 if (onboardingShieldPreview) {
-onboardingShieldPreview.innerHTML = getAggressiveCrestHTML(LEVELS_CONFIG[0], 88);
+onboardingShieldPreview.innerHTML = getAggressiveCrestHTML(LEVELS_CONFIG, 88);
 }
 if (!playerUsername) {
 if (onboardingScreen) onboardingScreen.style.display = "flex";

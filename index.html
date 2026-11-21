@@ -6,12 +6,14 @@
     <title>TIME TAP</title>
     <link rel="preconnect" href="https://googleapis.com">
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
-    <link href="https://googleapis.com/css2?family=Fredoka:wght@600;700&family=Lilita+One&display=swap" rel="stylesheet">
+    <link href="https://googleapis.com/css2?family=Fredoka:wght@700;800&family=Lilita+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!-- Sfondo dinamico Cartoon 3D -->
     <div class="bg-blocks" aria-hidden="true">
+        <div class="bg-sunburst"></div>
         <div class="b-tile t1"></div>
         <div class="b-tile t2"></div>
         <div class="b-tile t3"></div>
@@ -20,17 +22,20 @@
         <div class="b-tile t6"></div>
     </div>
 
+    <!-- SCHERMATA CREAZIONE PROFILO -->
     <div id="onboardingScreen" class="fullscreen-screen" style="display: none;">
         <div class="modal-card onboarding-card">
             <div id="onboardingShieldPreview"></div>
-            <h2 class="onboarding-title">CREATE PROFILE</h2>
-            <p class="onboarding-sub">Choose your permanent username. Once confirmed, it cannot be changed and all your progress will be saved!</p>
-            <input type="text" id="usernameInput" class="profile-input" maxlength="14" placeholder="ENTER USERNAME" autocomplete="off">
-            <button id="saveProfileBtn" class="action-green-btn full-width-btn">CONFIRM USERNAME</button>
+            <h2 class="onboarding-title">CREATE HERO</h2>
+            <p class="onboarding-sub">Choose your permanent nickname.<br>Climb 11 epic ranks up to 100M XP!</p>
+            <input type="text" id="usernameInput" class="profile-input" maxlength="14" placeholder="YOUR NICKNAME" autocomplete="off">
+            <button id="saveProfileBtn" class="action-green-btn full-width-btn">LET'S GO!</button>
         </div>
     </div>
 
+    <!-- MENU PRINCIPALE (HOME) -->
     <div id="menu">
+        <!-- Angolo in alto a sinistra: Profilo + Pulsante Stemmi -->
         <div class="top-left-cluster">
             <button id="profileCornerBtn" class="profile-corner-btn" title="Open Profile">
                 <div id="homeProfileShield" class="profile-crest-slot"></div>
@@ -40,13 +45,14 @@
                 </div>
             </button>
 
-            <button id="openBadgesBtn" class="top-icon-btn badges-trigger" title="Badges">
+            <button id="openBadgesBtn" class="top-icon-btn badges-trigger" title="My Badges">
                 <span class="shield-css-icon"></span>
             </button>
         </div>
 
+        <!-- Angolo in alto a destra: Livelli + Impostazioni -->
         <div class="right-top-stack">
-            <button id="levelBtn" class="top-icon-btn rank-trigger" title="Ranked Road">
+            <button id="levelBtn" class="top-icon-btn rank-trigger" title="Trophy Road">
                 <span class="crown-css-icon"></span>
             </button>
             <button id="settingsBtn" class="top-icon-btn" title="Settings">
@@ -54,6 +60,18 @@
             </button>
         </div>
 
+        <!-- Barra XP animata in Home (si riempie al rientro dalla partita!) -->
+        <div class="home-xp-banner" id="homeXpBanner">
+            <div class="home-xp-top">
+                <span id="homeBannerRank" class="home-xp-rank">ROOKIE</span>
+                <span id="homeBannerNumbers" class="home-xp-nums">0 / 25.000 XP</span>
+            </div>
+            <div class="home-xp-track">
+                <div id="homeBannerFill" class="home-xp-fill"></div>
+            </div>
+        </div>
+
+        <!-- Logo 3D TIME TAP -->
         <div class="logo-wrapper">
             <div class="logo-row row-top">
                 <div class="block-letter c-red">T</div>
@@ -68,6 +86,7 @@
             </div>
         </div>
 
+        <!-- Statistiche Record & Best Combo -->
         <div class="home-stats-centered">
             <div class="stat-pill gold-pill">
                 <span class="trophy-css-icon"></span>
@@ -79,25 +98,40 @@
             </div>
         </div>
 
+        <!-- Pulsante PLAY / CONTINUE -->
         <div class="home-play-area">
             <button id="playBtn">PLAY</button>
             <button id="discardSavedBtn" class="discard-saved-btn" style="display: none;">NEW RUN</button>
         </div>
     </div>
 
+    <!-- COUNTDOWN PRE-PARTITA -->
     <div id="countdown">3</div>
 
+    <!-- AREA DI GIOCO -->
     <div id="game">
+        <div id="feverBorderGlow" class="fever-border-glow"></div>
+
         <div class="hud-top">
             <div id="score">SCORE: 0</div>
-            <div id="combo">COMBO 0</div>
+            <div id="combo" class="combo-badge">COMBO 0</div>
+            <div id="feverTag" class="fever-hud-pill" style="display: none;">FEVER MODE!</div>
         </div>
 
         <button id="pauseBtn" class="pause-btn" title="Pause">II</button>
         <div id="specialMessage"></div>
-        <div id="timerCircle">2.5</div>
+
+        <!-- Cerchio centrale con anello SVG del tempo che si svuota + limite 8.0s -->
+        <div id="timerWrapper" class="timer-wrapper">
+            <svg class="timer-ring-svg" viewBox="0 0 160 160">
+                <circle class="timer-ring-bg" cx="80" cy="80" r="72"></circle>
+                <circle id="timerRingProgress" class="timer-ring-progress" cx="80" cy="80" r="72"></circle>
+            </svg>
+            <div id="timerCircle">2.5</div>
+        </div>
     </div>
 
+    <!-- OVERLAY PAUSA -->
     <div id="pauseOverlay" class="pause-overlay">
         <div class="modal-card pause-panel">
             <h2>PAUSED</h2>
@@ -109,6 +143,7 @@
         </div>
     </div>
 
+    <!-- MODALE IMPOSTAZIONI -->
     <div id="settingsModal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -116,12 +151,13 @@
                 <button id="closeSettingsBtn" class="close-modal-btn">X</button>
             </div>
             <div class="setting-row">
-                <span>Sound Effects</span>
+                <span>Sound &amp; Voice</span>
                 <button id="audioToggleBtn" class="toggle-pill-btn">ON</button>
             </div>
         </div>
     </div>
 
+    <!-- SCHERMATA FULLSCREEN PROFILO GIOCATORE -->
     <div id="profileModal" class="fullscreen-modal">
         <div class="fullscreen-header">
             <div class="header-title-group">
@@ -132,14 +168,16 @@
 
         <div class="profile-detail-body">
             <div class="profile-hero-card">
-                <button id="profileEquipSlotBtn" class="profile-equip-box" title="Tap to change equipped badge">
-                    <div id="profileModalAvatar"></div>
+                <!-- Riquadro cliccabile con effetto luminoso per cambiare lo stemma -->
+                <button type="button" id="profileEquipSlotBtn" class="profile-equip-box" title="Tap to change badge">
+                    <div class="equip-rays"></div>
+                    <div id="profileModalAvatar" class="equip-avatar-slot"></div>
                     <span class="equip-box-hint">CHANGE BADGE</span>
                 </button>
 
                 <h3 id="profileModalUsername" class="profile-hero-name">PLAYER</h3>
-                <div id="equippedTitleLabel" class="profile-hero-badge-tag">EQUIPPED: ROOKIE</div>
-                <p id="profileModalStats" class="profile-hero-stats">GAMES: 0 | XP: 0</p>
+                <div id="equippedTitleLabel" class="profile-hero-badge-tag">BADGE: ROOKIE</div>
+                <p id="profileModalStats" class="profile-hero-stats">GAMES: 0 • 0 XP</p>
             </div>
 
             <div class="profile-summary-grid">
@@ -152,31 +190,33 @@
                     <span id="profileBestCombo" class="p-stat-val">0</span>
                 </div>
                 <div class="profile-stat-box blue-box">
-                    <span class="p-stat-label">CURRENT RANK</span>
+                    <span class="p-stat-label">MY RANK</span>
                     <span id="profileCurrentRank" class="p-stat-val">ROOKIE</span>
                 </div>
             </div>
 
-            <button id="goToBadgesFromProfileBtn" class="action-green-btn profile-badges-cta">SELECT UNLOCKED BADGE</button>
+            <button type="button" id="goToBadgesFromProfileBtn" class="action-green-btn profile-badges-cta">SELECT UNLOCKED BADGE</button>
         </div>
     </div>
 
+    <!-- SCHERMATA FULLSCREEN GALLERIA STEMMI SBLOCCATI -->
     <div id="badgesModal" class="fullscreen-modal">
         <div class="fullscreen-header">
             <div class="header-title-group">
-                <h2>UNLOCKED BADGES</h2>
+                <h2>MY BADGES</h2>
             </div>
             <button id="closeBadgesBtn" class="close-fullscreen-btn">X</button>
         </div>
 
         <div class="ranked-status-strip">
             <span id="badgesEquippedBanner" class="rank-badge-title">EQUIPPED: ROOKIE</span>
-            <span class="xp-counter-text">TAP TO SET AS PROFILE</span>
+            <span class="xp-counter-text">TAP A BADGE TO EQUIP</span>
         </div>
 
         <div id="badgesGridContainer" class="badges-fullscreen-grid"></div>
     </div>
 
+    <!-- SCHERMATA FULLSCREEN 11 LIVELLI (TROPHY ROAD) -->
     <div id="levelModal" class="fullscreen-modal">
         <div class="fullscreen-header">
             <div class="header-title-group">
@@ -190,8 +230,8 @@
         </div>
 
         <div class="ranked-status-strip">
-            <span id="levelXpText" class="xp-counter-text">0 / 100.000 XP</span>
-            <span id="nextRankHint" class="next-rank-hint">CHALLENGER • 1.200 XP</span>
+            <span id="levelXpText" class="xp-counter-text">0 / 100.000.000 XP</span>
+            <span id="nextRankHint" class="next-rank-hint">NEXT: BRONZE (50.000 XP)</span>
         </div>
 
         <div class="ranked-road-viewport" id="rankedRoadViewport">
@@ -201,26 +241,42 @@
         </div>
     </div>
 
+    <!-- CELEBRAZIONE NUOVO GRADO SBLOCCATO -->
     <div id="rankUpCelebration" class="modal-overlay celebration-overlay">
         <div id="fireworksContainer" class="fireworks-container"></div>
         <div class="celebration-card">
             <div class="celebration-tag">NEW RANK UNLOCKED!</div>
             <div id="celebrationShieldSlot" class="celebration-shield-slot"></div>
-            <div id="celebrationRankName" class="celebration-rank-name">CHALLENGER</div>
-            <div id="celebrationTitleUnlocked" class="celebration-title-unlocked">CHALLENGER</div>
+            <div id="celebrationRankName" class="celebration-rank-name">BRONZE</div>
+            <div id="celebrationTitleUnlocked" class="celebration-title-unlocked">TITLE: FAST FINGERS</div>
             <button id="claimRankBtn" class="action-green-btn full-width-btn">AWESOME!</button>
         </div>
     </div>
 
+    <!-- SCHERMATA GAME OVER CON BARRA XP ANIMATA -->
     <div id="gameOverScreen">
         <div class="gameover-panel">
             <h2>GAME OVER</h2>
             <div id="newRecordMessage">NEW BEST!</div>
             <div id="xpEarnedBadge" class="xp-earned-badge">+0 XP</div>
+
+            <!-- Barra progresso XP animata stile Brawl Stars -->
+            <div class="go-xp-progress-box">
+                <div class="go-xp-labels">
+                    <span id="goRankFrom">ROOKIE</span>
+                    <span id="goXpProgressText">0 / 50.000 XP</span>
+                    <span id="goRankTo">BRONZE</span>
+                </div>
+                <div class="go-xp-bar-track">
+                    <div id="goXpBarFill" class="go-xp-bar-fill"></div>
+                </div>
+            </div>
+
             <div class="score-showcase">
                 <span class="showcase-title">SCORE</span>
                 <span id="finalScore" class="showcase-big">0</span>
             </div>
+
             <div class="mini-stats-row">
                 <div class="mini-card gold-card">
                     <span class="mini-label">BEST</span>
@@ -231,6 +287,7 @@
                     <span id="finalCombo" class="mini-value">0</span>
                 </div>
             </div>
+
             <div class="gameover-buttons">
                 <button id="playAgainBtn">PLAY</button>
                 <button id="homeBtn">HOME</button>

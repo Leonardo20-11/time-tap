@@ -1,18 +1,16 @@
+
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TIME TAP</title>
-    <link rel="preconnect" href="https://googleapis.com">
-    <link rel="preconnect" href="https://gstatic.com" crossorigin>
-    <link href="https://googleapis.com/css2?family=Fredoka:wght@600;700&family=Lilita+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Tessere decorative sfondo -->
-    <div class="bg-blocks" aria-hidden="true">
+    <!-- SFONDO DECORATIVO -->
+    <div class="bg-blocks">
         <div class="b-tile t1"></div>
         <div class="b-tile t2"></div>
         <div class="b-tile t3"></div>
@@ -21,42 +19,38 @@
         <div class="b-tile t6"></div>
     </div>
 
-    <!-- SCHERMATA CREAZIONE PROFILO (PRIMO AVVIO) -->
+    <!-- ONBOARDING -->
     <div id="onboardingScreen" class="fullscreen-screen" style="display: none;">
         <div class="modal-card onboarding-card">
             <div id="onboardingShieldPreview"></div>
             <h2 class="onboarding-title">CREATE PROFILE</h2>
             <p class="onboarding-sub">Choose your username. You can change it anytime from your Player Profile!</p>
-            <input type="text" id="usernameInput" class="profile-input" maxlength="14" placeholder="ENTER USERNAME" autocomplete="off">
+            <input type="text" id="usernameInput" class="profile-input" maxlength="14" placeholder="ENTER NAME">
             <button id="saveProfileBtn" class="action-green-btn full-width-btn">START PLAYING</button>
         </div>
     </div>
 
-    <!-- MENU PRINCIPALE (HOME) -->
+    <!-- MENU HOME -->
     <div id="menu">
-        <!-- Angolo in alto a sinistra: Profilo + Pulsante Stemmi separato -->
         <div class="top-left-cluster">
-            <button id="profileCornerBtn" class="profile-corner-btn" title="Open Profile">
-                <div id="homeProfileShield" class="profile-crest-slot"></div>
+            <button id="profileCornerBtn" class="profile-corner-btn">
+                <div id="homeProfileShield"></div>
                 <div class="profile-text-group">
                     <span id="homeProfileName" class="home-profile-name">PLAYER</span>
                     <span id="homeProfileTitle" class="home-profile-title">ROOKIE</span>
                 </div>
             </button>
-
             <button id="openBadgesBtn" class="top-icon-btn badges-trigger" title="Badges">
                 <span class="shield-css-icon"></span>
             </button>
         </div>
 
-        <!-- Angolo in alto a destra: Impostazioni -->
         <div class="right-top-stack">
             <button id="settingsBtn" class="top-icon-btn" title="Settings">
                 <span class="gear-css-icon"></span>
             </button>
         </div>
 
-        <!-- Logo 3D TIME TAP -->
         <div class="logo-wrapper">
             <div class="logo-row row-top">
                 <div class="block-letter c-red">T</div>
@@ -71,7 +65,6 @@
             </div>
         </div>
 
-        <!-- Statistiche Record & Best Combo -->
         <div class="home-stats-centered">
             <div class="stat-pill gold-pill">
                 <span class="trophy-css-icon"></span>
@@ -83,8 +76,7 @@
             </div>
         </div>
 
-        <!-- Barra Livello XP cliccabile nella Home (apre la linea completa dei livelli) -->
-        <button id="homeXpWidget" type="button" class="home-xp-widget" title="View Ranked Road">
+        <div id="homeXpWidget" class="home-xp-widget">
             <div class="home-xp-top">
                 <span id="homeXpRank" class="home-xp-rank">ROOKIE</span>
                 <span id="homeXpNums" class="home-xp-nums">0 / 50.000 XP</span>
@@ -92,29 +84,27 @@
             <div class="home-xp-track">
                 <div id="homeXpFill" class="home-xp-fill"></div>
             </div>
-        </button>
+            <div class="home-xp-tap-hint">TAP TO VIEW RANKED ROAD</div>
+        </div>
 
-        <!-- Pulsante PLAY / CONTINUE + NEW RUN -->
         <div class="home-play-area">
             <button id="playBtn">PLAY</button>
             <button id="discardSavedBtn" class="discard-saved-btn" style="display: none;">NEW RUN</button>
         </div>
     </div>
 
-    <!-- COUNTDOWN PRE-PARTITA -->
+    <!-- COUNTDOWN -->
     <div id="countdown">3</div>
 
-    <!-- AREA DI GIOCO -->
+    <!-- SCHERMATA DI GIOCO -->
     <div id="game">
         <div class="hud-top">
             <div id="score">SCORE: 0</div>
             <div id="combo">COMBO 0</div>
         </div>
 
-        <button id="pauseBtn" class="pause-btn" title="Pause">II</button>
-        <div id="specialMessage"></div>
+        <button id="pauseBtn" class="pause-btn">II</button>
 
-        <!-- Timer centrale con anello SVG -->
         <div class="timer-wrapper">
             <svg class="timer-ring-svg" viewBox="0 0 150 150">
                 <circle class="timer-ring-bg" cx="75" cy="75" r="68"></circle>
@@ -136,7 +126,7 @@
         </div>
     </div>
 
-    <!-- MODALE CONFERMA NEW RUN -->
+    <!-- MODALE CONFERMA NUOVA PARTITA -->
     <div id="confirmNewRunModal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -164,37 +154,34 @@
         </div>
     </div>
 
-    <!-- SCHERMATA FULLSCREEN PROFILO GIOCATORE -->
+    <!-- SCHERMATA PROFILO GIOCATORE -->
     <div id="profileModal" class="fullscreen-modal">
         <div class="fullscreen-header">
-            <div class="header-title-group">
-                <h2>PLAYER PROFILE</h2>
-            </div>
+            <h2>PLAYER PROFILE</h2>
             <button id="closeProfileBtn" class="close-fullscreen-btn">X</button>
         </div>
-
         <div class="profile-detail-body">
             <div class="profile-hero-card">
-                <button id="profileEquipSlotBtn" type="button" class="profile-equip-box" title="Tap to change equipped badge">
+                <div id="profileEquipSlotBtn" class="profile-equip-box">
                     <div id="profileModalAvatar"></div>
                     <span class="equip-box-hint">CHANGE BADGE</span>
-                </button>
+                </div>
 
                 <div class="username-display-row">
                     <h3 id="profileModalUsername" class="profile-hero-name">PLAYER</h3>
-                    <button id="editUsernameBtn" type="button" class="edit-name-btn" title="Change Username">EDIT</button>
+                    <button id="editUsernameBtn" class="edit-name-btn">EDIT</button>
                 </div>
 
                 <div id="editUsernameBox" class="edit-username-box" style="display: none;">
-                    <input type="text" id="newUsernameInput" class="profile-input small-profile-input" maxlength="14" placeholder="NEW USERNAME" autocomplete="off">
+                    <input type="text" id="newUsernameInput" class="profile-input small-profile-input" maxlength="14">
                     <div class="edit-username-actions">
-                        <button id="confirmUsernameChangeBtn" type="button" class="action-green-btn mini-action-btn">SAVE</button>
-                        <button id="cancelUsernameChangeBtn" type="button" class="action-red-btn mini-action-btn">CANCEL</button>
+                        <button id="confirmUsernameChangeBtn" class="action-green-btn mini-action-btn">SAVE</button>
+                        <button id="cancelUsernameChangeBtn" class="action-red-btn mini-action-btn">CANCEL</button>
                     </div>
                 </div>
 
                 <div id="equippedTitleLabel" class="profile-hero-badge-tag">EQUIPPED: ROOKIE</div>
-                <p id="profileModalStats" class="profile-hero-stats">GAMES: 0 | XP: 0</p>
+                <div id="profileModalStats" class="profile-hero-stats">GAMES: 0 | XP: 0</div>
             </div>
 
             <div class="profile-summary-grid">
@@ -212,27 +199,24 @@
                 </div>
             </div>
 
-            <button id="goToBadgesFromProfileBtn" type="button" class="action-green-btn profile-badges-cta">CHANGE BADGE</button>
+            <button id="goToBadgesFromProfileBtn" class="action-green-btn profile-badges-cta">CHANGE BADGE</button>
         </div>
     </div>
 
-    <!-- SCHERMATA FULLSCREEN GALLERIA STEMMI -->
+    <!-- SCHERMATA UNLOCKED BADGES (STEMMI SBLOCCATI) -->
     <div id="badgesModal" class="fullscreen-modal">
         <div class="fullscreen-header">
-            <div class="header-title-group">
-                <h2>UNLOCKED BADGES</h2>
-            </div>
+            <h2>UNLOCKED BADGES</h2>
             <button id="closeBadgesBtn" class="close-fullscreen-btn">X</button>
         </div>
-
         <div class="ranked-status-strip">
             <span id="badgesEquippedBanner" class="rank-badge-title">EQUIPPED: ROOKIE</span>
-            <span class="xp-counter-text">TAP A BADGE TO EQUIP</span>
+            <span class="next-rank-hint">TAP A BADGE TO EQUIP</span>
         </div>
-
         <div id="badgesGridContainer" class="badges-fullscreen-grid"></div>
     </div>
 
+    <!-- SCHERMATA RANKED ROAD (LIVELLI) -->
     <div id="levelModal" class="fullscreen-modal">
         <div class="fullscreen-header">
             <div class="header-title-group">
@@ -244,20 +228,17 @@
             </div>
             <button id="closeLevelBtn" class="close-fullscreen-btn">X</button>
         </div>
-
         <div class="ranked-status-strip">
             <span id="levelXpText" class="xp-counter-text">0 / 100.000.000 XP</span>
             <span id="nextRankHint" class="next-rank-hint">BRONZE • 50.000 XP</span>
         </div>
-
-        <div class="ranked-road-viewport" id="rankedRoadViewport">
-            <div class="ranked-road-track" id="rankedRoadTrack">
-                <div class="ranked-nodes-wrapper" id="levelNodesContainer"></div>
+        <div class="ranked-road-viewport">
+            <div class="ranked-road-track">
+                <div id="levelNodesContainer" class="ranked-nodes-wrapper"></div>
             </div>
         </div>
     </div>
-
-    <div id="rankUpCelebration" class="modal-overlay celebration-overlay">
+ <div id="rankUpCelebration" class="fullscreen-modal celebration-overlay">
         <div id="fireworksContainer" class="fireworks-container"></div>
         <div class="celebration-card">
             <div class="celebration-tag">NEW RANK UNLOCKED!</div>
@@ -268,6 +249,7 @@
         </div>
     </div>
 
+    <!-- SCHERMATA GAME OVER -->
     <div id="gameOverScreen">
         <div class="gameover-panel">
             <h2>GAME OVER</h2>

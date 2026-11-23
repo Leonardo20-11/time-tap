@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,8 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <!-- SFONDO DECORATIVO -->
+    <!-- SFONDO TESSERE -->
     <div class="bg-blocks">
         <div class="b-tile t1"></div>
         <div class="b-tile t2"></div>
@@ -19,13 +17,12 @@
         <div class="b-tile t6"></div>
     </div>
 
-    <!-- ONBOARDING -->
+    <!-- ONBOARDING CREAZIONE PROFILO -->
     <div id="onboardingScreen" class="fullscreen-screen" style="display: none;">
-        <div class="modal-card onboarding-card">
-            <div id="onboardingShieldPreview"></div>
-            <h2 class="onboarding-title">CREATE PROFILE</h2>
+        <div class="onboarding-card">
+            <h1 class="onboarding-title">CREATE PROFILE</h1>
             <p class="onboarding-sub">Choose your username. You can change it anytime from your Player Profile!</p>
-            <input type="text" id="usernameInput" class="profile-input" maxlength="14" placeholder="ENTER NAME">
+            <input type="text" id="usernameInput" class="profile-input" maxlength="14" placeholder="YOUR USERNAME">
             <button id="saveProfileBtn" class="action-green-btn full-width-btn">START PLAYING</button>
         </div>
     </div>
@@ -34,19 +31,15 @@
     <div id="menu">
         <div class="top-left-cluster">
             <button id="profileCornerBtn" class="profile-corner-btn">
-                <div id="homeProfileShield"></div>
                 <div class="profile-text-group">
                     <span id="homeProfileName" class="home-profile-name">PLAYER</span>
-                    <span id="homeProfileTitle" class="home-profile-title">ROOKIE</span>
+                    <span id="homeProfileTitle" class="home-profile-title">LEVEL 1</span>
                 </div>
-            </button>
-            <button id="openBadgesBtn" class="top-icon-btn badges-trigger" title="Badges">
-                <span class="shield-css-icon"></span>
             </button>
         </div>
 
         <div class="right-top-stack">
-            <button id="settingsBtn" class="top-icon-btn" title="Settings">
+            <button id="settingsBtn" class="top-icon-btn" aria-label="Settings">
                 <span class="gear-css-icon"></span>
             </button>
         </div>
@@ -76,15 +69,16 @@
             </div>
         </div>
 
+        <!-- BARRA LIVELLI CENTRALE (NON CLICCABILE) -->
         <div id="homeXpWidget" class="home-xp-widget">
             <div class="home-xp-top">
-                <span id="homeXpRank" class="home-xp-rank">ROOKIE</span>
-                <span id="homeXpNums" class="home-xp-nums">0 / 50.000 XP</span>
+                <span id="homeXpRank" class="home-xp-rank">LEVEL 1</span>
+                <span id="homeXpNums" class="home-xp-nums">0 / 100 XP</span>
+                <span id="homeXpNextLevel" class="home-xp-next">LEVEL 2</span>
             </div>
             <div class="home-xp-track">
                 <div id="homeXpFill" class="home-xp-fill"></div>
             </div>
-            <div class="home-xp-tap-hint">TAP TO VIEW RANKED ROAD</div>
         </div>
 
         <div class="home-play-area">
@@ -114,7 +108,7 @@
         </div>
     </div>
 
-    <!-- OVERLAY PAUSA -->
+    <!-- PAUSA -->
     <div id="pauseOverlay" class="pause-overlay">
         <div class="modal-card pause-panel">
             <h2>PAUSED</h2>
@@ -126,7 +120,7 @@
         </div>
     </div>
 
-    <!-- MODALE CONFERMA NUOVA PARTITA -->
+    <!-- CONFERMA NUOVA PARTITA -->
     <div id="confirmNewRunModal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -140,7 +134,7 @@
         </div>
     </div>
 
-    <!-- MODALE IMPOSTAZIONI -->
+    <!-- IMPOSTAZIONI -->
     <div id="settingsModal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -154,21 +148,18 @@
         </div>
     </div>
 
-    <!-- SCHERMATA PROFILO GIOCATORE -->
+    <!-- PROFILO GIOCATORE (SENZA STEMMI) -->
     <div id="profileModal" class="fullscreen-modal">
         <div class="fullscreen-header">
-            <h2>PLAYER PROFILE</h2>
+            <div class="header-title-group">
+                <h2>PLAYER PROFILE</h2>
+            </div>
             <button id="closeProfileBtn" class="close-fullscreen-btn">X</button>
         </div>
         <div class="profile-detail-body">
             <div class="profile-hero-card">
-                <div id="profileEquipSlotBtn" class="profile-equip-box">
-                    <div id="profileModalAvatar"></div>
-                    <span class="equip-box-hint">CHANGE BADGE</span>
-                </div>
-
                 <div class="username-display-row">
-                    <h3 id="profileModalUsername" class="profile-hero-name">PLAYER</h3>
+                    <span id="profileModalUsername" class="profile-hero-name">PLAYER</span>
                     <button id="editUsernameBtn" class="edit-name-btn">EDIT</button>
                 </div>
 
@@ -180,7 +171,7 @@
                     </div>
                 </div>
 
-                <div id="equippedTitleLabel" class="profile-hero-badge-tag">EQUIPPED: ROOKIE</div>
+                <div id="equippedTitleLabel" class="profile-hero-badge-tag">LEVEL 1</div>
                 <div id="profileModalStats" class="profile-hero-stats">GAMES: 0 | XP: 0</div>
             </div>
 
@@ -194,62 +185,25 @@
                     <span id="profileBestCombo" class="p-stat-val">0</span>
                 </div>
                 <div class="profile-stat-box blue-box">
-                    <span class="p-stat-label">CURRENT RANK</span>
-                    <span id="profileCurrentRank" class="p-stat-val">ROOKIE</span>
+                    <span class="p-stat-label">CURRENT LEVEL</span>
+                    <span id="profileCurrentRank" class="p-stat-val">LEVEL 1</span>
                 </div>
             </div>
-
-            <button id="goToBadgesFromProfileBtn" class="action-green-btn profile-badges-cta">CHANGE BADGE</button>
         </div>
     </div>
 
-    <!-- SCHERMATA UNLOCKED BADGES (STEMMI SBLOCCATI) -->
-    <div id="badgesModal" class="fullscreen-modal">
-        <div class="fullscreen-header">
-            <h2>UNLOCKED BADGES</h2>
-            <button id="closeBadgesBtn" class="close-fullscreen-btn">X</button>
-        </div>
-        <div class="ranked-status-strip">
-            <span id="badgesEquippedBanner" class="rank-badge-title">EQUIPPED: ROOKIE</span>
-            <span class="next-rank-hint">TAP A BADGE TO EQUIP</span>
-        </div>
-        <div id="badgesGridContainer" class="badges-fullscreen-grid"></div>
-    </div>
-
-    <!-- SCHERMATA RANKED ROAD (LIVELLI) -->
-    <div id="levelModal" class="fullscreen-modal">
-        <div class="fullscreen-header">
-            <div class="header-title-group">
-                <div id="rankedHeaderShield"></div>
-                <div>
-                    <h2>RANKED ROAD</h2>
-                    <div id="levelCurrentName" class="rank-badge-title">ROOKIE</div>
-                </div>
-            </div>
-            <button id="closeLevelBtn" class="close-fullscreen-btn">X</button>
-        </div>
-        <div class="ranked-status-strip">
-            <span id="levelXpText" class="xp-counter-text">0 / 100.000.000 XP</span>
-            <span id="nextRankHint" class="next-rank-hint">BRONZE • 50.000 XP</span>
-        </div>
-        <div class="ranked-road-viewport">
-            <div class="ranked-road-track">
-                <div id="levelNodesContainer" class="ranked-nodes-wrapper"></div>
-            </div>
-        </div>
-    </div>
- <div id="rankUpCelebration" class="fullscreen-modal celebration-overlay">
+    <!-- CELEBRAZIONE NUOVO LIVELLO -->
+    <div id="rankUpCelebration" class="fullscreen-modal celebration-overlay">
         <div id="fireworksContainer" class="fireworks-container"></div>
         <div class="celebration-card">
-            <div class="celebration-tag">NEW RANK UNLOCKED!</div>
-            <div id="celebrationShieldSlot" class="celebration-shield-slot"></div>
-            <div id="celebrationRankName" class="celebration-rank-name">BRONZE</div>
-            <div id="celebrationTitleUnlocked" class="celebration-title-unlocked">RANK 2 / 11</div>
+            <div class="celebration-tag">LEVEL UP!</div>
+            <div id="celebrationRankName" class="celebration-rank-name">LEVEL 2</div>
+            <div id="celebrationTitleUnlocked" class="celebration-title-unlocked">LEVEL 2 / 100</div>
             <button id="claimRankBtn" class="action-green-btn full-width-btn">AWESOME!</button>
         </div>
     </div>
 
-    <!-- SCHERMATA GAME OVER -->
+    <!-- GAME OVER -->
     <div id="gameOverScreen">
         <div class="gameover-panel">
             <h2>GAME OVER</h2>
@@ -258,9 +212,9 @@
 
             <div class="go-xp-progress-box">
                 <div class="go-xp-labels">
-                    <span id="goRankFrom">ROOKIE</span>
-                    <span id="goXpProgressText">0 / 50.000 XP</span>
-                    <span id="goRankTo">BRONZE</span>
+                    <span id="goRankFrom">LEVEL 1</span>
+                    <span id="goXpProgressText">0 / 100 XP</span>
+                    <span id="goRankTo">LEVEL 2</span>
                 </div>
                 <div class="go-xp-bar-track">
                     <div id="goXpBarFill" class="go-xp-bar-fill"></div>
@@ -276,6 +230,7 @@
                 <div class="mini-card gold-card">
                     <span class="mini-label">BEST</span>
                     <span id="finalRecord" class="mini-value">0</span>
+                </div>
                 </div>
                 <div class="mini-card fire-card">
                     <span class="mini-label">MAX COMBO</span>

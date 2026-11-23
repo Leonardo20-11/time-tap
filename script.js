@@ -1,4 +1,3 @@
-
 function initTimeTapGame() {
     const onboardingScreen = document.getElementById("onboardingScreen");
     const onboardingShieldPreview = document.getElementById("onboardingShieldPreview");
@@ -19,7 +18,6 @@ function initTimeTapGame() {
     const closeProfileBtn = document.getElementById("closeProfileBtn");
     const profileEquipSlotBtn = document.getElementById("profileEquipSlotBtn");
     const goToBadgesFromProfileBtn = document.getElementById("goToBadgesFromProfileBtn");
-    const profileModalAvatar = document.getElementById("profileModalAvatar");
     const profileModalUsername = document.getElementById("profileModalUsername");
     const profileModalStats = document.getElementById("profileModalStats");
     const equippedTitleLabel = document.getElementById("equippedTitleLabel");
@@ -35,9 +33,6 @@ function initTimeTapGame() {
 
     const openBadgesBtn = document.getElementById("openBadgesBtn");
     const badgesModal = document.getElementById("badgesModal");
-    const closeBadgesBtn = document.getElementById("closeBadgesBtn");
-    const badgesEquippedBanner = document.getElementById("badgesEquippedBanner");
-    const badgesGridContainer = document.getElementById("badgesGridContainer");
 
     const playBtn = document.getElementById("playBtn");
     const discardSavedBtn = document.getElementById("discardSavedBtn");
@@ -77,16 +72,15 @@ function initTimeTapGame() {
     const audioToggleBtn = document.getElementById("audioToggleBtn");
 
     const levelBtn = document.getElementById("levelBtn");
-    if (levelBtn) {
-        levelBtn.style.display = "none";
-    }
+    if (levelBtn) levelBtn.style.display = "none";
     const levelModal = document.getElementById("levelModal");
-    const closeLevelBtn = document.getElementById("closeLevelBtn");
-    const rankedHeaderShield = document.getElementById("rankedHeaderShield");
-    const levelCurrentName = document.getElementById("levelCurrentName");
-    const levelXpText = document.getElementById("levelXpText");
-    const nextRankHint = document.getElementById("nextRankHint");
-    const levelNodesContainer = document.getElementById("levelNodesContainer");
+    if (levelModal) levelModal.style.display = "none";
+    if (openBadgesBtn) openBadgesBtn.style.display = "none";
+    if (badgesModal) badgesModal.style.display = "none";
+    if (profileEquipSlotBtn) profileEquipSlotBtn.style.display = "none";
+    if (goToBadgesFromProfileBtn) goToBadgesFromProfileBtn.style.display = "none";
+    if (homeProfileShield) homeProfileShield.style.display = "none";
+    if (onboardingShieldPreview) onboardingShieldPreview.style.display = "none";
 
     const rankUpCelebration = document.getElementById("rankUpCelebration");
     const fireworksContainer = document.getElementById("fireworksContainer");
@@ -102,11 +96,25 @@ function initTimeTapGame() {
         document.body.appendChild(specialMessage);
     }
 
+    let homeXpNextLevel = document.getElementById("homeXpNextLevel");
+    if (!homeXpNextLevel && homeXpWidget) {
+        const topRow = homeXpWidget.querySelector(".home-xp-top");
+        if (topRow) {
+            homeXpNextLevel = document.createElement("span");
+            homeXpNextLevel.id = "homeXpNextLevel";
+            homeXpNextLevel.className = "home-xp-next";
+            topRow.appendChild(homeXpNextLevel);
+        }
+    }
+
     const LOCALE = "it-IT";
     const PAUSE_STATE_KEY = "timeTapSavedPausedState";
     const MAX_TIME = 8.0;
     const RING_CIRCUMFERENCE = 427.25;
     const BTN_RING_CIRCUMFERENCE = 314;
+    const MAX_LEVEL = 100;
+    const MAX_XP = 100000000;
+    const PAUSE_COOLDOWN_MS = 5000;
 
     const isDesktop = window.innerWidth >= 768;
     const baseTime = isDesktop ? 3.0 : 2.5;
@@ -120,6 +128,7 @@ function initTimeTapGame() {
     let maxComboRun = 0;
     let running = false;
     let isPaused = false;
+    let isResumingCountdown = false;
     let doubleBonus = false;
     let isFrozen = false;
     let isSlowMo = false;
@@ -145,89 +154,74 @@ function initTimeTapGame() {
     let gamesPlayed = Number(localStorage.getItem("gamesPlayed")) || 0;
     let totalScoreAccumulated = Number(localStorage.getItem("totalScoreAccumulated")) || 0;
     let storedBonusXP = Number(localStorage.getItem("storedBonusXP")) || 0;
-    let equippedBadgeLevel = Number(localStorage.getItem("equippedBadgeLevel")) || 1;
     let highestCelebratedLevel = Number(localStorage.getItem("highestCelebratedLevel")) || 1;
 
-    const LEVELS_CONFIG = [
-        { level: 1, name: "ROOKIE", title: "FRESH TAPPER", xpRequired: 0, gemColor: "#cbd5e1" },
-        { level: 2, name: "BRONZE", title: "FAST FINGERS", xpRequired: 50000, gemColor: "#fbbf24" },
-        { level: 3, name: "SILVER", title: "SHARP EYE", xpRequired: 250000, gemColor: "#f8fafc" },
-        { level: 4, name: "GOLD", title: "GOLDEN REFLEX", xpRequired: 900000, gemColor: "#fde047" },
-        { level: 5, name: "PLATINUM", title: "CHRONO KNIGHT", xpRequired: 2800000, gemColor: "#38bdf8" },
-        { level: 6, name: "EMERALD", title: "TIME HUNTER", xpRequired: 7500000, gemColor: "#34d399" },
-        { level: 7, name: "RUBY", title: "BLAZE TAPPER", xpRequired: 18000000, gemColor: "#fb7185" },
-        { level: 8, name: "MASTER", title: "TIME WARLORD", xpRequired: 35000000, gemColor: "#e879f9" },
-        { level: 9, name: "GRANDMASTER", title: "UNSTOPPABLE", xpRequired: 58000000, gemColor: "#fb923c" },
-        { level: 10, name: "LEGEND", title: "MYTHIC CHRONO", xpRequired: 80000000, gemColor: "#38bdf8" },
-        { level: 11, name: "IMMORTAL", title: "GOD OF TIME", xpRequired: 100000000, gemColor: "#fde047" }
-    ];
+    const LEVELS_CONFIG = [];
+    const EXPONENT = 3.2;
+    for (let lv = 1; lv <= MAX_LEVEL; lv++) {
+        let xpReq = 0;
+        if (lv === 1) {
+            xpReq = 0;
+        } else if (lv === MAX_LEVEL) {
+            xpReq = MAX_XP;
+        } else {
+            const ratio = (lv - 1) / (MAX_LEVEL - 1);
+            xpReq = Math.round(MAX_XP * Math.pow(ratio, EXPONENT));
+        }
+        LEVELS_CONFIG.push({
+            level: lv,
+            name: "LEVEL " + lv,
+            xpRequired: xpReq
+        });
+    }
 
     function fmtNum(n) {
         return Number(n || 0).toLocaleString(LOCALE);
     }
 
-    function getAggressiveCrestHTML(lvlObj, sizePx = 58) {
-        const tier = (lvlObj && typeof lvlObj.level === "number") ? lvlObj : LEVELS_CONFIG;
-        const lv = tier.level || 1;
-        const auraHtml = lv >= 5 ? '<div class="emblem-aura"></div>' : "";
-        const haloHtml = lv >= 9 ? '<div class="emblem-halo"></div>' : "";
-        const wingsClass = lv >= 8 ? "tier-high" : (lv >= 5 ? "tier-mid" : "");
-        const wingsHtml = lv >= 2 ? '<div class="emblem-wings ' + wingsClass + '"></div>' : "";
-        const bladesHtml = lv >= 7 ? '<div class="emblem-blades"></div>' : "";
-        const hornsHtml = lv >= 6 ? '<div class="emblem-horns"></div>' : "";
-        const crownHtml = lv >= 4 ? '<div class="emblem-crown"></div>' : "";
-        const sideGemsHtml = lv >= 8 ? '<div class="emblem-side-gems"><span></span><span></span></div>' : "";
-        const shieldClass = lv >= 6 ? "emblem-shield aggressive" : "emblem-shield";
-        const gemClass = lv >= 7 ? "emblem-gem star-cut" : "emblem-gem";
+    function calculateTotalXP() {
+        const xpFromGames = gamesPlayed * 2000;
+        const xpFromRecord = Math.floor(record * 0.1);
+        const xpFromScore = Math.floor(totalScoreAccumulated * 0.04);
+        return Math.min(MAX_XP, xpFromGames + xpFromRecord + xpFromScore + storedBonusXP);
+    }
 
-        return '<div class="rank-emblem lv-' + lv + '" style="--sz:' + sizePx + 'px; --gem:' + tier.gemColor + ';">' +
-auraHtml + haloHtml + wingsHtml + bladesHtml + hornsHtml + crownHtml + sideGemsHtml +
-'' +
-'' +
-'' +
-'' +
-'' +
-'' +
-'' +
-'';
-}
-function calculateTotalXP() {
-const xpFromGames = gamesPlayed * 2000;
-const xpFromRecord = Math.floor(record * 0.1);
-const xpFromScore = Math.floor(totalScoreAccumulated * 0.04);
-return Math.min(100000000, xpFromGames + xpFromRecord + xpFromScore + storedBonusXP);
-}
-function getCurrentAndNextTier(currentXP) {
-let currentTier = LEVELS_CONFIG;
-let nextTier = LEVELS_CONFIG || null;
-for (let i = 0; i < LEVELS_CONFIG.length; i++) {
-const item = LEVELS_CONFIG[i];
-if (currentXP >= item.xpRequired) {
-currentTier = item;
-nextTier = LEVELS_CONFIG[i + 1] || null;
-}
-}
-return { currentTier, nextTier };
-}
-function computeSegmentPercent(xpVal) {
-const { currentTier, nextTier } = getCurrentAndNextTier(xpVal);
-if (!nextTier) return 100;
-const span = nextTier.xpRequired - currentTier.xpRequired;
-if (span <= 0) return 100;
-return Math.max(0, Math.min(100, ((xpVal - currentTier.xpRequired) / span) * 100));
-}
-function hasSavedRun() {
-const raw = localStorage.getItem(PAUSE_STATE_KEY);
-if (!raw) return false;
-try {
-const saved = JSON.parse(raw);
-return Boolean(saved && typeof saved.time === "number" && saved.time > 0);
-} catch (e) {
-return false;
-}
-}
-function updateHomePlayButtonState() {
-if (!playBtn) return;
+    function getCurrentAndNextTier(currentXP) {
+        let currentTier = LEVELS_CONFIG[0];
+        let nextTier = LEVELS_CONFIG[1] || null;
+        for (let i = 0; i < LEVELS_CONFIG.length; i++) {
+            const item = LEVELS_CONFIG[i];
+            if (currentXP >= item.xpRequired) {
+                currentTier = item;
+                nextTier = LEVELS_CONFIG[i + 1] || null;
+            } else {
+                break;
+            }
+        }
+        return { currentTier, nextTier };
+    }
+
+    function computeSegmentPercent(xpVal) {
+        const { currentTier, nextTier } = getCurrentAndNextTier(xpVal);
+        if (!nextTier) return 100;
+        const span = nextTier.xpRequired - currentTier.xpRequired;
+        if (span <= 0) return 100;
+        return Math.max(0, Math.min(100, ((xpVal - currentTier.xpRequired) / span) * 100));
+    }
+
+    function hasSavedRun() {
+        const raw = localStorage.getItem(PAUSE_STATE_KEY);
+        if (!raw) return false;
+        try {
+            const saved = JSON.parse(raw);
+            return Boolean(saved && typeof saved.time === "number" && saved.time > 0);
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function updateHomePlayButtonState() {
+        if (!playBtn) return;
 if (hasSavedRun()) {
 playBtn.textContent = "CONTINUE";
 playBtn.classList.add("continue-mode");
@@ -238,26 +232,17 @@ playBtn.classList.remove("continue-mode");
 if (discardSavedBtn) discardSavedBtn.style.display = "none";
 }
 }
-function triggerEquipFlash(el) {
-if (!el) return;
-el.classList.remove("equip-glow-anim");
-void el.offsetWidth;
-el.classList.add("equip-glow-anim");
-}
 function refreshAllProfileAndRankUI(animateHomeBarFromXP = null) {
 const currentXP = calculateTotalXP();
 const { currentTier, nextTier } = getCurrentAndNextTier(currentXP);
-if (equippedBadgeLevel > currentTier.level) {
-equippedBadgeLevel = currentTier.level;
-localStorage.setItem("equippedBadgeLevel", equippedBadgeLevel);
-}
-const activeBadge = LEVELS_CONFIG.find(l => l.level === equippedBadgeLevel) || currentTier;
 const displayName = playerUsername || "PLAYER";
-if (homeProfileShield) homeProfileShield.innerHTML = getAggressiveCrestHTML(activeBadge, 48);
 if (homeProfileName) homeProfileName.textContent = displayName;
-if (homeProfileTitle) homeProfileTitle.textContent = activeBadge.name;
+if (homeProfileTitle) homeProfileTitle.textContent = currentTier.name;
 const targetPct = computeSegmentPercent(currentXP);
 if (homeXpRank) homeXpRank.textContent = currentTier.name;
+if (homeXpNextLevel) {
+homeXpNextLevel.textContent = nextTier ? nextTier.name : "MAX";
+}
 if (homeXpNums) {
 homeXpNums.textContent = nextTier
 ? fmtNum(currentXP) + " / " + fmtNum(nextTier.xpRequired) + " XP"
@@ -281,114 +266,18 @@ const recordEl = document.getElementById("record");
 const bestComboEl = document.getElementById("bestComboHome");
 if (recordEl) recordEl.textContent = fmtNum(record);
 if (bestComboEl) bestComboEl.textContent = fmtNum(bestCombo);
-if (profileModalAvatar) profileModalAvatar.innerHTML = getAggressiveCrestHTML(activeBadge, 78);
 if (profileModalUsername) profileModalUsername.textContent = displayName;
 if (profileModalStats) {
 profileModalStats.textContent = "GAMES: " + fmtNum(gamesPlayed) + " | XP: " + fmtNum(currentXP);
 }
 if (equippedTitleLabel) {
-equippedTitleLabel.textContent = "EQUIPPED: " + activeBadge.name;
+equippedTitleLabel.textContent = currentTier.name;
 }
 if (profileBestScore) profileBestScore.textContent = fmtNum(record);
 if (profileBestCombo) profileBestCombo.textContent = fmtNum(bestCombo);
 if (profileCurrentRank) profileCurrentRank.textContent = currentTier.name;
-if (badgesEquippedBanner) badgesEquippedBanner.textContent = "EQUIPPED: " + activeBadge.name;
-if (badgesGridContainer) {
-const unlockedLevels = LEVELS_CONFIG.filter(lvl => currentXP >= lvl.xpRequired);
-badgesGridContainer.innerHTML = unlockedLevels.map(lvl => {
-const isEquipped = lvl.level === equippedBadgeLevel;
-const cls = "badge-card tier-" + lvl.level + (isEquipped ? " equipped" : "");
-return '' +
-getAggressiveCrestHTML(lvl, 68) +
-'' + lvl.name + '' +
-'';
-}).join("");
-badgesGridContainer.querySelectorAll(".badge-card").forEach(card => {
-card.addEventListener("click", (e) => {
-e.stopPropagation();
-const chosenLvl = Number(card.getAttribute("data-lvl"));
-if (!chosenLvl) return;
-equippedBadgeLevel = chosenLvl;
-localStorage.setItem("equippedBadgeLevel", equippedBadgeLevel);
-playSynthEffect("gold");
-refreshAllProfileAndRankUI();
-if (badgesModal) badgesModal.style.display = "none";
-if (profileModal) {
-profileModal.style.display = "flex";
-triggerEquipFlash(profileModalAvatar);
-triggerEquipFlash(homeProfileShield);
-}
-});
-});
-}
-if (rankedHeaderShield) rankedHeaderShield.innerHTML = getAggressiveCrestHTML(currentTier, 52);
-if (levelCurrentName) levelCurrentName.textContent = currentTier.name;
-if (levelXpText) levelXpText.textContent = fmtNum(currentXP) + " / 100.000.000 XP";
-if (nextRankHint) {
-nextRankHint.textContent = nextTier
-? nextTier.name + " • " + fmtNum(nextTier.xpRequired) + " XP"
-: "MAX RANK";
-}
-if (levelNodesContainer) {
-levelNodesContainer.classList.add("ranked-nodes-wrapper");
-levelNodesContainer.innerHTML = LEVELS_CONFIG.map((lvl, i) => {
-const nextLvl = LEVELS_CONFIG[i + 1] || null;
-const unlocked = currentXP >= lvl.xpRequired;
-let fillPct = 0;
-let hasPin = false;
-if (nextLvl) {
-const span = nextLvl.xpRequired - lvl.xpRequired;
-if (currentXP >= nextLvl.xpRequired) {
-fillPct = 100;
-} else if (currentXP >= lvl.xpRequired) {
-fillPct = ((currentXP - lvl.xpRequired) / span) * 100;
-hasPin = true;
-}
-} else {
-fillPct = unlocked ? 100 : 0;
-hasPin = unlocked;
-}
-const stateClass = (nextLvl && currentXP >= nextLvl.xpRequired) || (!nextLvl && unlocked)
-? "completed"
-: (hasPin ? "active" : "locked");
-const pinHtml = hasPin
-? '' +
-'' +
-'' + fmtNum(currentXP) + '' +
-''
-: "";
-const connectorHtml = nextLvl
-? '' +
-'' +
-pinHtml +
-''
-: "";
-return '' +
-'' +
-getAggressiveCrestHTML(lvl, 58) +
-'' + fmtNum(lvl.xpRequired) + ' XP' +
-'' +
-connectorHtml +
-'';
-}).join("");
-}
 lastKnownXP = currentXP;
 updateHomePlayButtonState();
-}
-if (homeXpWidget && levelModal) {
-homeXpWidget.addEventListener("click", (e) => {
-e.stopPropagation();
-playSynthEffect("click");
-refreshAllProfileAndRankUI();
-levelModal.style.display = "flex";
-});
-}
-if (closeLevelBtn && levelModal) {
-closeLevelBtn.addEventListener("click", (e) => {
-e.stopPropagation();
-playSynthEffect("click");
-levelModal.style.display = "none";
-});
 }
 if (profileCornerBtn && profileModal) {
 profileCornerBtn.addEventListener("click", () => {
@@ -435,37 +324,6 @@ if (editUsernameBox) editUsernameBox.style.display = "none";
 refreshAllProfileAndRankUI();
 });
 }
-function openBadgesFromProfile(e) {
-if (e) e.stopPropagation();
-playSynthEffect("click");
-if (profileModal) profileModal.style.display = "none";
-refreshAllProfileAndRankUI();
-if (badgesModal) badgesModal.style.display = "flex";
-}
-if (profileEquipSlotBtn) {
-profileEquipSlotBtn.addEventListener("click", openBadgesFromProfile);
-}
-if (profileModalAvatar) {
-profileModalAvatar.style.cursor = "pointer";
-profileModalAvatar.addEventListener("click", openBadgesFromProfile);
-}
-if (goToBadgesFromProfileBtn) {
-goToBadgesFromProfileBtn.addEventListener("click", openBadgesFromProfile);
-}
-if (openBadgesBtn && badgesModal) {
-openBadgesBtn.addEventListener("click", () => {
-playSynthEffect("click");
-refreshAllProfileAndRankUI();
-badgesModal.style.display = "flex";
-});
-}
-if (closeBadgesBtn && badgesModal) {
-closeBadgesBtn.addEventListener("click", (e) => {
-e.stopPropagation();
-playSynthEffect("click");
-badgesModal.style.display = "none";
-});
-}
 function launchFireworksShow() {
 if (!fireworksContainer) return;
 fireworksContainer.innerHTML = "";
@@ -502,16 +360,16 @@ const { currentTier } = getCurrentAndNextTier(currentXP);
 if (currentTier.level > highestCelebratedLevel) {
 highestCelebratedLevel = currentTier.level;
 localStorage.setItem("highestCelebratedLevel", highestCelebratedLevel);
-equippedBadgeLevel = currentTier.level;
-localStorage.setItem("equippedBadgeLevel", equippedBadgeLevel);
 refreshAllProfileAndRankUI();
 if (rankUpCelebration) {
-if (celebrationShieldSlot) celebrationShieldSlot.innerHTML = getAggressiveCrestHTML(currentTier, 108);
+if (celebrationShieldSlot) celebrationShieldSlot.style.display = "none";
 if (celebrationRankName) celebrationRankName.textContent = currentTier.name;
-if (celebrationTitleUnlocked) celebrationTitleUnlocked.textContent = "RANK " + currentTier.level + " / 11";
+if (celebrationTitleUnlocked) {
+celebrationTitleUnlocked.textContent = "LEVEL " + currentTier.level + " / " + MAX_LEVEL;
+}
 rankUpCelebration.style.display = "flex";
 playSynthEffect("newrecord");
-speakEnglish("New rank unlocked! " + currentTier.name, 1.05, 1.15);
+speakEnglish("Level up! " + currentTier.name, 1.05, 1.15);
 launchFireworksShow();
 }
 }
@@ -523,26 +381,10 @@ rankUpCelebration.style.display = "none";
 });
 }
 const SPECIAL_SVGS = {
-bomb: '' +
-'' +
-'' +
-'' +
-'' +
-'' +
-'' +
-'',
-ice: '' +
-'' +
-'' +
-'',
-clock: '' +
-'' +
-'' +
-'' +
-'',
-gold: '' +
-'' +
-''
+bomb: '',
+ice: '',
+clock: '',
+gold: ''
 };
 let soundEnabled = localStorage.getItem("soundEnabled") !== "false";
 function updateAudioButton() {
@@ -754,18 +596,38 @@ pauseBtn.textContent = "II";
 }
 }
 function pauseGame() {
-if (!running || isPaused || pauseCooldownRemainingMs > 0) return;
+if (!running || isPaused || isResumingCountdown || pauseCooldownRemainingMs > 0) return;
 isPaused = true;
 savePausedGameState();
 if (pauseOverlay) pauseOverlay.style.display = "flex";
 }
+function runResumeCountdown(onComplete) {
+if (isResumingCountdown) return;
+isResumingCountdown = true;
+initAudio();
+if (pauseOverlay) pauseOverlay.style.display = "none";
+if (menu) menu.style.display = "none";
+if (game) game.style.display = "block";
+if (pauseBtn) pauseBtn.disabled = true;
+countdown.style.display = "block";
+triggerCountdownStep("3", "beep", "Three!", 1.0);
+setTimeout(() => triggerCountdownStep("2", "beep", "Two!", 1.05), 1000);
+setTimeout(() => triggerCountdownStep("1", "beep", "One!", 1.1), 2000);
+setTimeout(() => triggerCountdownStep("GO!", "go", "Go!", 1.2), 3000);
+setTimeout(() => {
+countdown.style.display = "none";
+isResumingCountdown = false;
+onComplete();
+}, 4000);
+}
 function resumeGame() {
-if (!isPaused) return;
+if (!isPaused || isResumingCountdown) return;
+runResumeCountdown(() => {
 isPaused = false;
 clearSavedPausedState();
-if (pauseOverlay) pauseOverlay.style.display = "none";
-pauseCooldownRemainingMs = 6000;
+pauseCooldownRemainingMs = PAUSE_COOLDOWN_MS;
 updatePauseButtonUI();
+});
 }
 function finalizeRunStatsAndShowSummary() {
 const xpBeforeRun = calculateTotalXP();
@@ -787,7 +649,8 @@ const baseRunXP = 2000 + Math.floor(score * 0.1) + (isNewBest ? 1500 : 0);
 const withPcXP = Math.floor(baseRunXP * pcMultiplier);
 const comboBonusXP = Math.floor(withPcXP * (comboBonusPct / 100));
 const finalRunXP = withPcXP + comboBonusXP;
-const naturalFormulaDiff = (2000 + Math.floor(score * 0.04) + (isNewBest ? Math.floor((score - record) * 0.1) : 0));
+const diffPart = isNewBest ? Math.floor((score - record) * 0.1) : 0;
+const naturalFormulaDiff = 2000 + Math.floor(score * 0.04) + diffPart;
 const extraToStore = Math.max(0, finalRunXP - Math.max(0, naturalFormulaDiff));
 storedBonusXP += extraToStore;
 localStorage.setItem("gamesPlayed", gamesPlayed);
@@ -801,8 +664,7 @@ const xpAfterRun = calculateTotalXP();
 const earnedXP = Math.max(0, xpAfterRun - xpBeforeRun);
 if (xpEarnedBadge) {
 const comboLabel = comboBonusPct > 0 ? " + " + comboBonusPct + "% COMBO" : "";
-const pcLabel = isDesktop ? " +25% PC" : "";
-xpEarnedBadge.textContent = "+" + fmtNum(earnedXP) + " XP" + comboLabel + pcLabel;
+xpEarnedBadge.textContent = "+" + fmtNum(earnedXP) + " XP" + comboLabel;
 }
 const { currentTier: tierAfter, nextTier: nextAfter } = getCurrentAndNextTier(xpAfterRun);
 if (goRankFrom) goRankFrom.textContent = tierAfter.name;
@@ -852,10 +714,13 @@ clearSavedPausedState();
 }
 running = false;
 isPaused = false;
+isResumingCountdown = false;
 isFrozen = false;
 isSlowMo = false;
 doubleBonus = false;
 overdriveRemainingMs = 0;
+pauseCooldownRemainingMs = 0;
+updatePauseButtonUI();
 clearInterval(gameLoopInterval);
 while (activeButtons.length > 0) {
 const b = activeButtons.shift();
@@ -933,19 +798,25 @@ freezeRemainingMs = saved.freezeRemainingMs || 0;
 isSlowMo = Boolean(saved.isSlowMo);
 slowMoRemainingMs = saved.slowMoRemainingMs || 0;
 overdriveRemainingMs = saved.overdriveRemainingMs || 0;
+pauseCooldownRemainingMs = 0;
 if (menu) menu.style.display = "none";
-if (countdown) countdown.style.display = "none";
 if (game) game.style.display = "block";
 timerCircle.textContent = time.toFixed(1);
 scoreText.textContent = "SCORE: " + fmtNum(score);
 comboText.textContent = "COMBO " + comboCount;
+updateTimerVisuals();
 if (Array.isArray(saved.buttons)) {
 saved.buttons.forEach(bData => createButton(bData));
 }
+running = true;
+isPaused = true;
+runResumeCountdown(() => {
+isPaused = false;
 clearSavedPausedState();
 startGame(true);
-pauseCooldownRemainingMs = 6000;
+pauseCooldownRemainingMs = PAUSE_COOLDOWN_MS;
 updatePauseButtonUI();
+});
 } catch (e) {
 clearSavedPausedState();
 startCountdown();
@@ -1004,6 +875,8 @@ score = 0;
 comboCount = 0;
 maxComboRun = 0;
 overdriveRemainingMs = 0;
+pauseCooldownRemainingMs = 0;
+updatePauseButtonUI();
 normalSpawnsSinceLastSpecial = 8;
 if (timerCircle) timerCircle.textContent = time.toFixed(1);
 if (scoreText) scoreText.textContent = "SCORE: 0";
@@ -1065,6 +938,8 @@ speakEnglish(spoken, 1.08, pitch);
 }
 function startCountdown() {
 initAudio();
+pauseCooldownRemainingMs = 0;
+updatePauseButtonUI();
 menu.style.display = "none";
 countdown.style.display = "block";
 triggerCountdownStep("3", "beep", "Three!", 1.0);
@@ -1126,13 +1001,14 @@ timerCircle.classList.remove("timer-panic");
 }
 function startGame(isRestored = false) {
 running = true;
-updatePauseButtonUI();
-updateTimerVisuals();
 if (!isRestored) {
+pauseCooldownRemainingMs = 0;
 normalSpawnsSinceLastSpecial = 8;
 createButton();
 createButton();
 }
+updatePauseButtonUI();
+updateTimerVisuals();
 const TICK_MS = 50;
 clearInterval(gameLoopInterval);
 gameLoopInterval = setInterval(() => {
@@ -1474,20 +1350,20 @@ return;
 } else if (action === "ice") {
 playSynthEffect("ice");
 isFrozen = true;
-freezeRemainingMs = 1000;
+freezeRemainingMs = isDesktop ? 1700 : 1000;
 updateTimerVisuals();
 spawnTapRipple(centerX, centerY, "#38bdf8");
 spawnStars(centerX, centerY, "ice");
-spawnFloatingText(centerX, centerY, "FREEZE 1s!", "#7dd3fc");
+spawnFloatingText(centerX, centerY, isDesktop ? "FREEZE 1.7s!" : "FREEZE 1s!", "#7dd3fc");
 showMessage("FREEZE!", "Freeze!");
 } else if (action === "clock") {
 playSynthEffect("clock");
 isSlowMo = true;
-slowMoRemainingMs = 1500;
+slowMoRemainingMs = isDesktop ? 2550 : 1500;
 updateTimerVisuals();
 spawnTapRipple(centerX, centerY, "#c084fc");
 spawnStars(centerX, centerY, "clock");
-spawnFloatingText(centerX, centerY, "SLOW 1.5s!", "#e9d5ff");
+spawnFloatingText(centerX, centerY, isDesktop ? "SLOW 2.55s!" : "SLOW 1.5s!", "#e9d5ff");
 showMessage("SLOW TIME!", "Slow time!");
 } else if (action === "bomb") {
 triggerScreenShake();
@@ -1503,10 +1379,10 @@ return;
 } else if (action === "gold") {
 playSynthEffect("gold");
 doubleBonus = true;
-doubleBonusRemainingMs = 1000;
+doubleBonusRemainingMs = isDesktop ? 1700 : 1000;
 spawnTapRipple(centerX, centerY, "#fde047");
 spawnStars(centerX, centerY, "gold");
-spawnFloatingText(centerX, centerY, "2X TIME 1s!", "#facc15");
+spawnFloatingText(centerX, centerY, isDesktop ? "2X TIME 1.7s!" : "2X TIME 1s!", "#facc15");
 showMessage("2X TIME!", "Double time!");
 }
 timerCircle.textContent = time.toFixed(1);
@@ -1571,10 +1447,13 @@ function gameOver() {
 if (!running) return;
 running = false;
 isPaused = false;
+isResumingCountdown = false;
 isFrozen = false;
 isSlowMo = false;
 doubleBonus = false;
 overdriveRemainingMs = 0;
+pauseCooldownRemainingMs = 0;
+updatePauseButtonUI();
 clearSavedPausedState();
 clearInterval(gameLoopInterval);
 timerCircle.classList.remove("timer-panic", "timer-frozen", "timer-slowmo", "timer-max-cap");
@@ -1586,7 +1465,7 @@ if (firstBtn && firstBtn.parentNode) firstBtn.remove();
 finalizeRunStatsAndShowSummary();
 }
 document.addEventListener("keydown", (event) => {
-if (!running) return;
+if (!running || isResumingCountdown) return;
 const k = event.key.toLowerCase();
 if (k === "d") {
 event.preventDefault();
@@ -1605,9 +1484,6 @@ if (menu) menu.style.display = "flex";
 checkAndTriggerRankUpCelebration();
 }
 function runStartupSequence() {
-if (onboardingShieldPreview) {
-onboardingShieldPreview.innerHTML = getAggressiveCrestHTML(LEVELS_CONFIG, 88);
-}
 if (!playerUsername) {
 if (onboardingScreen) onboardingScreen.style.display = "flex";
 } else {
